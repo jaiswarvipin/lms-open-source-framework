@@ -242,80 +242,97 @@ function init(){
  Created By 	: Jaiswar Vipin Kumar R.
 /**************************************************************************/
 function openEditModel(pModelRefenceObject, pIntRecordCode, isEdit){
+	var objFrom		= $('#'+$('#'+pModelRefenceObject).find('form').attr('id'));
 	/* Mass updated */
 	if(pIntRecordCode == 'selected'){	
 		/* Iterating the code */
 		if($('input[name="chkLeadCode[]"]:checked').length  == 0){
 			showToast('Atleast one lead should selected.');
+		}else{
+			var strleadArr	= strLeadCode	= strLeadOwnerCode = '';
+			
+			$('input[name="chkLeadCode[]"]').each(function (){
+				var strleadArr	= $(this).val().split(DELIMITER);
+				if(strLeadCode == ''){
+					strLeadCode			= strleadArr[0];
+					strLeadOwnerCode	= strleadArr[1];
+				}else{
+					strLeadCode			= strLeadCode + DELIMITER + strleadArr[0];
+					strLeadOwnerCode	= strLeadOwnerCode + DELIMITER + strleadArr[1];
+				}
+			});
+			
+			$(objFrom).find('#txtLeadCode').val(strLeadCode);
+			$(objFrom).find('#txtLeadOwnerCode').val(strLeadOwnerCode);
+			$('#'+pModelRefenceObject).modal('open');
 		}
-		$('#'+pModelRefenceObject).modal('open');
 		return false;
-	}
-	
-	$('#'+pModelRefenceObject).modal('open');
-	$('#txtDeleteRecordCode').val(pIntRecordCode);
-	$('#txtCode').val(pIntRecordCode);
-	$('.cmdSearchReset').addClass('hide');
-	$('.no-search').removeClass('hide');
-	$('.no-add').addClass('hide');
-	var objFrom		= $('#'+$('#'+pModelRefenceObject).find('form').attr('id'));
-	objectRefrence	= null;
-	
-	if($('.addItemInModule').length == 0){
-		$('#txtRoleCode').val(pIntRecordCode);
-	}
-	
-	if('divFieldMapping' == pModelRefenceObject){
-		$('#txtModuleFieldCode').val(pIntRecordCode);
-		$('#frmGetDataByCode').append('<input type="hidden" name="txtModuleFieldCode" id="txtModuleFieldCode" value="'+pIntRecordCode+'" />');
-	}
-	
-	switch(parseInt(isEdit)){
-		case 1:
-			showLoader();
-			postUserRequest('frmGetDataByCode');
-			objectRefrence	= pModelRefenceObject;
-			$('.spnActionText').html('Edit');
-			break;
-		case 2:
-			if($('#frmLeadsColumnSearch').length == 1){
-				objFrom	= 'frmAddNewLead';
-				$('.cmdDMLAction').attr('formname','frmAddNewLead');
-			}
-			$('.spnActionText').html('Add New');
-			$(objFrom)[0].reset();
-			$(objFrom).find('input[type=hidden]').val('');
-			$(objFrom).find('select').material_select();
-			break;
-		case 3:
-			if($('#frmLeadsColumnSearch').length == 1){
-				objFrom	= 'frmLeadsColumnSearch';
-				$('.cmdDMLAction').attr('formname','frmLeadsColumnSearch');
-				$('#'+objFrom).find('input[id="txtSearch"]').val('1');
-			}else{
-				$(objFrom).find("#txtSearch").val('1');
-			}
-			$('.spnActionText').html('Search');
-			
-			$('.cmdSearchReset').removeClass('hide');
-			$('.no-search').addClass('hide');
-			$('.no-add').removeClass('hide');
-			if($('#txtSearchFilters').html() != ''){
-				$(objFrom).find(':input:enabled:visible:first').focus();
-				var strSearchArr	= jQuery.parseJSON($('#txtSearchFilters').html());
-				$.each(strSearchArr, function(strElementRefObj, strElementValue){
-					$(objFrom).find('#'+strElementRefObj).val(strElementValue);
-				});
+	}else{
+		
+		$('#'+pModelRefenceObject).modal('open');
+		$('#txtDeleteRecordCode').val(pIntRecordCode);
+		$('#txtCode').val(pIntRecordCode);
+		$('.cmdSearchReset').addClass('hide');
+		$('.no-search').removeClass('hide');
+		$('.no-add').addClass('hide');
+		objectRefrence	= null;
+		
+		if($('.addItemInModule').length == 0){
+			$('#txtRoleCode').val(pIntRecordCode);
+		}
+		
+		if('divFieldMapping' == pModelRefenceObject){
+			$('#txtModuleFieldCode').val(pIntRecordCode);
+			$('#frmGetDataByCode').append('<input type="hidden" name="txtModuleFieldCode" id="txtModuleFieldCode" value="'+pIntRecordCode+'" />');
+		}
+		
+		switch(parseInt(isEdit)){
+			case 1:
+				showLoader();
+				postUserRequest('frmGetDataByCode');
+				objectRefrence	= pModelRefenceObject;
+				$('.spnActionText').html('Edit');
+				break;
+			case 2:
+				if($('#frmLeadsColumnSearch').length == 1){
+					objFrom	= 'frmAddNewLead';
+					$('.cmdDMLAction').attr('formname','frmAddNewLead');
+				}
+				$('.spnActionText').html('Add New');
+				$(objFrom)[0].reset();
+				$(objFrom).find('input[type=hidden]').val('');
 				$(objFrom).find('select').material_select();
-			}
-			
-			break;
-		/* Setting Lead follow-up details */
-		case 4:
-			var strleadArr	= pIntRecordCode.split(DELIMITER);
-			$(objFrom).find('#txtLeadCode').val(strleadArr[0]);
-			$(objFrom).find('#txtLeadOwnerCode').val(strleadArr[1]);
-			break;
+				break;
+			case 3:
+				if($('#frmLeadsColumnSearch').length == 1){
+					objFrom	= 'frmLeadsColumnSearch';
+					$('.cmdDMLAction').attr('formname','frmLeadsColumnSearch');
+					$('#'+objFrom).find('input[id="txtSearch"]').val('1');
+				}else{
+					$(objFrom).find("#txtSearch").val('1');
+				}
+				$('.spnActionText').html('Search');
+				
+				$('.cmdSearchReset').removeClass('hide');
+				$('.no-search').addClass('hide');
+				$('.no-add').removeClass('hide');
+				if($('#txtSearchFilters').html() != ''){
+					$(objFrom).find(':input:enabled:visible:first').focus();
+					var strSearchArr	= jQuery.parseJSON($('#txtSearchFilters').html());
+					$.each(strSearchArr, function(strElementRefObj, strElementValue){
+						$(objFrom).find('#'+strElementRefObj).val(strElementValue);
+					});
+					$(objFrom).find('select').material_select();
+				}
+				
+				break;
+			/* Setting Lead follow-up details */
+			case 4:
+				var strleadArr	= pIntRecordCode.split(DELIMITER);
+				$(objFrom).find('#txtLeadCode').val(strleadArr[0]);
+				$(objFrom).find('#txtLeadOwnerCode').val(strleadArr[1]);
+				break;
+		}
 	}
 }
 

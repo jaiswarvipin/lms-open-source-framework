@@ -152,7 +152,7 @@ class Widget{
 	/* Returns	: Search HTML of respective panel.
 	/* Created By : Jaiswar Vipin Kumar R.
 	/***************************************************************************/
-	public function getColumnAsSearchPanel($pStrColumnArray = array()){
+	public function getColumnAsSearchPanel($pStrColumnArray = array()){	
 		/* Variable initialization */
 		$strReturmHTML	= '<div class="row no-add">';
 		
@@ -169,6 +169,11 @@ class Widget{
 		
 		/* Iterating the loop */
 		foreach($pStrColumnArray as $pStrColumnArrayKey => $pStrColumnArrayValue){
+			/* if data column is not set then do needful */
+			if(!isset($pStrColumnArrayValue['column'])){
+				continue;
+			}
+			
 			/* Checking for element type */
 			if(isset($pStrColumnArrayValue['is_date'])){
 			}else if(isset($pStrColumnArrayValue['dropdown'])){

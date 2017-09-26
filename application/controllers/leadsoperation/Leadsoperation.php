@@ -162,8 +162,9 @@ class LeadsOperation extends Requestprocess {
 		$intStatusCode		= ($this->input->post('cboStatusCode')!='')?getDecyptionValue($this->input->post('cboStatusCode')):0;
 		$intTaskTypeCode	= ($this->input->post('cboTaskTypeCode')!='')?getDecyptionValue($this->input->post('cboTaskTypeCode')):0;
 		$strComments		= ($this->input->post('txtComments')!='')?$this->input->post('txtComments'):'';
-		$intLeadCode		= ($this->input->post('txtLeadCode')!='')?getDecyptionValue($this->input->post('txtLeadCode')):0;
-		$intLeadownerCode	= ($this->input->post('txtLeadOwnerCode')!='')?getDecyptionValue($this->input->post('txtLeadOwnerCode')):0;
+		$intLeadCodeArr		= ($this->input->post('txtLeadCode')!='')?((strstr($this->input->post('txtLeadCode'),DELIMITER))?explode(DELIMITER,$this->input->post('txtLeadCode')):array($this->input->post('txtLeadCode'))):array();
+		$intLeadownerCodeArr= ($this->input->post('txtLeadOwnerCode')!='')?((strstr($this->input->post('txtLeadOwnerCode'),DELIMITER))?explode(DELIMITER,$this->input->post('txtLeadOwnerCode')):array($this->input->post('txtLeadOwnerCode'))):array();
+		//$intLeadownerCode	= ($this->input->post('txtLeadOwnerCode')!='')?getDecyptionValue($this->input->post('txtLeadOwnerCode')):0;
 		
 		/* Checking to all valid information passed */
 		if($strDate == ''){
@@ -186,32 +187,37 @@ class LeadsOperation extends Requestprocess {
 			/* Return Information */
 			jsonReturn(array('status'=>0,'message'=>'Follow-up comments is empty.'), true);
 		}
-		if($intLeadCode == 0){
+		if(empty($intLeadCodeArr)){
 			/* Return Information */
 			jsonReturn(array('status'=>0,'message'=>'Lead reference is not found. Can not perform requested action.'), true);
 		}
-		if($intLeadownerCode == 0){
+		if(empty($intLeadownerCodeArr)){
 			/* Return Information */
 			jsonReturn(array('status'=>0,'message'=>'Lead Owner reference is not found. Can not perform requested action.'), true);
 		}
-		
-		/* Task Update Array */
-		$strTaskUpdateArr						= array();
-		$strTaskUpdateArr['leadCode']			= $intLeadCode;
-		$strTaskUpdateArr['leadOwnerCode']		= $intLeadownerCode;
-		$strTaskUpdateArr['next_follow_date']	= getDateFormat($strDate.$strTime,1).'00';
-		$strTaskUpdateArr['taskTypeCode']		= $intTaskTypeCode;
-		$strTaskUpdateArr['updatedBy']			= $this->getUserCode();
-		$strTaskUpdateArr['comments']			= $strComments;
-		$strTaskUpdateArr['statusCode']			= $intStatusCode;
-		
+		 
 		/* Creating task object */
 		$taskObj		= new Task($this->_objDataOperation, $this->getCompanyCode());
-		/* Get task type list */
-		$intTaskStatus	= $taskObj->setTask($strTaskUpdateArr);
-		/* Removed used variables */
-		unset($taskObj);
 		
+		/* Iterating the lead loop */
+		foreach($intLeadCodeArr as $intLeadCodeKey => $intLeadCode){
+			/* Task Update Array */
+			$strTaskUpdateArr						= array();
+			$strTaskUpdateArr['leadCode']			= getDecyptionValue($intLeadCode);
+			$strTaskUpdateArr['leadOwnerCode']		= getDecyptionValue($intLeadownerCodeArr[$intLeadCodeKey]);
+			$strTaskUpdateArr['next_follow_date']	= getDateFormat($strDate.$strTime,1).'00';
+			$strTaskUpdateArr['taskTypeCode']		= $intTaskTypeCode;
+			$strTaskUpdateArr['updatedBy']			= $this->getUserCode();
+			$strTaskUpdateArr['comments']			= $strComments;
+			$strTaskUpdateArr['statusCode']			= $intStatusCode;
+			
+			/* Get task type list */
+			$intTaskStatus	= $taskObj->setTask($strTaskUpdateArr);	
+		}
+		
+		/* Removed used variables */
+		unset($taskObj, $intLeadCodeArr, $intLeadownerCodeArr);
+			
 		/* Return task status */
 		if($intTaskStatus == 0){
 			/* Return Information */
