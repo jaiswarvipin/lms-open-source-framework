@@ -1,0 +1,25 @@
+.had-container{
+	/* padding: 10px 10px 10px 10px !important */
+	padding: 0px 0px 0px 0px !important
+}
+.bg-red{
+	background-color: red;
+}
+.bg-menu{
+	background-color: blue;	
+}
+.w100{
+	width: 100px !important;
+}
+.w150{
+	width: 150px !important;
+}
+.w200{
+	width: 200px !important;
+}
+.pt10{
+	padding-top: 10px;
+}
+.mt10{
+	margin-top: 10px;
+}

@@ -1,0 +1,266 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"save",
+				"save_path"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 126.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/Volumes/NO NAME/angel-broking/parallax/index.php",
+		"/Applications/AMPPS/phpMyAdmin/js/jqplot/jquery.jqplot.js",
+		"/Library/WebServer/Documents/api/service_app/public/temp/1-20170712094855.txt.html",
+		"/Library/WebServer/Documents/api/service_app/public/temp/1-20170712092719.txt.html",
+		"/Library/WebServer/Documents/api/service_app/public/temp/1-20170712085149.txt.html",
+		"/Library/WebServer/Documents/api/service_app/public/temp/1-20170712083528.txt.html",
+		"/Library/WebServer/Documents/api/service_app/public/temp/1-20170711144921.txt.html",
+		"/Library/WebServer/Documents/api/service_app/public/temp/1-20170711135855.txt.html",
+		"/Users/vipin/Downloads/374039.html",
+		"/Library/WebServer/Documents/api/service_app/public/temp/1-20170711123721.txt.html",
+		"/Library/WebServer/Documents/api/service_app/application/config/custom_config.inc.php",
+		"/Users/vipin/Library/Containers/com.apple.mail/Data/Library/Mail Downloads/D0496039-BE82-4721-A120-28D0F0671E1C/justbuylivemock_21062017.sql",
+		"/Library/WebServer/Documents/api/service_app/public/temp/final/final/dejavuserifcondensed.mtx.php",
+		"/Library/WebServer/Documents/api/service_app/public/temp/final/final/roboto.mtx.php",
+		"/Library/WebServer/Documents/api/service_app/public/temp/final/roboto.mtx.php",
+		"/Users/vipin/Downloads/FPDI-1.6.2/composer.json",
+		"/Users/vipin/Library/Containers/com.apple.mail/Data/Library/Mail Downloads/72A21B69-9733-4F9A-BF68-E9B032C14597/tbl_jbl_service_details.sql",
+		"/Applications/AMPPS/ampps/softaculous/enduser/languages/japanese/admin/editplans_lang.php",
+		"/Users/vipin/Downloads/tbl_jbl_gst_hsn_master.sql",
+		"/Users/vipin/Library/Containers/com.apple.mail/Data/Library/Mail Downloads/5475CD7C-2FDF-4715-A719-5D25C173ECCF/tbl_jbl_udhaar_gst_details.sql",
+		"/Users/vipin/Library/Containers/com.apple.mail/Data/Library/Mail Downloads/7A4EFE2D-2B41-499E-8C0F-563F7FE14BD5/tbl_jbl_udhaar_gst_details (2).sql",
+		"/Users/vipin/Documents/JBL/Ad hock work/Pulling Brand Invoice and Airway Bill/awb_sequence.sql",
+		"/Users/vipin/Downloads/tbl_scm_po_master.sql",
+		"/Users/vipin/Downloads/tpyo-amazon-s3-php-class-9cf2eec/S3.php",
+		"/Users/vipin/Selenium/workspace/JBLAdmin/src/jbl/panel/admin/product.java",
+		"/Users/vipin/Downloads/tbl_jbl_client_address_master_new.sql",
+		"/Library/WebServer/Documents/panel/admin/application/controllers/Justpaycron.php",
+		"/private/var/folders/60/t3c3fxt96rz2xqzzswpp191m0000ks/T/com.apple.mail/com.apple.mail/compose/attach/getSurvey.js",
+		"/Library/WebServer/Documents/panel/brand/application/config/database.php",
+		"/Library/WebServer/Documents/panel/admin/application/helpers/default_helper.php",
+		"/Library/WebServer/Documents/panel/admin/application/controllers/Login.php",
+		"/Library/WebServer/Documents/panel/admin/resources/js/suvidha_users.js",
+		"/Library/WebServer/Documents/panel/admin/application/views/suvidha_users.php",
+		"/Library/WebServer/Documents/panel/admin/application/models/Justpay_mpr_model.php",
+		"/Library/WebServer/Documents/panel/admin/application/controllers/Suvidha_users.php",
+		"/Library/WebServer/Documents/panel/admin/application/controllers/Justpay_mpr_report.php",
+		"/Library/WebServer/Documents/panel/admin/application/controllers/Fos_device_assignment.php",
+		"/Library/WebServer/Documents/panel/admin/application/views/justpay_mpr_report.php",
+		"/Library/WebServer/Documents/panel/admin/resources/js/justpay_mpr_report.js",
+		"/Library/WebServer/Documents/panel/admin/resources/js/fos_device_assignment.js",
+		"/Library/WebServer/Documents/panel/admin/application/models/Suvidha_users_model.php",
+		"/Library/WebServer/Documents/panel/admin/application/models/Fos_device_assignment_model.php",
+		"/Library/WebServer/Documents/panel/admin/application/models/Admin_user_model.php",
+		"/Library/WebServer/Documents/panel/admin/application/models/User_master_model.php",
+		"/Library/WebServer/Documents/panel/admin/resources/js/warehouse.js",
+		"/Library/WebServer/Documents/panel/admin/resources/js/user_master.js",
+		"/Library/WebServer/Documents/panel/admin/public/Gruntfile.js",
+		"/Library/WebServer/Documents/panel/admin/application/config/config.php",
+		"/Library/WebServer/Documents/panel/admin/application/config/database.php",
+		"/Library/WebServer/Documents/panel/admin/system/libraries/Session/drivers/Session_files_driver.php",
+		"/Library/WebServer/Documents/panel/admin/.htaccess",
+		"/Library/WebServer/Documents/panel/admin/application/models/Product_listing_model.php",
+		"/Library/WebServer/Documents/panel/admin/resources/js/product_listing.js",
+		"/Library/WebServer/Documents/panel/admin/index.php",
+		"/Library/WebServer/Documents/panel/admin/application/controllers/Product_listing.php",
+		"/Library/WebServer/Documents/panel/admin/application/views/retailer_landing/product_listing.php",
+		"/Library/WebServer/Documents/panel/admin/resources/plugins/datatable-responsive/datatables.responsive.min.js",
+		"/Library/WebServer/Documents/panel/admin/application/config/config.inc.php",
+		"/Library/WebServer/Documents/panel/admin/system/core/Common.php",
+		"/Library/WebServer/Documents/index.php"
+	],
+	"find":
+	{
+		"height": 26.0
+	},
+	"find_in_files":
+	{
+		"height": 93.0,
+		"where_history":
+		[
+			"/Library/WebServer/Documents/panel/admin"
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": true,
+		"find_history":
+		[
+			"font-size:30px;",
+			"\\n",
+			"\\r\\n",
+			"^",
+			"hotel",
+			"\t",
+			"$",
+			"^",
+			"common_curl_call",
+			"getMprReportData",
+			"JUSTPAY_TRANS_STATUS_OPTIONS",
+			"get_retailer_bank_details",
+			"view_bank_details",
+			"datatable_fixed_column_wrapper",
+			"lengthMenu",
+			"_MENU_",
+			"_MENU",
+			"aLengthMenu",
+			"checkAuth",
+			"');\n",
+			"CURL_URL_SKU",
+			"auditLoginData",
+			"checklogin",
+			"sess_save_path",
+			"open",
+			"->open",
+			"open",
+			"auditLoginData",
+			"checklogin",
+			"The configuration file does not exist."
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": true,
+		"replace_history":
+		[
+			"",
+			"',",
+			"',\\r",
+			"'",
+			"','",
+			"'),",
+			"('"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 26.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "welcome_message.sublime-project",
+	"replace":
+	{
+		"height": 48.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": false,
+	"side_bar_width": 322.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
