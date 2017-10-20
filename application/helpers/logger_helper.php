@@ -143,6 +143,7 @@ class Logger{
 				foreach($strLocationArr as $strLocationArrKey => $strLocationArrValue){
 					$strLoggerArr['region'][getEncyptionValue($strLocationArrValue['region_code'])]	= $strLocationArrValue['region_name'];
 					$strLoggerArr['branch'][getEncyptionValue($strLocationArrValue['branch_code'])]	= $strLocationArrValue['branch_name'];
+					$strLoggerArr['locationAssociation'][getEncyptionValue($strLocationArrValue['region_code'])][getEncyptionValue($strLocationArrValue['branch_code'])]	= getEncyptionValue($strLocationArrValue['branch_code']);
 				}
 			}
 			/* Removed used variables */
@@ -184,7 +185,8 @@ class Logger{
 			/* Removed used object */
 			unset($leadSourceObj, $strLeadSourceArr);
 			
-			
+			/* Variable initialization */
+			$strLoggerArr['defaultStatusCode']	= 0;			
 			/* Creating lead status object */
 			$leadStatusObj 		= new status($this->_objDefaultModel , $strLoggerArr['user_info']['company_code']);
 			/* Get lead status array */
@@ -195,9 +197,13 @@ class Logger{
 				foreach($strLeadStatusArr as $strLeadStatusArrKey => $strLeadStatusArrValue){
 					/* Settings lead source */
 					$strLoggerArr['leadStatus'][getEncyptionValue($strLeadStatusArrValue['id'])] = $strLeadStatusArrValue;
+					
+					if((int)$strLeadStatusArrValue['is_default'] == 1){
+						$strLoggerArr['defaultStatusCode']  = getEncyptionValue($strLeadStatusArrValue['id']);
+					}
 				}
 			}else{
-				$strLoggerArr['leadStatus']	= array();
+				$strLoggerArr['leadStatus']			= array();
 			}
 			
 			/* Removed used object */

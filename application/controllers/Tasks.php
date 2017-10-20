@@ -49,9 +49,11 @@ class Tasks	 extends Requestprocess {
 		$strDataArr['getRecordByCodeUri']	= SITE_URL.__CLASS__.'/getLeadDetailsWithRequest';
 		$strDataArr['strDataAddEditPanel']	= 'taskModules';
 		$strDataArr['strSearchArr']			= (!empty($_REQUEST))?jsonReturn($_REQUEST):jsonReturn(array());
-		$strDataArr['strAddPanel']			= $this->getNewLeadPanel();
+		$strDataArr['strAddPanel']			= $this->getLeadOperationPanel(0);
+		$strDataArr['strLeadFollowuppanel']	= $this->getLeadOperationPanel(1);
+		$strDataArr['strLeadTransferPanel']	= $this->getLeadOperationPanel(2);
+		$strDataArr['strLeadProfile']		= $this->getLeadOperationPanel(3);
 		$strDataArr['strColumnSearchPanel']	= $this->getColumnAsSearchPanel(array_merge($this->_strColumnArr,array('frmName'=>'frmLeadsColumnSearch')),SITE_URL.__CLASS__);
-		$strDataArr['strLeadFollowuppanel']	= $this->getLeadFollowDetails();
 		
 		/* Load the View */
 		$dataArr['body']	= $this->load->view('leads/all-leads', $strDataArr, true);
@@ -160,12 +162,12 @@ class Tasks	 extends Requestprocess {
 			$strWhereClauseArr['limit']	 = DEFAULT_RECORDS_ON_PER_PAGE;
 		}
 		
-		/* Creating lead object */
-		$leadObj	= new Lead($this->_objDataOperation, $this->getCompanyCode(), $this->getBranchCodes());
-		/* Getting lead array */
-		$strLeadArr	= $leadObj->getLeadDetialsByLogger($pBlnCountNeeded, $strWhereClauseArr);
+		/* Creating task object */
+		$taskObj = new Task($this->_objDataOperation, $this->getCompanyCode(), $this->getBranchCodes());
+		/* Get task details */
+		$strLeadArr	= $taskObj->getTaskList($pBlnCountNeeded, $strWhereClauseArr);
 		/* removed used variables */
-		unset($leadObj);
+		unset($taskObj);
 		
 		/* if lead details found then do needful */
 		if(!empty($strLeadArr)){
@@ -173,6 +175,9 @@ class Tasks	 extends Requestprocess {
 			if($pBlnCountNeeded){
 				$strReturnArr	= $strLeadArr;
 			}else{
+				/* Setting current date and time */
+				$intTodaysDate	= date('Ymd');
+				
 				/* Iterating the loop */
 				foreach($strLeadArr as $strLeadArrKey => $strLeadArrValue){	
 					/* Iterating the lead details array */
@@ -181,7 +186,20 @@ class Tasks	 extends Requestprocess {
 						$strReturnArr[$strLeadArrKey][$strColumnArrValue['column']]	= $this->getLeadAttributeDetilsByAttributeKey($strColumnArrValue['column'], $strLeadArrValue[$strColumnArrValue['column']]);
 					}
 					/* Setting the lead code */
-					$strReturnArr[$strLeadArrKey]['lead_code']	= $strLeadArrValue['lead_code'];
+					$strReturnArr[$strLeadArrKey]['lead_code']		= $strLeadArrValue['lead_code'];
+					
+					/* Checking for today's task  */
+					if((int)substr($strLeadArrValue['next_followup_date'],0,8)  == (int)$intTodaysDate){
+						/* Setting the task colour code */
+						$strReturnArr[$strLeadArrKey]['task_notifi']	= ' style="background-color:green;color:#ffffff;"';
+					/* Checking for Pending date task  */
+					}else if((int)substr($strLeadArrValue['next_followup_date'],0,8)  < (int)$intTodaysDate){
+						/* Setting the task colour code */
+						$strReturnArr[$strLeadArrKey]['task_notifi']	= ' style="background-color:red;color:#ffffff;"';
+					}else{
+						/* Setting the task colour code */
+						$strReturnArr[$strLeadArrKey]['task_notifi']	= '';
+					}
 				}
 			}
 		}

@@ -49,9 +49,11 @@ class Leads	 extends Requestprocess {
 		$strDataArr['getRecordByCodeUri']	= SITE_URL.__CLASS__.'/getLeadDetailsWithRequest';
 		$strDataArr['strDataAddEditPanel']	= 'leadModules';
 		$strDataArr['strSearchArr']			= (!empty($_REQUEST))?jsonReturn($_REQUEST):jsonReturn(array());
-		$strDataArr['strAddPanel']			= $this->getNewLeadPanel();
 		$strDataArr['strColumnSearchPanel']	= $this->getColumnAsSearchPanel(array_merge($this->_strColumnArr,array('frmName'=>'frmLeadsColumnSearch')),SITE_URL.__CLASS__);
-		$strDataArr['strLeadFollowuppanel']	= $this->getLeadFollowDetails();
+		$strDataArr['strAddPanel']			= $this->getLeadOperationPanel(0);
+		$strDataArr['strLeadFollowuppanel']	= $this->getLeadOperationPanel(1);
+		$strDataArr['strLeadTransferPanel']	= $this->getLeadOperationPanel(2);
+		$strDataArr['strLeadProfile']		= $this->getLeadOperationPanel(3);
 		
 		/* Load the View */
 		$dataArr['body']	= $this->load->view('leads/all-leads', $strDataArr, true);
@@ -218,7 +220,7 @@ class Leads	 extends Requestprocess {
 		}
 		/* Removed used variables */
 		unset($strModuleArr);
-		
+		$strReturnArr[]	= array('column'=>'lead_source_code','label'=>'Source','dropdown'=>'1','data'=>$this->_objForm->getDropDown($this->getRegionDetails(),''));
 		$strReturnArr[]	= array('column'=>'region_code','label'=>'Region','dropdown'=>'1','data'=>$this->_objForm->getDropDown($this->getRegionDetails(),''));
 		$strReturnArr[]	= array('column'=>'branch_code','label'=>'Branch','dropdown'=>'1','data'=>$this->_objForm->getDropDown($this->getBranchDetails(),''));
 		$strReturnArr[]	= array('column'=>'lead_owner_code','label'=>'Lead owner','dropdown'=>'1','data'=>'');

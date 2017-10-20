@@ -14,7 +14,8 @@ class Lead{
 	/***************************************************************************/
 	/* Purpose	: Initialization
 	/* Inputs 	: pDatabaesObjectRefrence :: Database object reference,
-				: $pIntCompanyCode :: company code
+				: $pIntCompanyCode :: company code,
+				: $pStrBranchCodeArr :: Branch Code Array
 	/* Returns	: None.
 	/* Created By 	: Jaiswar Vipin Kumar R.
 	/***************************************************************************/
@@ -118,28 +119,32 @@ class Lead{
 		
 		/* if module url is not passed then do needful */
 		if($strModuleURL == ''){
-			/* Return Empty error */
-			return $strReturnArr;
+			/* Filter array */
+			$strFilterArr	= array(
+										'table'=>'master_lead_attributes',
+										'where'=>array('master_lead_attributes.company_code'=>$this->_intCompanyCode),
+										'column'=>array('attri_slug_name','attri_slug_key','attri_value_list','attri_data_type','is_mandatory','attri_validation')
+								);
+		}else{
+			/* Filter array */
+			$strFilterArr	= array(
+										'table'=>array('mater_module_lead_attribute','master_lead_attributes','master_modues'),
+										'join'=>array('','mater_module_lead_attribute.attri_code = master_lead_attributes.id','master_modues.id = mater_module_lead_attribute.module_code'),
+										'where'=>array('master_modues.module_url'=>$strModuleURL, 'master_lead_attributes.company_code'=>$this->_intCompanyCode),
+										'column'=>array('module_code', 'attri_code','attri_slug_name','attri_slug_key','attri_value_list','attri_data_type','is_mandatory','attri_validation')
+								);
 		}
-		
-		/* Query builder Array */
-		$strFilterArr	= array(
-									'table'=>array('mater_module_lead_attribute','master_lead_attributes','master_modues'),
-									'join'=>array('','mater_module_lead_attribute.attri_code = master_lead_attributes.id','master_modues.id = mater_module_lead_attribute.module_code'),
-									'where'=>array('master_modues.module_url'=>$strModuleURL,'master_lead_attributes.company_code'=>$this->_intCompanyCode),
-									'column'=>array('module_code', 'attri_code','attri_slug_name','attri_slug_key','attri_value_list','attri_data_type','is_mandatory','attri_validation')
-							);
 		
 		/* getting record from modules lead attribute */
 		return $this->_databaseObject->getDataFromTable($strFilterArr);
 		
 		/* removed used variables */
-		unset($strFilterArr);
+		unset($strFilterArr, $strWhereArr);
 	}
 	
 	/***************************************************************************/
 	/* Purpose	: get lead details by lead code.
-	/* Inputs 	: $pIsCountNeed :: Coounter needed,
+	/* Inputs 	: $pIsCountNeed :: Counter needed,
 				: $pStrFilterArr :: Lead filter.
 	/* Returns	: lead details array details.
 	/* Created By 	: Jaiswar Vipin Kumar R.

@@ -12,7 +12,7 @@
 	              <th>Action</th>
 	          </tr>
 	        </thead>
-	        <tbody id="tblLeadContaierBody"">
+	        <tbody id="tblLeadContaierBody">
 				<?php if((!empty($dataSet)) && (!empty($strColumnsArr))){?>
 					<?php foreach($dataSet as $dataSetKey => $dataSetValue){?>
 						<tr>
@@ -24,7 +24,10 @@
 									<td><?php echo $dataSetValue[$strColumnsArrValue['column']]?></td>
 								<?php }?>
 							<?php }?>
-							<td><a href="javascript:void(0);" onclick="openEditModel('divlLeadFolloupDetails','<?php echo getEncyptionValue($dataSetValue['lead_code']).DELIMITER.getEncyptionValue($dataSetValue['lead_owner_code'])?>',4);" class="waves-effect waves-circle waves-light btn-floating secondary-content"><i class="material-icons">edit</i></a></td>
+							<td>
+								<a href="javascript:void(0);" onclick="openEditModel('divLeadProfileDetails','<?php echo getEncyptionValue($dataSetValue['lead_code']).DELIMITER.''?>',4);" class="waves-effect waves-circle waves-light btn-floating secondary-content"><i class="material-icons">add</a>
+								<a href="javascript:void(0);" onclick="openEditModel('divlLeadFolloupDetails','<?php echo getEncyptionValue($dataSetValue['lead_code']).DELIMITER.getEncyptionValue($dataSetValue['lead_owner_code'])?>',4);" class="waves-effect waves-circle waves-light btn-floating secondary-content"><i class="material-icons">edit</i></a>
+							</td>
 						</tr>
 					<?php }?>
 				<?php }?>
@@ -48,3 +51,5 @@
     </div>
 </div>
 <?php echo $strLeadFollowuppanel?>
+<?php echo $strLeadTransferPanel?>
+<?php echo $strLeadProfile?>

@@ -31,7 +31,31 @@ function processRequestAfterResponse(pStrFormName, pStrResponseObject){
 			case 'frmCompanyRegistration':
 				
 				break;
-			
+			case 'frmDynamicEventDataSet':
+				$('#'+objectRefrence).find("option").hide();
+				
+				var strReturnArr	= jQuery.parseJSON(objResponse.message);
+				$.each(strReturnArr, function(strKeyColumn, strColumnValue){
+					$('#'+objectRefrence).children('option[value="'+strColumnValue+'"]').show();
+				});
+				$('#'+objectRefrence).material_select();
+				return false;
+				
+				break;
+			case 'frmLeadProfileDetails':
+				$.each(objResponse.message, function(strKeyColumn, strColumnValue){
+					$.each(strColumnValue, function(strColumnValuekey , strColumnValueDetails){
+						/* Search the lead attribute and set the value */
+						if($('#txtProfile'+strColumnValuekey).length == 1){
+							/* Setting the value */
+							$('#txtProfile'+strColumnValuekey).val(strColumnValueDetails);
+						}else if(strColumnValuekey == 'strHistory'){
+							$('#divCommuncationHistoryContrainer').html(strColumnValueDetails);
+						}
+					});
+				});
+				return false;
+				break;
 			case 'frmGetDataByCode':
 				if(objResponse.message){
 					showToast(objResponse.message);
@@ -125,8 +149,6 @@ function processRequestAfterResponse(pStrFormName, pStrResponseObject){
 							});
 						});
 					}
-					
-					
 				}
 				return false;
 				break;
@@ -231,6 +253,9 @@ function init(){
 		ampmclickable: true, // make AM PM clickable
 		aftershow: function(){} //Function for after opening timepicker
 	});
+	
+	/* Register the events */
+	setPullDownEvents();
 }
 
 /**************************************************************************
@@ -243,6 +268,7 @@ function init(){
 /**************************************************************************/
 function openEditModel(pModelRefenceObject, pIntRecordCode, isEdit){
 	var objFrom		= $('#'+$('#'+pModelRefenceObject).find('form').attr('id'));
+	
 	/* Mass updated */
 	if(pIntRecordCode == 'selected'){	
 		/* Iterating the code */
@@ -331,7 +357,12 @@ function openEditModel(pModelRefenceObject, pIntRecordCode, isEdit){
 				var strleadArr	= pIntRecordCode.split(DELIMITER);
 				$(objFrom).find('#txtLeadCode').val(strleadArr[0]);
 				$(objFrom).find('#txtLeadOwnerCode').val(strleadArr[1]);
+				
+				if(strleadArr[1] == ''){
+					postUserRequest('frmLeadProfileDetails');
+				}
 				break;
+			
 		}
 	}
 }
@@ -463,4 +494,27 @@ function removeOptions(objRefrence){
 /**************************************************************************/
 function addFieldRowInTable(pAttriniteCode , pStrAttributeName){
 	return '<tr><td><input type="hidden" id="txtFiledCode[]" name="txtFiledCode[]" value="'+pAttriniteCode+'" /><span>'+pStrAttributeName+'</span></td><td><a href="javascript:void(0);" onclick="removeOptions(this);" class="waves-effect waves-circle waves-light btn-floating secondary-content red"><i class="material-icons">delete</i></a>&nbsp;</td></tr>';
+}
+
+/**************************************************************************
+ Purpose 		: Adding the pull down event on change event based on object.
+ Inputs  		: pFormRefrence :: Form Reference.
+ Return 		: None.
+ Created By 	: Jaiswar Vipin Kumar R
+/**************************************************************************/
+function setPullDownEvents(){
+	/* Checking the select object to check the dependency */
+	$('select').each(function(){
+		/* checking the dependency the target element */
+		if($(this).attr('check-dependency') && $(this).attr('dependency-element')){
+			var strAction	= $(this).attr('check-dependency');
+			objectRefrence	= $(this).attr('dependency-element');
+			$(this).bind('change',function(){
+				$('#frmDynamicEventDataSet').append('<input type="hidden" name="txtRegionCode" id="txtRegionCode" value="'+$(this).val()+'" />');
+				$('#frmDynamicEventDataSet').attr('action',SITE_URL+'leadsoperation/leadsoperation/'+strAction);
+				postUserRequest('frmDynamicEventDataSet');
+			});
+		}
+		
+	})
 }

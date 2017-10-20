@@ -12,6 +12,7 @@ class Requestprocess extends CI_Controller {
 	private $_intUserCode					= 0;
 	private $_intCompanyCode				= 0;
 	private $_intAdminCode 					= 0;
+	private $_intDefaultStatusCode 			= 0;
 	private $_strMainModule					= '';
 	private $_strChildModule				= '';
 	private $_strRegionArr					= array();
@@ -19,6 +20,7 @@ class Requestprocess extends CI_Controller {
 	private $_leadAttriArr					= array();
 	private $_strLeadSourceArr				= array();
 	private $_strLeadStatusArr				= array();
+	private $_strLocationAssocArr			= array();
 
 	/**********************************************************************/
 	/*Purpose 	: Default method to be executed.
@@ -28,9 +30,15 @@ class Requestprocess extends CI_Controller {
 	public function __construct(){
 		/* CI call execution */
 		parent::__construct();
-
+		
 		/* Creating model comment instance object */
 		$this->_objDataOperation	= new Dbrequestprocess_model();
+		
+		/* if CRON request then do needful */
+		if($this->uri->segment(1) == 'crons'){
+			/* Return execution control to CRON calling controller */ 
+			return;
+		}
 
 		/* Process the logger request */
 		$this->_doValidateRequest();
@@ -94,6 +102,12 @@ class Requestprocess extends CI_Controller {
 		/* Decoding the logger */
 		$ObjStrLoggerDetails	= json_decode($pStrLoggerDetailsArr[0]['logger_data']);
 		
+		/* Checking looger details request */
+		if(isset($_COOKIE['logger'])){
+			/* Display the looger details and exit the operation */
+			debugVar($ObjStrLoggerDetails, true);
+		}
+		
 		/* Logger variable declaration */
 		$strLoggerName				= $ObjStrLoggerDetails->user_info->name;
 		$this->_intUserCode			= $ObjStrLoggerDetails->user_info->id;
@@ -106,6 +120,8 @@ class Requestprocess extends CI_Controller {
 		$this->_leadAttriArr		= (array)$ObjStrLoggerDetails->leadAttr;
 		$this->_strLeadSourceArr	= (array)$ObjStrLoggerDetails->leadSource;
 		$this->_strLeadStatusArr	= (array)$ObjStrLoggerDetails->leadStatus;
+		$this->_strLocationAssocArr	= (array)$ObjStrLoggerDetails->locationAssociation;
+		$this->_intDefaultStatusCode= $ObjStrLoggerDetails->defaultStatusCode;
 		
 		/* Global variable declaration */
 		$this->load->vars(array(
@@ -140,7 +156,7 @@ class Requestprocess extends CI_Controller {
 		/* return company code */
 		return $this->_intCompanyCode;
 	}
-
+	
 	/**********************************************************************/
 	/*Purpose 	: get user admin flag.
 	/*Inputs	: None.
@@ -277,6 +293,18 @@ class Requestprocess extends CI_Controller {
 		return $this->_strLeadStatusArr;
 	}
 	
+	
+	/**********************************************************************/
+	/*Purpose 	: get default status code.
+	/*Inputs	: None.
+	/*Returns	: Default Status Code.
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
+	public function getDefaultStatusCode(){
+		/* return default status code */
+		return $this->_intDefaultStatusCode;
+	}
+	
 	/**********************************************************************/
 	/*Purpose 	: Get lead status details.
 	/*Inputs	: None.
@@ -310,16 +338,17 @@ class Requestprocess extends CI_Controller {
 	
 	/**********************************************************************/
 	/*Purpose 	: Module field array.
-	/*Inputs	: $pStrModuleURL = Module URL.
+	/*Inputs	: $pStrModuleURL = Module URL,
+				: $pBlnByassValidation :: module empty check by passing
 	/*Returns	: Module list.
 	/*Created By: Jaiswar Vipin Kumar R.
 	/**********************************************************************/
-	public function getModuleAssociatedFieldByModuleURL($pStrModuleURL = ''){
+	public function getModuleAssociatedFieldByModuleURL($pStrModuleURL = '', $pBlnByassValidation = false){
 		/* Variable initialization */
 		$strReturnArr	= array();
 		
 		/* If module URL is empty then do needful */
-		if($pStrModuleURL == ''){
+		if(($pStrModuleURL == '') && (!$pBlnByassValidation)){
 			/* Return Empty Array */
 			return $strReturnArr;
 		}
@@ -377,7 +406,8 @@ class Requestprocess extends CI_Controller {
 					$strKeyValue	= isset($this->_strRegionArr[getEncyptionValue($pStrValue)])?$this->_strRegionArr[getEncyptionValue($pStrValue)]:'-';
 					break;
 				case 'leadSource':
-					$strKeyValue	= isset($this->_strLeadSourceArr[getEncyptionValue($pStrValue)])?$this->_strLeadSourceArr[getEncyptionValue($pStrValue)]:'-';
+				case 'lead_source_code':
+					$strKeyValue	= isset($this->_strLeadSourceArr[getEncyptionValue($pStrValue)])?$this->_strLeadSourceArr[getEncyptionValue($pStrValue)]->description:'-';
 					break;
 				case 'lead_owner_code':
 					$strKeyValue	= isset($this->_strLeadSourceArr[getEncyptionValue($pStrValue)])?$this->_strLeadSourceArr[getEncyptionValue($pStrValue)]:$pStrValue;
@@ -395,12 +425,15 @@ class Requestprocess extends CI_Controller {
 	}
 	
 	/**********************************************************************/
-	/*Purpose 	: Get new panel view.
-	/*Inputs	: None.
-	/*Returns 	: None.
+	/*Purpose 	: Generating lead operation panel based on requests code.
+	/*Inputs	: $pIntOperationCode :: Request code.
+				: 0: New Lead; 1: Follow-up, 2: Transfer, 3: Lead Profile
+	/*Returns 	: New panel HTML.
 	/*Created By: Jaiswar Vipin Kumar R.
 	/**********************************************************************/
-	public function getNewLeadPanel(){
+	public function getLeadOperationPanel($pIntOperationCode = 0){
+		/* Variable initialization */
+		$strReturnHTML	= '';
 		/* Checking lead operation class is loaded */
 		if ( ! class_exists('LeadsOperation')){
 			/* If not then add include it */
@@ -409,35 +442,30 @@ class Requestprocess extends CI_Controller {
 
 		/* Creating lead operation object */		
 		$leadsOperationObj = new LeadsOperation();
-		/* Getting new panel HTML */
-		$strNewPanelHTML   =  $leadsOperationObj->getNewLeadPanel();
+		switch($pIntOperationCode){
+			/* Getting new panel HTML */
+			case 0:
+				$strReturnHTML   =  $leadsOperationObj->getNewLeadPanel();
+				break;
+			/* Getting lead follow-up panel HTML */
+			case 1:
+				$strReturnHTML   =  $leadsOperationObj->getLeadFollowDetails();
+				break;
+			/* Getting lead transfer panel HTML */
+			case 2:
+				$strReturnHTML   =  $leadsOperationObj->getLeadTransferPanel();
+				break;
+			/* Creating the lead profile panel */
+			case 3:
+				/* Get lead profile panel HTML */
+				$strReturnHTML   = $leadsOperationObj->getLeadPofilePanel();
+				break;
+		}
+		
 		/* Removed used variables */
 		unset($leadsOperationObj);
-		/* Return Add New Lead HTML */
-		return $strNewPanelHTML;
-	}
-	
-	/**********************************************************************/
-	/*Purpose 	: Get lead follow-up panel view.
-	/*Inputs	: None.
-	/*Returns 	: None.
-	/*Created By: Jaiswar Vipin Kumar R.
-	/**********************************************************************/
-	public function getLeadFollowDetails(){
-		/* Checking lead operation class is loaded */
-		if ( ! class_exists('LeadsOperation')){
-			/* If not then add include it */
-           require_once(APPPATH.'controllers\leadsoperation\LeadsOperation.php');
-        }
-
-		/* Creating lead operation object */		
-		$leadsOperationObj = new LeadsOperation();
-		/* Getting lead follow-up panel HTML */
-		$strleadFolluUpPanelHTML   =  $leadsOperationObj->getLeadFollowDetails();
-		/* Removed used variables */
-		unset($leadsOperationObj);
-		/* Return lead follow-up HTML */
-		return $strleadFolluUpPanelHTML;
+		/* Return requested HTML Panel */
+		return $strReturnHTML;
 	}
 	
 	/**********************************************************************/
@@ -457,5 +485,43 @@ class Requestprocess extends CI_Controller {
 		
 		/* Return HTML */
 		return $strSearchHTML;
+	}
+	
+	/**********************************************************************/
+	/*Purpose 	: Get Branch list by selected region code.
+	/* Inputs 	: $pIntRegionCodeArr :: Region Code array.
+	/* Returns	: Branch list.
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
+	public function getBranchListByRegionCode($pIntRegionCodeArr = array()){
+		/* variable initialization */
+		$strReturnArray	= array();
+		
+		/* if not region passed then do needful */
+		if(empty($pIntRegionCodeArr)){
+			/* Return empty array */
+			return array('status'=>0,'message'=>jsonReturn($strReturnArray));
+		}
+		
+		/* Iterating the loop */
+		foreach($pIntRegionCodeArr as $strLocationAssocArrKey => $strLocationAssocArrDetails){
+			/* Variable initialization */
+			$strKeyValue	= getDecyptionValue($strLocationAssocArrDetails);
+			
+			/* if region found then do needful */
+			if(isset($this->_strLocationAssocArr[$strKeyValue])){
+				/* if return array is empty then of needful */
+				if(empty($strReturnArray)){
+					/* Assignment */
+					$strReturnArray	= array_keys((array)$this->_strLocationAssocArr[$strKeyValue]);
+				}else{
+					/* Merge the other branch */
+					$strReturnArray	= array_merge($strReturnArray, array_keys((array)$this->_strLocationAssocArr[$strKeyValue]));
+				}
+			}
+		}
+		
+		/* return the branch code array */
+		return array('status'=>1,'message'=>jsonReturn($strReturnArray));
 	}
 }

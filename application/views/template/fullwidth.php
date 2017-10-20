@@ -71,6 +71,8 @@
 							<li><a class="searchItemInModule" href="javascript:void(0);" onclick="openEditModel('<?php echo $strDataAddEditPanel?>','',3);"><i class="material-icons">search</i>Search</a></li>
 							<li class="divider"></li>
 						<?php }?>
+						<li><a href="javascript:void(0);" onclick="openEditModel('divlLeadTransfer','selected',4);"><i class="material-icons">transfer_within_a_station</i>Lead(s) Transfer</a></li>
+						<li class="divider"></li>
 						<li><a href="#!"><i class="material-icons">email</i>Mass Email</a></li>
 						<li class="divider"></li>
 						<li><a href="javascript:void(0);" onclick="openEditModel('divlLeadFolloupDetails','selected',4);"><i class="material-icons">update</i>Mass Update</a></li>
@@ -82,6 +84,7 @@
 			<?php echo getEditContentForm($getRecordByCodeUri);?>
 			<?php echo getFormStrecture($moduleUri,'frmModuleSearch');?>
 			<?php if(isset($strCustomUri)) { echo getFormStrecture($strCustomUri,'frmCustom');};?>
+			<?php echo getFormStrecture('','frmDynamicEventDataSet');?>
 			<span class="hide" name="txtSearchFilters" id="txtSearchFilters"><?php echo $strSearchArr?></span>
 		</div>
 	</div>

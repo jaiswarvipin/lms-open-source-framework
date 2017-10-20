@@ -14,15 +14,18 @@ class Task{
 	/***************************************************************************/
 	/* Purpose	: Initialization
 	/* Inputs 	: pDatabaesObjectRefrence :: Database object reference,
-				: $pIntCompanyCode :: company code
+				: $pIntCompanyCode :: company code,
+				: $pStrBranchCodeArr :: Branch Code Array
 	/* Returns	: None.
 	/* Created By 	: Jaiswar Vipin Kumar R.
 	/***************************************************************************/
-	public function __construct($pDatabaesObjectRefrence, $pIntCompanyCode = 0){
+	public function __construct($pDatabaesObjectRefrence, $pIntCompanyCode = 0, $pStrBranchCodeArr = array()){
 		/* database reference */
 		$this->_databaseObject	= $pDatabaesObjectRefrence;
 		/* Company Code */
 		$this->_intCompanyCode	= $pIntCompanyCode;
+		/* Setting Branch Code */
+		$this->_strBranchCodeArr= decodeKeyValueArr($pStrBranchCodeArr, true);
 	}
 	
 	/***************************************************************************/
@@ -83,6 +86,7 @@ class Task{
 		$strComments		= isset($pTaskArr['comments'])?$pTaskArr['comments']:'-';
 		$intUpdatedBySystem	= isset($pTaskArr['isSystem'])?$pTaskArr['isSystem']:0;
 		$intStatusCode		= isset($pTaskArr['statusCode'])?$pTaskArr['statusCode']:0;
+		
 		$intTransStatus		= 0;
 		/* Requested details is not found then do needful */
 		if(($intLeadCode == 0) || ($intLeadOwnerCode == 0)){
@@ -138,7 +142,7 @@ class Task{
 																);
 
 		
-		if($intStatusCode > 0){
+		if((int)$intStatusCode > 0){
 			/* Setting new task of same lead */
 			$intTransStatus	= $this->_databaseObject->getDirectQueryResult("update master_leads set last_followup_date = next_followup_date, next_followup_date = '".$inNetxFollowUpDate."', status_code = ".$intStatusCode.", comments ='".$strComments."', updated_by = ".$intUpdateBy.", updated_date =".date('YmdHis')." where id = ".$intLeadCode);
 		}							
@@ -160,9 +164,106 @@ class Task{
 													);
 		/* Removed used variables */
 		unset($communicationHistoryObj);
-		
+		exit;
 		/* Return task transaction status */
 		return $intTransStatus;
+	}
+	
+	/***************************************************************************/
+	/* Purpose	: Getting task list by requested filter.
+	/* Inputs 	: $pStrFilterArr :: Filter array.
+	/* Returns	: Task List.
+	/* Created By: Jaiswar Vipin Kumar R.
+	/***************************************************************************/
+	public function getTaskList($pBlnCountNeeded = false, $pStrFilterArr = array()){
+		/* Variable initialization */
+		$strReturnArr	= array();
+		$strColumn		= $strWhere		= '';
+		
+		/* Setting column */
+		$strColumn					= 'master_leads.*, trans_leads_'.$this->_intCompanyCode.'.* ,master_lead_source.description as souce_name, master_status.description as status_name, master_leads.record_date as lead_created_date, 0 as taskNotifiation';
+		
+		/* if lead filter is not empty then do needful */
+		if(!empty($pStrFilterArr)){
+			/* Removed page limit */
+			unset($pStrFilterArr['offset'] , $pStrFilterArr['limit']);
+			
+			/* Iterating the loop */
+			foreach($pStrFilterArr as $pStrFilterArrKey => $pStrFilterArrValue){
+				if(strstr($pStrFilterArrKey,'like')!=''){
+					/*Checking for like clause */
+					$strWhere	.= " AND ".str_replace('like','',$pStrFilterArrKey)." like  '%".$pStrFilterArrValue."%'";
+				}else{
+					/* Setting normal filer */
+					$strWhere	.= ' AND '.$pStrFilterArrKey.' = '.$pStrFilterArrValue;
+				}
+			}
+		}
+		
+		/* if needed count */
+		if($pBlnCountNeeded){
+			$strColumn	= 'COUNT(master_leads.id) as recordCount ';
+		}
+		
+		/* Creating Query */
+		$strQuery		= 	'
+									SELECT 
+										'.$strColumn.'
+									FROM master_leads
+										INNER JOIN trans_leads_'.$this->_intCompanyCode.' ON master_leads.id = trans_leads_'.$this->_intCompanyCode.'.lead_code
+										INNER JOIN master_lead_source ON  master_lead_source.id = master_leads.lead_source_code
+										INNER JOIN master_status ON master_status.id = master_leads.status_code
+									WHERE 
+										master_leads.deleted = 0
+										AND trans_leads_'.$this->_intCompanyCode.'.deleted = 0
+										AND master_lead_source.deleted = 0 
+										AND master_status.deleted = 0
+										AND master_leads.company_code = '.$this->_intCompanyCode.'
+										AND trans_leads_'.$this->_intCompanyCode.'.branch_code in ('.implode(',',$this->_strBranchCodeArr).')
+										AND left(master_leads.next_followup_date,8) = '.date('Ymd').' '.$strWhere.' 
+								UNION ALL
+									SELECT 
+										'.$strColumn.'
+									FROM master_leads
+										INNER JOIN trans_leads_'.$this->_intCompanyCode.' ON master_leads.id = trans_leads_'.$this->_intCompanyCode.'.lead_code
+										INNER JOIN master_lead_source ON  master_lead_source.id = master_leads.lead_source_code
+										INNER JOIN master_status ON master_status.id = master_leads.status_code
+									WHERE 
+										master_leads.deleted = 0
+										AND trans_leads_'.$this->_intCompanyCode.'.deleted = 0
+										AND master_lead_source.deleted = 0 
+										AND master_status.deleted = 0
+										AND master_leads.company_code = '.$this->_intCompanyCode.'
+										AND trans_leads_'.$this->_intCompanyCode.'.branch_code in ('.implode(',',$this->_strBranchCodeArr).')
+										AND left(master_leads.next_followup_date,8) < '.date('Ymd').' '.$strWhere.' 
+								UNION ALL
+									SELECT 
+										'.$strColumn.'
+									FROM master_leads
+										INNER JOIN trans_leads_'.$this->_intCompanyCode.' ON master_leads.id = trans_leads_'.$this->_intCompanyCode.'.lead_code
+										INNER JOIN master_lead_source ON  master_lead_source.id = master_leads.lead_source_code
+										INNER JOIN master_status ON master_status.id = master_leads.status_code
+									WHERE 
+										master_leads.deleted = 0
+										AND trans_leads_'.$this->_intCompanyCode.'.deleted = 0
+										AND master_lead_source.deleted = 0 
+										AND master_status.deleted = 0
+										AND master_leads.company_code = '.$this->_intCompanyCode.'
+										AND trans_leads_'.$this->_intCompanyCode.'.branch_code in ('.implode(',',$this->_strBranchCodeArr).')
+										AND left(master_leads.next_followup_date,8) > '.date('Ymd').' '.$strWhere.'
+							';
+		
+		/* if limit is set then do needful */
+		if(isset($pStrFilterArr['limit'])){
+			/* Setting limit */
+			$strQuery	.= 	' LIMIT '.$pStrFilterArr['offset'].', '.$pStrFilterArr['limit'];
+		};
+		
+		/* Getting the query result */
+		$strReturnArr	= $this->_databaseObject->getDirectQueryResult($strQuery);
+		
+		/* Return the task */
+		return $strReturnArr;
 	}
 }
 ?>

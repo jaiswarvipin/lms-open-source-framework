@@ -50,11 +50,10 @@ class LeadsOperation extends Requestprocess {
 		return $strWidgetHTML;
 	}
 	
-	
 	/**********************************************************************/
-	/*Purpose 	: Creating new lead configured attributes panel.
+	/*Purpose 	: get lead follow-up panel.
 	/*Inputs	: None
-	/*Returns	: None. 
+	/*Returns	: Lead follow-up panel. 
 	/*Created By: Jaiswar Vipin Kumar R.
 	/**********************************************************************/
 	public function getLeadFollowDetails(){
@@ -65,6 +64,103 @@ class LeadsOperation extends Requestprocess {
 		
 		/* Return the lead follow-up details */
 		return $this->load->view('leads/lead-follow-up',$strDataArr,true);
+	}
+	
+	/**********************************************************************/
+	/*Purpose 	: get lead profile panel.
+	/*Inputs	: None
+	/*Returns	: Lead profile panel. 
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
+	public function getLeadPofilePanel(){
+		/* Getting configured column */
+		$strModuleArr 			= $this->getLeadAttributeList(); 
+		$strLeadAttArr			= array();
+		
+		/* Creating widget panel */
+		$leadObj	 	= new Lead($this->_objDataOperation, $this->getCompanyCode());
+		$strModuleArr	= $leadObj->getLeadAttributesListByModuleUrl('');
+		
+		/* if all lead attributes found then do needful */
+		if(!empty($strModuleArr)){
+			/* Iterating the loop */
+			foreach($strModuleArr as $strModuleArrKey => $strModuleArrValue){
+				$strLeadAttArr[$strModuleArrValue['attri_slug_key']] = array('column'=>$strModuleArrValue['attri_slug_key'], 'label'=>$strModuleArrValue['attri_slug_name'],$strModuleArrValue['attri_data_type']=>'');
+			}
+		}
+		
+		/* Removed used variables */
+		unset($leadObj);
+		
+		/* Creating widget panel */
+		$widgetObj	 		= new Widget($this->_objDataOperation, $this->getCompanyCode());
+		$strLeadAttrHTML 	= $widgetObj->getColumnAsSearchPanel($strLeadAttArr);
+		
+		/* Removed used variables */
+		unset($widgetObj);
+		
+		/* Return the lead follow-up details */
+		return $this->load->view('leads/lead-profile',array('strLeadAttHTML' => $strLeadAttrHTML),true);
+	}
+	
+	/**********************************************************************/
+	/*Purpose 	: get lead profile details panel.
+	/*Inputs	: None.
+	/*Returns	: Lead profile details panel. 
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
+	public function getLeadProfileDetails(){
+		/* Variable initialization */
+		$strDataArr		= array();
+		$pIntLeadCode	= ($this->input->post('txtLeadCode'))?$this->input->post('txtLeadCode'):'';
+		
+		/* if lead code is not passed then do needful */
+		if($pIntLeadCode == ''){
+			/* Return empty HTML */
+			return jsonReturn(array('status'=>0,'message'=>$strDataArr),true);
+		}
+		
+		/* Creating lead object */
+		$leadObj	= new Lead($this->_objDataOperation, $this->getCompanyCode(), $this->getBranchCodes());
+		/* Get lead information by lead code */
+		$strDataArr	= $leadObj->getLeadDetialsByLogger(false,array('master_leads.id'=>getDecyptionValue($pIntLeadCode)));
+		/* Removed used variables */
+		unset($leadObj);
+		
+		/* Creating communication object */
+		$communicationhistoryObj 	= new communicationhistory($this->_objDataOperation, $this->getCompanyCode());
+		/* Fetch the communication of requested leads */
+		$strCommunicationHistoryArr	= $communicationhistoryObj->getCommuncationHistory(array('lead_code'=>getDecyptionValue($pIntLeadCode)));
+		/* Get communication HTML */
+		$strDataArr[0]['strHistory']= $this->load->view('leads/lead-communicaion-history',array('strCommunicaionHistoryArr' => $strCommunicationHistoryArr),true);
+		/* Removed used variables */
+		unset($communicationhistoryObj, $strCommunicationHistoryArr);
+		
+		/* if lead code is not passed then do needful */
+		if(empty($strDataArr)){
+			/* Return the lead details */
+			return jsonReturn(array('status'=>0,'message'=>array()),true);
+		}else{
+			/* Return the lead details */
+			return jsonReturn(array('status'=>1,'message'=>$strDataArr),true);
+		}
+	}
+	
+	/**********************************************************************/
+	/*Purpose 	: Creating lead transfer panel.
+	/*Inputs	: None.
+	/*Returns	: Lead transfer panel. 
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
+	public function getLeadTransferPanel(){
+		/* Variable initialization */
+		$strDataArr						= array();
+		$strDataArr['strRegionArr']		= $this->_objForm->getDropDown($this->getRegionDetails(),'');
+		$strDataArr['strBranchArr']		= $this->_objForm->getDropDown($this->getBranchDetails(),'');
+		$strDataArr['strTaskType']		= $this->_objForm->getDropDown(getArrByKeyvaluePairs($this->_getTaskType(),'id','description'),'');
+		
+		/* Return the lead follow-up details */
+		return $this->load->view('leads/lead-transfer',$strDataArr,true);
 	}
 	
 	/**********************************************************************/
@@ -245,5 +341,12 @@ class LeadsOperation extends Requestprocess {
 		unset($taskObj);
 		/* Return Task Type */
 		return $strReturnArr;
+	}
+	
+	public function getBranchListByRegionCodeAct(){
+		/* Variable initialization */
+		$strRegion	= ($this->input->post('txtRegionCode')!='')?array($this->input->post('txtRegionCode')):array();
+		/* Return the response */
+		jsonReturn($this->getBranchListByRegionCode($strRegion),true);
 	}
 }

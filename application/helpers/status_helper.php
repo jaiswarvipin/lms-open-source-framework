@@ -30,13 +30,18 @@ class status{
 	/***************************************************************************/
 	public function getLeadStatusByCompanyCode(){
 		/* Variable initialization */
-		$strWhereArr	= array('company_code'=>$this->_intCompanyCode);
+		$strWhereArr	= array();
+		
+		/* if company code is passed then set the filter */
+		if((int)$this->_intCompanyCode > 0){
+			$strWhereArr	= array('company_code'=>$this->_intCompanyCode);
+		}
 		
 		/* Query builder Array */
 		$strFilterArr	= array(
 									'table'=>$this->_strTableName,
 									'where'=>$strWhereArr,
-									'column'=>array('id', 'description','parent_id')
+									'column'=>array('id', 'description','parent_id','is_default','company_code')
 							);
 		
 		/* getting record from location */

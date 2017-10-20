@@ -32,10 +32,18 @@ class Dbrequestprocess_model extends CI_Model{
 		if($pStrQuery == ''){
 			return -1;
 		}
-		/* execute direct query */
-		$strReturnValue	= $this->db->query($pStrQuery);
+		
+		/* Checking the query type */
+		if(strstr(strtolower($pStrQuery), 'select ')){
+			/* execute direct query */
+			$strReturnValue	= $this->db->query($pStrQuery)->result_array();
+		}else{
+			/* execute direct query */
+			$strReturnValue	= $this->db->query($pStrQuery);
+		}
 		
 		$this->_getlastQuery();
+		
 		/* Return the value */
 		return $strReturnValue;
 	}
@@ -214,7 +222,6 @@ class Dbrequestprocess_model extends CI_Model{
 				}else if(strstr($pStrFilterArrKey,'like')!=''){
 					/*Checking for like clause */
 					$this->db->like(str_replace('like','',$pStrFilterArrKey), $pStrFilterArrValue);
-				/* Setting filter */
 				}else{
 					/* Setting filter */
 					$this->db->where($pStrFilterArrKey, $pStrFilterArrValue);
@@ -243,6 +250,12 @@ class Dbrequestprocess_model extends CI_Model{
 				/* Setting filter */
 				$this->db->where($pStrFilterArr['table'].'.deleted', 0);
 			}
+		}
+		
+		/* if group by is set then do needful */
+		if((isset($pStrFilterArr['group'])) && (!empty($pStrFilterArr['group']))){
+			/* Setting group by */
+			$this->db->group_by($pStrFilterArr['group']);
 		}
 	}
 	

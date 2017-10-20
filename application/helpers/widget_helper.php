@@ -152,9 +152,20 @@ class Widget{
 	/* Returns	: Search HTML of respective panel.
 	/* Created By : Jaiswar Vipin Kumar R.
 	/***************************************************************************/
-	public function getColumnAsSearchPanel($pStrColumnArray = array()){	
+	public function getColumnAsSearchPanel($pStrColumnArray = array()){
 		/* Variable initialization */
-		$strReturmHTML	= '<div class="row no-add">';
+		$strDisplayClass	= '';
+		$strElementPrefix	= 'txtProfile';
+		
+		/* if form index set then do needful */
+		if(isset($pStrColumnArray['frmName'])){
+			/* Set the class */
+			$strDisplayClass	= 'no-add';
+			$strElementPrefix	= 'txtSearch';
+		}
+		
+		/* Variable initialization */
+		$strReturmHTML	= '<div class="row '.$strDisplayClass.'">';
 		
 		/* if column array is empty then of needful */
 		if(empty($pStrColumnArray)){
@@ -162,36 +173,36 @@ class Widget{
 			return $strReturmHTML.'</div>';
 		}
 		
-		$strReturmHTML.=	'<form name="'.$pStrColumnArray['frmName'].'" id="'.$pStrColumnArray['frmName'].'" method="post" action="'.$pStrColumnArray['action'].'">';
+		/* if form object is set then do needful */
+		if(isset($pStrColumnArray['frmName'])){
+			$strReturmHTML.=	'<form name="'.$pStrColumnArray['frmName'].'" id="'.$pStrColumnArray['frmName'].'" method="post" action="'.$pStrColumnArray['action'].'">';
+		}
 		
 		/* removed not required index */
 		unset($pStrColumnArray['action']);
 		
 		/* Iterating the loop */
 		foreach($pStrColumnArray as $pStrColumnArrayKey => $pStrColumnArrayValue){
-			/* if data column is not set then do needful */
-			if(!isset($pStrColumnArrayValue['column'])){
-				continue;
-			}
-			
 			/* Checking for element type */
 			if(isset($pStrColumnArrayValue['is_date'])){
 			}else if(isset($pStrColumnArrayValue['dropdown'])){
 				$strReturmHTML.=	'<div class="input-field col s12">
-										<select name="txtSearch'.$pStrColumnArrayValue['column'].'" id="txtSearch'.$pStrColumnArrayValue['column'].'" data-set="'.$pStrColumnArrayValue['column'].'">'.$pStrColumnArrayValue['data'].'</select>
-										<label for="txtSearch'.$pStrColumnArrayValue['column'].'">Select '.$pStrColumnArrayValue['label'].'</label>
+										<select name="'.$strElementPrefix.$pStrColumnArrayValue['column'].'" id="'.$strElementPrefix.$pStrColumnArrayValue['column'].'" data-set="'.$pStrColumnArrayValue['column'].'">'.$pStrColumnArrayValue['data'].'</select>
+										<label for="'.$strElementPrefix.$pStrColumnArrayValue['column'].'">Select '.$pStrColumnArrayValue['label'].'</label>
 									</div>';
 			}else{
 					$strReturmHTML.=	'<div class="input-field col s12">
-											<input class="validate" type="text" name="txtSearch'.$pStrColumnArrayValue['column'].'" id="txtSearch'.$pStrColumnArrayValue['column'].'" data-set="'.$pStrColumnArrayValue['column'].'" />
-											<label for="txtSearch'.$pStrColumnArrayValue['column'].'">Enter '.$pStrColumnArrayValue['label'].'</label>
+											<input class="validate" type="text" name="'.$strElementPrefix.$pStrColumnArrayValue['column'].'" id="'.$strElementPrefix.$pStrColumnArrayValue['column'].'" data-set="'.$pStrColumnArrayValue['column'].'" />
+											<label for="'.$strElementPrefix.$pStrColumnArrayValue['column'].'">Enter '.$pStrColumnArrayValue['label'].'</label>
 										</div>';
 			}
 		}
 		
-										
-		/* Closing the form */
-		$strReturmHTML.=	'<input type="hidden" name="txtSearch" id="txtSearch" value="" /></form>';
+		/* if form object is set then do needful */
+		if(isset($pStrColumnArray['frmName'])){
+			/* Closing the form */
+			$strReturmHTML.=	'<input type="hidden" name="txtSearch" id="txtSearch" value="" /></form>';
+		}
 		
 		/* Return dynamic Form HTML */
 		return $strReturmHTML.'</div>';
