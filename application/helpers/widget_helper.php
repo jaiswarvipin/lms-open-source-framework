@@ -181,8 +181,15 @@ class Widget{
 		/* removed not required index */
 		unset($pStrColumnArray['action']);
 		
+		
 		/* Iterating the loop */
 		foreach($pStrColumnArray as $pStrColumnArrayKey => $pStrColumnArrayValue){
+			/* if column index is not set the do not render that element */
+			if(!isset($pStrColumnArrayValue['column'])){
+				/* Set the pointer to next index */
+				continue;
+			}
+			
 			/* Checking for element type */
 			if(isset($pStrColumnArrayValue['is_date'])){
 			}else if(isset($pStrColumnArrayValue['dropdown'])){
