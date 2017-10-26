@@ -49,34 +49,8 @@
 </div>
 
 <div class="row">
-	<div class="col s6">
-		<table class="bordered highlight responsive-table">
-			<thead>
-				<tr>
-					<th width="100%">Top Performing Region</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr>
-					<td><h1 style="color:gray; text-align:center;">PERFORMING REGION</h1></td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
-	<div class="col s6">
-		<table class="bordered highlight responsive-table">
-			<thead>
-				<tr>
-					<th width="100%">Top Performing Branch</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr>
-					<td><h1 style="color:gray; text-align:center;">PERFORMING BRANCH</h1></td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
+	<div class="col s6"><?php echo $strRegionPerformance?></div>
+	<div class="col s6"><?php echo $strBranchPerformance?></div>
 </div>
 
 

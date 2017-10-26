@@ -383,3 +383,30 @@ function decodeKeyValueArr($pStrValueSetArr = array(), $isValueDecode = false){
 	/* return array */
 	return $strReturnArr;
 }
+
+
+/**********************************************************************/
+/*Purpose 	: Number formating.
+/*Inputs	: $pNumber	:: Value,
+			: $pIntFormatingType :: Formating type.
+/*Returns 	: Formated number.
+/*Created By: Jaiswar Vipin Kumar R.
+/**********************************************************************/
+function numberFormating($pNumber = 0, $pIntFormatingType = 0){
+	/* Checking passed value is not number */
+	if(!is_numeric($pNumber)){
+		/* setting default value */
+		$pNumber	= 0;
+	}
+	
+	/* based on the formating type doing processing */
+	switch($pIntFormatingType){
+		case 0:
+		default:
+			$pNumber	= number_format($pNumber, 2, '.','');
+			break;
+	}
+	
+	/* return formatted number */
+	return $pNumber;
+}

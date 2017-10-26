@@ -38,7 +38,7 @@
 <div id="<?php echo $strDataAddEditPanel?>" class="modal modal-fixed-footer">
     <div class="modal-content">
 		<h4><span class="spnActionText">Add New</span> <?php echo $moduleTitle?></h4>
-     	 <form class="col s12" method="post" action="<?php echo SITE_URL?>settings/status/setStatus" name="<?php echo $moduleForm?>" id="<?php echo $moduleForm?>">			
+     	 <form class="col s12" method="post" action="<?php echo SITE_URL?>settings/statuses/setStatus" name="<?php echo $moduleForm?>" id="<?php echo $moduleForm?>">			
             <div class='row'>
               <div class='col s12'>
               </div>
