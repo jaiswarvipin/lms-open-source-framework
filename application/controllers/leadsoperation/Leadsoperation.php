@@ -261,13 +261,15 @@ class LeadsOperation extends Requestprocess {
 		$intLeadCodeArr		= ($this->input->post('txtLeadCode')!='')?((strstr($this->input->post('txtLeadCode'),DELIMITER))?explode(DELIMITER,$this->input->post('txtLeadCode')):array($this->input->post('txtLeadCode'))):array();
 		$intLeadownerCodeArr= ($this->input->post('txtLeadOwnerCode')!='')?((strstr($this->input->post('txtLeadOwnerCode'),DELIMITER))?explode(DELIMITER,$this->input->post('txtLeadOwnerCode')):array($this->input->post('txtLeadOwnerCode'))):array();
 		//$intLeadownerCode	= ($this->input->post('txtLeadOwnerCode')!='')?getDecyptionValue($this->input->post('txtLeadOwnerCode')):0;
+		$blnIsCLosedStatus	= json_decode($this->isOpenStatus($this->input->post('cboStatusCode')));
+		$blnIsCLosedStatus  = $blnIsCLosedStatus->isopen;
 		
 		/* Checking to all valid information passed */
-		if($strDate == ''){
+		if(($strDate == '') && ($blnIsCLosedStatus == 1)){
 			/* Return Information */
 			jsonReturn(array('status'=>0,'message'=>'Follow-up date is not selected.'), true);
 		}
-		if($strTime == ''){
+		if(($strTime == '') && ($blnIsCLosedStatus == 1)){
 			/* Return Information */
 			jsonReturn(array('status'=>0,'message'=>'Follow-up time is not selected.'), true);
 		}
@@ -275,7 +277,7 @@ class LeadsOperation extends Requestprocess {
 			/* Return Information */
 			jsonReturn(array('status'=>0,'message'=>'Status is not selected.'), true);
 		}
-		if($intTaskTypeCode == 0){
+		if(($intTaskTypeCode == 0) && ($blnIsCLosedStatus == 1)){
 			/* Return Information */
 			jsonReturn(array('status'=>0,'message'=>'Task type is not selected.'), true);
 		}
@@ -306,6 +308,7 @@ class LeadsOperation extends Requestprocess {
 			$strTaskUpdateArr['updatedBy']			= $this->getUserCode();
 			$strTaskUpdateArr['comments']			= $strComments;
 			$strTaskUpdateArr['statusCode']			= $intStatusCode;
+			$strTaskUpdateArr['statusType']			= $blnIsCLosedStatus;
 			
 			/* Get task type list */
 			$intTaskStatus	= $taskObj->setTask($strTaskUpdateArr);	
@@ -343,10 +346,27 @@ class LeadsOperation extends Requestprocess {
 		return $strReturnArr;
 	}
 	
+	/**********************************************************************/
+	/*Purpose 	: Get Branch List by Region code.
+	/*Inputs	: None.
+	/*Returns	: Branch List by Region code. 
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
 	public function getBranchListByRegionCodeAct(){
 		/* Variable initialization */
 		$strRegion	= ($this->input->post('txtRegionCode')!='')?array($this->input->post('txtRegionCode')):array();
 		/* Return the response */
 		jsonReturn($this->getBranchListByRegionCode($strRegion),true);
+	}
+	
+	/**********************************************************************/
+	/*Purpose 	: Checking is requested status is open or in close status group.
+	/*Inputs	: None.
+	/*Returns	: Open / Close status group. 
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
+	public function isOpenStatusCheck(){
+		/* Return the status */
+		return $this->isOpenStatus($this->input->post('statusCode'));
 	}
 }

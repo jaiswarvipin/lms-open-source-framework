@@ -126,6 +126,19 @@ class Tasks	 extends Requestprocess {
 			$intCurrentPageNumber = 0;
 		}
 		
+		/* Get all open lead status list */
+		$strStatusArr	= $this->getLeadStatusBasedOnRequest(array(OPEN_CLOSURE_STATUS_CODE));
+		/* Checking responsed status list is not empty and having requested status index */
+		if(!empty($strStatusArr) && (isset($strStatusArr[OPEN_CLOSURE_STATUS_CODE]))){
+			/* Setting the operation status code */
+			$strStatusArr	= array_keys($strStatusArr[OPEN_CLOSURE_STATUS_CODE]);
+		}else{
+			/* re-initialization of the status array */
+			$strStatusArr	= array();
+		}
+		/* Settting the filter caluse */
+		$strWhereClauseArr	= array('status_code'=>$strStatusArr);
+		
 		/* if profile filter code is passed then do needful */
 		if(($this->input->post('txtSearch')) && ($this->input->post('txtSearch') == '1')){
 			/* Iterating the search object */
@@ -187,6 +200,7 @@ class Tasks	 extends Requestprocess {
 					}
 					/* Setting the lead code */
 					$strReturnArr[$strLeadArrKey]['lead_code']		= $strLeadArrValue['lead_code'];
+					$strReturnArr[$strLeadArrKey]['is_open']		= 1;
 					
 					/* Checking for today's task  */
 					if((int)substr($strLeadArrValue['next_followup_date'],0,8)  == (int)$intTodaysDate){

@@ -325,7 +325,7 @@ class Requestprocess extends CI_Controller {
 			/* Parent Status Code */
 			if($strLeadStatusArrValue->parent_id == '-1'){
 				/* Setting parent */
-				$strReturnsArr[$strLeadStatusArrKey]['name']	 = $strLeadStatusArrValue->description;
+				$strReturnsArr[$strLeadStatusArrKey]['name']	 = array('name'=>$strLeadStatusArrValue->description, 'value'=>$strLeadStatusArrValue->id);
 			}else if(isset($strReturnsArr[getEncyptionValue($strLeadStatusArrValue->parent_id)])){
 				$strParentCode	= getEncyptionValue($strLeadStatusArrValue->parent_id);
 				/* Setting the child array */
@@ -335,6 +335,62 @@ class Requestprocess extends CI_Controller {
 		/* Return status */
 		return $strReturnsArr;
 	}
+	
+	/**********************************************************************/
+	/*Purpose 	: Get Lead status list based on request.
+	/*Inputs	: $pStrLeadStatusArr :: Lead parent Status array.
+	/*Returns	: Single dimantational array of status list.
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
+	public function getLeadStatusBasedOnRequest($pStrLeadStatusArr = array()){
+		/* Variable Initilization */
+		$strStatusArr 	= $this->getLeadStatus();
+		$strReturnArr	= array();
+		
+		/* if status array is not empty then do need full */
+		if(!empty($strStatusArr)){
+			/* if requested status array is empty then add all status */
+			$pStrLeadStatusArr	= (empty($pStrLeadStatusArr))?array(OPEN_CLOSURE_STATUS_CODE,POSITIVE_CLOSURE_STATUS_CODE,NEGATIVE_CLOSURE_STATUS_CODE):$pStrLeadStatusArr;
+			
+			/* iterating the loop */
+			foreach($strStatusArr as $strStatusArrKey => $strStatusArrValue){
+				/* if requested value is array then do needfull */
+				if(in_array($strStatusArrValue->parent_id, $pStrLeadStatusArr)){
+					$strReturnArr[$strStatusArrValue->parent_id][$strStatusArrValue->id] = $strStatusArrValue->description;
+				}
+			}
+		}
+		/* Removed used variables */
+		unset($strStatusArr);
+		/* Get Requested status code */
+		return $strReturnArr;
+	}
+	
+	/**********************************************************************/
+	/*Purpose 	: Checking is requested status is open or in close status group.
+	/*Inputs	: $pStrStatusCode :: encrypted Status code.
+	/*Returns	: Open / Close status group. 
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
+	public function isOpenStatus($pStrStatusCode = ''){
+		/* variable initialization */
+		$strStatusArr 		= $this->getLeadStatus();
+		
+		/* if status code is not passed then do needful */
+		if(($pStrStatusCode == '') || (empty($strStatusArr))){
+			/* Return the response */
+			return jsonReturn(array('isopen'=>0));
+		}
+		 
+		if((isset($strStatusArr[$pStrStatusCode])) && ((int)$strStatusArr[$pStrStatusCode]->parent_id == OPEN_CLOSURE_STATUS_CODE)){
+			/* Return the response */
+			return jsonReturn(array('isopen'=>1));
+		}else{
+			/* Return the response */
+			return jsonReturn(array('isopen'=>0));
+		}
+	}
+	
 	
 	/**********************************************************************/
 	/*Purpose 	: Module field array.

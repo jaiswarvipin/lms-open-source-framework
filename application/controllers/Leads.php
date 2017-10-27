@@ -184,6 +184,7 @@ class Leads	 extends Requestprocess {
 					}
 					/* Setting the lead code */
 					$strReturnArr[$strLeadArrKey]['lead_code']	= $strLeadArrValue['lead_code'];
+					$strReturnArr[$strLeadArrKey]['is_open']	= $strLeadArrValue['parent_code'];
 				}
 			}
 		}
