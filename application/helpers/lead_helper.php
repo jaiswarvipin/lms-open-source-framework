@@ -153,7 +153,7 @@ class Lead{
 		/* Variable initialization */
 		$strReturnArr	= $strLimitFilter	= array();
 		$strWhereArr	= array($this->_strTableName.'.company_code'=>$this->_intCompanyCode,'trans_leads_'.$this->_intCompanyCode.'.branch_code'=>$this->_strBranchCodeArr);
-		$strColumnArr	= array($this->_strTableName.'.*', 'trans_leads_'.$this->_intCompanyCode.'.*','master_lead_source.description as souce_name','master_status.description as status_name, master_status.parent_id as parent_code', $this->_strTableName.'.record_date as lead_created_date');
+		$strColumnArr	= array($this->_strTableName.'.*', 'trans_leads_'.$this->_intCompanyCode.'.*','master_lead_source.description as souce_name','master_status.description as status_name', $this->_strTableName.'.record_date as lead_created_date');
 		
 		/* if lead code array is empty then do needful */
 		if(!empty($intLeadCodeArr)){

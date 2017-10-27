@@ -198,25 +198,6 @@ function postUserRequest(strformName){
 }
 
 /**************************************************************************
- Purpose 		: Submitting the user request using ajax operation without Form Object.
- Inputs  		: strVirtualFormaName :: Virtual Form name,
-				: strDataSet :: JSON formated data set,
-				: strAction :: Target endpoints.
- Return 		: none.
- Created By 	: Jaiswar Vipin Kumar R
-/**************************************************************************/
-function postUserRequestVirualForm(strVirtualFormaName, strDataSet, strAction){
-	$.ajax({
-        type: "POST",
-        url: strAction,
-        data: strDataSet,
-        success: function(output) {
-			processRequestAfterResponse(strVirtualFormaName, output);			
-        }
-	});
-}
-
-/**************************************************************************
  Purpose 		: Submitting the user document request using ajax operation.
  Inputs  		: strformName :: Form Name.
  Return 		: none.

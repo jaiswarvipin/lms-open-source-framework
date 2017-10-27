@@ -2,7 +2,7 @@
     <div class="modal-content">
 		<h4><span class="spnActionTexta">Lead Follow-Up Details</span></h4>
 		<form name="frmleadFolloupDetails" id="frmleadFolloupDetails" method="post" action="leadsoperation/leadsoperation/setlLeadFollowupDetails">
-			<div class="row hideOnCloseStatus">
+			<div class="row">
 				<div class="col s6">
 					<label for='cboParnetStatus'>Follow-up Date*</label>
 					<input type="text" name="txtFollowUpDate" id="txtFollowUpDate" class="datepicker" />
@@ -14,11 +14,11 @@
 			</div>
 			<div class="row">
 				<div class="input-field col s12">
-					<select name="cboStatusCode" id="cboStatusCode" data-set="status_code" onChange="setFollowUpView(this)"><?php echo $strStatusCode?></select>
+					<select name="cboStatusCode" id="cboStatusCode" data-set="status_code"><?php echo $strStatusCode?></select>
 					<label for='cboParnetStatus'>Select Status*</label>
 				</div>
 			</div>
-			<div class="row hideOnCloseStatus">
+			<div class="row">
 				<div class="input-field col s12">
 					<select name="cboTaskTypeCode" id="cboTaskTypeCode" data-set="task_type_code"><?php echo $strTaskType?></select>
 					<label for='cboParnetStatus'>Select Task Type*</label>

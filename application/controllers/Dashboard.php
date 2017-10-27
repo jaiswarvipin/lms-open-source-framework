@@ -211,21 +211,28 @@ class Dashboard	 extends Requestprocess {
 		/* Variable initialization */
 		$strResultArr	= $strWhereArr	= $strStatusArr = $strAllStatusArr =  array();
 		$strPerformanceStatusArr	= array(OPEN_CLOSURE_STATUS_CODE,POSITIVE_CLOSURE_STATUS_CODE);
-		$strLabel					= 'Region';
 		
-		/* Get all open and positive closed lead status list */
-		$strStatusArr	= $this->getLeadStatusBasedOnRequest(array(OPEN_CLOSURE_STATUS_CODE,POSITIVE_CLOSURE_STATUS_CODE));
+		$strLabel		= 'Region';
+		/* Getting status array from looger */
+		$strStatusLogger	= $this->getLeadStatus();
 		
-		/* Checking responsed status list is not empty and having requested status index */
-		if(!empty($strStatusArr) && (isset($strStatusArr[OPEN_CLOSURE_STATUS_CODE]))){
-			/* Setting the operation status code */
-			$strAllStatusArr	= array_keys($strStatusArr[OPEN_CLOSURE_STATUS_CODE]);
+		/* if status details found then do needful */
+		if(!empty($strStatusLogger)){
+			/* Iterating the loop */
+			foreach($strStatusLogger as $strStatusLoggerKey => $strStatusLoggerValue){
+				if((int)$strStatusLoggerValue->parent_id == -1){
+					$strStatusArr[$strStatusLoggerValue->id]['name']		= $strStatusLoggerValue->description;
+					$strStatusArr[$strStatusLoggerValue->id]['child']		= '';
+				}else if((isset($strStatusArr[$strStatusLoggerValue->parent_id])) && (in_array($strStatusLoggerValue->parent_id,$strPerformanceStatusArr))){
+					$strAllStatusArr[$strStatusLoggerValue->id]			 								= $strStatusLoggerValue->id;
+					$strStatusArr[$strStatusLoggerValue->parent_id]['child'][$strStatusLoggerValue->id]	= $strStatusLoggerValue->id;
+				}
+			}
 		}
-		/* Checking responsed status list is not empty and having requested status index */
-		if(!empty($strStatusArr) && (isset($strStatusArr[POSITIVE_CLOSURE_STATUS_CODE]))){
-			/* Setting the operation status code */
-			$strAllStatusArr	= array_merge($strAllStatusArr, array_keys($strStatusArr[POSITIVE_CLOSURE_STATUS_CODE]));
-		}
+		/* Removed the negative closure from list*/
+		unset($strStatusArr[NEGATIVE_CLOSURE_STATUS_CODE]);
+		/* removed used variables */
+		unset($strStatusLogger);
 		
 		/* Variable initialization */
 		$intYesterdayDate	= date('Ymd',mktime(date('H'),date('i'),date('s'),date('m'),date('d')-1,date('Y')));
@@ -259,7 +266,7 @@ class Dashboard	 extends Requestprocess {
 		if(!empty($strResultArr['data'])){
 			/* Iterating the loop */
 			foreach($strResultArr['data'] as $strResultKey => $strResultValue){
-				if(isset($strStatusArr[OPEN_CLOSURE_STATUS_CODE][$strResultValue['status_code']])){
+				if(isset($strStatusArr[OPEN_CLOSURE_STATUS_CODE]['child'][$strResultValue['status_code']])){
 					if(isset($strFormatedResult[getEncyptionValue($strResultValue[$pStrRegionORBranch])][OPEN_CLOSURE_STATUS_CODE])){
 						$strFormatedResult[getEncyptionValue($strResultValue[$pStrRegionORBranch])][OPEN_CLOSURE_STATUS_CODE]	+= (int)$strResultValue['leadCount'];
 					}else{
@@ -286,7 +293,6 @@ class Dashboard	 extends Requestprocess {
 			$strResultArr['branch']	= $this->getBranchDetails();
 		}
 		
-		
 		/* Checking location name is empty */
 		if(isset($strResultArr[$strIndexName]) && (!empty($strIndexName))){
 			/* Iterating the loop */
@@ -309,7 +315,7 @@ class Dashboard	 extends Requestprocess {
 				if($intOpenLeadCount > 0){
 					/* Setting the performance percentage */
 					$intPerformance =  numberFormating(($intClosedLeadCount / $intOpenLeadCount));
-				}else if( $intOpenLeadCount >= 0){
+				}else if( $intOpenLeadCount > 0){
 					$intPerformance	= numberFormating($intOpenLeadCount*100);
 				}else{
 					$intPerformance	= '0.00';

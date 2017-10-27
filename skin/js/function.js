@@ -31,17 +31,6 @@ function processRequestAfterResponse(pStrFormName, pStrResponseObject){
 			case 'frmCompanyRegistration':
 				
 				break;
-			case 'frmStatusClassification':
-				/* Variable Initialization */
-				var intResponseStatusParentCode = objResponse.isopen;
-				/* Checking for open repose status */
-				if(intResponseStatusParentCode == 1){
-					$('.hideOnCloseStatus').show();
-				}else{
-					$('.hideOnCloseStatus').hide();
-				}
-				return;
-				break;
 			case 'frmDynamicEventDataSet':
 				$('#'+objectRefrence).find("option").hide();
 				
@@ -528,16 +517,4 @@ function setPullDownEvents(){
 		}
 		
 	})
-}
-
-/**************************************************************************
- Purpose 		: Setting the lead follow up view based on selected status.
- Inputs  		: pObjectRefrence :: Status element Reference.
- Return 		: None.
- Created By 	: Jaiswar Vipin Kumar R
-/**************************************************************************/
-function setFollowUpView(pObjectRefrence){
-	var strValue = {'statusCode':$(pObjectRefrence).val()};
-	
-	postUserRequestVirualForm('frmStatusClassification',strValue,SITE_URL+'leadsoperation/leadsoperation/isOpenStatusCheck');
 }

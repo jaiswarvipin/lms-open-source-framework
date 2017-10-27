@@ -86,7 +86,6 @@ class Task{
 		$strComments		= isset($pTaskArr['comments'])?$pTaskArr['comments']:'-';
 		$intUpdatedBySystem	= isset($pTaskArr['isSystem'])?$pTaskArr['isSystem']:0;
 		$intStatusCode		= isset($pTaskArr['statusCode'])?$pTaskArr['statusCode']:0;
-		$intStatusType		= isset($pTaskArr['statusType'])?$pTaskArr['statusType']:1;
 		
 		$intTransStatus		= 0;
 		/* Requested details is not found then do needful */
@@ -107,54 +106,45 @@ class Task{
 																		'table'=>$this->_strTableName,
 																		'data'=>$strDataArr,
 																		'where'=>array(
-																						'lead_code'=>$intLeadCode,
-																						'updated_date'=>0
+																						'lead_code'=>$intLeadCode
 																					)
 																	)
 																);
-		
-		/* if open status code found then dp needful */
-		if($intStatusType == 1){
-			/* If task type is not set then fetch the default code */
-			if($intTaskTypeCode == 0){
-				/* Get default task */
-				$strDefautTaskArr	= $this->getDefaultTaskTypeByCompanyCode();
-				/*if Default task found then do needful */
-				if(!empty($strDefautTaskArr)){
-					/* Setting Default task */
-					$intTaskTypeCode	= $strDefautTaskArr[0]['id'];
-				}
-				/* Removed used variables */
-				unset($strDefautTaskArr);
+						
+		/* If task type is not set then fetch the default code */
+		if($intTaskTypeCode == 0){
+			/* Get default task */
+			$strDefautTaskArr	= $this->getDefaultTaskTypeByCompanyCode();
+			/*if Default task found then do needful */
+			if(!empty($strDefautTaskArr)){
+				/* Setting Default task */
+				$intTaskTypeCode	= $strDefautTaskArr[0]['id'];
 			}
-			
-			/* Setting new task data array */
-			$strDataArr	= array(
-									'lead_code'=>$intLeadCode,
-									'lead_owner_code'=>$intLeadOwnerCode,
-									'next_follow_up_date'=>$inNetxFollowUpDate,
-									'task_type_code'=>$intTaskTypeCode,
-									'comments'=>$strComments
-							);
-			
-			/* Setting new task of same lead */
-			$intTransStatus	= $this->_databaseObject->setDataInTable(
-																		array(
-																			'table'=>$this->_strTableName,
-																			'data'=>$strDataArr
-																		)
-																	);
+			/* Removed used variables */
+			unset($strDefautTaskArr);
 		}
 		
+		/* Setting new task data array */
+		$strDataArr	= array(
+								'lead_code'=>$intLeadCode,
+								'lead_owner_code'=>$intLeadOwnerCode,
+								'next_follow_up_date'=>$inNetxFollowUpDate,
+								'task_type_code'=>$intTaskTypeCode,
+								'comments'=>$strComments
+						);
+						
+		/* Setting new task of same lead */
+		$intTransStatus	= $this->_databaseObject->setDataInTable(
+																	array(
+																		'table'=>$this->_strTableName,
+																		'data'=>$strDataArr
+																	)
+																);
+
+		
 		if((int)$intStatusCode > 0){
-			/* if open status code found then dp needful */
-			if($intStatusType == 0){
-				/* Setting new status same lead */
-				$intTransStatus	= $this->_databaseObject->getDirectQueryResult("update master_leads set status_code = ".$intStatusCode.", comments ='".$strComments."', updated_by = ".$intUpdateBy.", updated_date =".date('YmdHis')." where id = ".$intLeadCode);
-			}else{
-				/* Setting new status and follow-up date of same lead */
-				$intTransStatus	= $this->_databaseObject->getDirectQueryResult("update master_leads set last_followup_date = next_followup_date, next_followup_date = '".$inNetxFollowUpDate."', status_code = ".$intStatusCode.", comments ='".$strComments."', updated_by = ".$intUpdateBy.", updated_date =".date('YmdHis')." where id = ".$intLeadCode);
-			}
+			/* Setting new task of same lead */
+			$intTransStatus	= $this->_databaseObject->getDirectQueryResult("update master_leads set last_followup_date = next_followup_date, next_followup_date = '".$inNetxFollowUpDate."', status_code = ".$intStatusCode.", comments ='".$strComments."', updated_by = ".$intUpdateBy.", updated_date =".date('YmdHis')." where id = ".$intLeadCode);
 		}							
 		
 		/* Setting communication history */
@@ -174,7 +164,7 @@ class Task{
 													);
 		/* Removed used variables */
 		unset($communicationHistoryObj);
-		
+		exit;
 		/* Return task transaction status */
 		return $intTransStatus;
 	}
@@ -203,11 +193,8 @@ class Task{
 				if(strstr($pStrFilterArrKey,'like')!=''){
 					/*Checking for like clause */
 					$strWhere	.= " AND ".str_replace('like','',$pStrFilterArrKey)." like  '%".$pStrFilterArrValue."%'";
-				}else if(is_array($pStrFilterArrValue)){
-					/* Setting in array filter */
-					$strWhere	.= ' AND '.$pStrFilterArrKey.' in( '.implode(',',$pStrFilterArrValue).')';
 				}else{
-					/* Setting normal filter */
+					/* Setting normal filer */
 					$strWhere	.= ' AND '.$pStrFilterArrKey.' = '.$pStrFilterArrValue;
 				}
 			}
