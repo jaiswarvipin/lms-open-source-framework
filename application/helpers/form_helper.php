@@ -36,7 +36,7 @@ class Form{
 				/* Checking child */
 				if(isset($pStrDropDownElementArrValue['child'])){
 					/* Setting Option Group */
-					$strDropDownHTML .= '<optgroup label="'.$pStrDropDownElementArrValue['name'].'">';
+					$strDropDownHTML .= '<optgroup label="'.$pStrDropDownElementArrValue['name']['name'].'" values="'.$pStrDropDownElementArrValue['name']['value'].'">';
 				
 					/* Iterating the loop */
 					foreach($pStrDropDownElementArrValue['child'] as $pStrDropDownElementArrValueKey => $pStrDropDownElementArrValueDetails){
