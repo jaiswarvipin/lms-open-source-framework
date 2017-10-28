@@ -26,7 +26,7 @@ class Leadcounts extends Requestprocess {
 		$this->_isDebug			= (isset($_REQUEST['debug']))?true:false;
 	}
 	
-	/**********************************************************************/
+9	/**********************************************************************/
 	/*Purpose 	: Default method to be executed.
 	/*Inputs	: none
 	/*Created By: Jaiswar Vipin Kumar R.
@@ -190,7 +190,7 @@ class Leadcounts extends Requestprocess {
 		
 		/* Get all company status list array */
 		$strStatusArr	=  $statusObj->getLeadStatusByCompanyCode();
-		/* Removed sued variables */
+		/* Removed used variables */
 		unset($statusObj);
 		
 		/* if Debugging is set the do needful */

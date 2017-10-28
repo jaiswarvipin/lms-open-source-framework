@@ -55,20 +55,7 @@
 
 
 <div class="row">
-	<div class="col s6">
-		<table class="bordered highlight responsive-table">
-			<thead>
-				<tr>
-					<th width="100%">Top Employee</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr>
-					<td><h1 style="color:gray; text-align:center;">TOP EMPLOYEE</h1></td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
+	<div class="col s6"><?php echo $strEmpPerformance?></div>
 	<div class="col s6">
 		<table class="bordered highlight responsive-table">
 			<thead>

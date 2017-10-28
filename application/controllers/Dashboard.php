@@ -45,6 +45,7 @@ class Dashboard	 extends Requestprocess {
 		$strDataArr['strBranchLeads']		= $this->_getRegionBranchWiseLeadCount('branch_code');
 		$strDataArr['strRegionPerformance']	= $this->_getRegionBranchPerformaceWiseCount('region_code');
 		$strDataArr['strBranchPerformance']	= $this->_getRegionBranchPerformaceWiseCount('branch_code');
+		$strDataArr['strEmpPerformance']	= $this->_getTopPerformingEmployee();
 
 		/* Load the View */
 		$strDataArr['body']	= $this->load->view(DASHBOARD_TEMPLATE, $strDataArr, true);
@@ -335,6 +336,119 @@ class Dashboard	 extends Requestprocess {
 		
 		/* Return  new lead HTML */
 		return $this->load->view('dashboard/region_branch_performance_count', array('strResultArr'=>$strResultArr,'strLabel'=>$strLabel), true);
+		
+		/* removed used variables */
+		unset($strResultArr);
+	}
+	
+	
+	
+	/**********************************************************************/
+	/*Purpose 	: Get top performaing lead owner lead count from reporting strecture.
+	/*Inputs	: None.
+	/*Returns 	: Lead owner list from along with performance.
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
+	private function _getTopPerformingEmployee(){
+		/* Variable initialization */
+		$strResultArr	= $strWhereArr	= $strStatusArr = $strAllStatusArr =  array();
+		$strPerformanceStatusArr	= array(OPEN_CLOSURE_STATUS_CODE,POSITIVE_CLOSURE_STATUS_CODE);
+		
+		/* Variable initialization */
+		$intYesterdayDate	= date('Ymd',mktime(date('H'),date('i'),date('s'),date('m'),date('d')-1,date('Y')));
+		$intWeekDate		= date('Ymd',mktime(date('H'),date('i'),date('s'),date('m'),date('d')-WEEAK_DAYS,date('Y')));
+		
+		/* Setting filter clause */
+		$strWhereArr		= array('trans_rpt_employee_performance.company_code'=>$this->getCompanyCode(), 'trans_rpt_employee_performance.record_date'=>$intYesterdayDate, 'branch_code'=>array_keys(decodeKeyValueArr($this->getBranchDetails())), 'status_type'=>OPEN_CLOSURE_STATUS_CODE);
+		
+		/* Query builder Array */
+		$strFilterArr	= array(
+									'table'=>array('trans_rpt_employee_performance','master_user'),
+									'join'=>array('','trans_rpt_employee_performance.lead_owner_code = master_user.id'),
+									'where'=>$strWhereArr,
+									'column'=>array('sum(lead_count) as lead_count','status_type','lead_owner_code','name','region_code','branch_code'),
+									'group'=>array('lead_owner_code','status_type')
+							);
+		
+		/* removed used variables */
+		unset($strWhere);
+		
+		/* getting number of lead count from location */
+		$strResultArrSet 	= $this->_objDataOperation->getDataFromTable($strFilterArr);
+		
+		/* if record found then do needful */
+		if(!empty($strResultArrSet)){
+			/* Iterating the loop */
+			foreach($strResultArrSet as $strResultArrSetKey => $strResultArrSetValue){
+				/* Setting record by lead code */
+				$strFormatedResult[$strResultArrSetValue['lead_owner_code']]	= array_merge(array('value'=>0,'open'=>$strResultArrSetValue['lead_count']),$strResultArrSetValue);
+			}
+		}
+		
+		
+		
+		/******* Setting filter clause for positive closur */
+		$strWhereArr		= array('trans_rpt_employee_performance.company_code'=>$this->getCompanyCode(),'trans_rpt_employee_performance.record_date <='=>$intYesterdayDate,'trans_rpt_employee_performance.record_date >='=>$intWeekDate , 'branch_code'=>array_keys(decodeKeyValueArr($this->getBranchDetails())), 'status_type'=>POSITIVE_CLOSURE_STATUS_CODE);
+		
+		/* Query builder Array */
+		$strFilterArr	= array(
+									'table'=>array('trans_rpt_employee_performance','master_user'),
+									'join'=>array('','trans_rpt_employee_performance.lead_owner_code = master_user.id'),
+									'where'=>$strWhereArr,
+									'column'=>array('sum(lead_count) as lead_count','status_type','lead_owner_code','name','region_code','branch_code'),
+									'group'=>array('lead_owner_code','status_type')
+							);
+		
+		/* removed used variables */
+		unset($strWhere);
+		
+		/* getting number of lead count from location */
+		$strResultArrSet 		= $this->_objDataOperation->getDataFromTable($strFilterArr);
+		
+		/* if record found then do needful */
+		if(!empty($strResultArrSet)){
+			/* Iterating the loop */
+			foreach($strResultArrSet as $strResultArrSetKey => $strResultArrSetValue){
+				/* variable initialziation */
+				$intValue	= 0;
+				/* if lead owner code is set for open and count is > then do need full */
+				if((isset($strFormatedResult[$strResultArrSetValue['lead_owner_code']]))){
+					/* if count > 0 then do needful */
+					if((int)$strFormatedResult[$strResultArrSetValue['lead_owner_code']]['open'] > 0){
+						/* Setting the performance value */
+						$intValue	= numberFormating(($strResultArrSetValue['lead_count'] / $strFormatedResult[$strResultArrSetValue['lead_owner_code']]['open'])); 
+					}else{
+						/* Setting the performance value */
+						$intValue	= numberFormating($strResultArrSetValue['lead_count'] * 100); 
+					}
+					
+					/* Setting record by lead code */
+					$strFormatedResult[$strResultArrSetValue['lead_owner_code']]			= array_merge(array('closed'=>$strResultArrSetValue['lead_count']), $strFormatedResult[$strResultArrSetValue['lead_owner_code']]);
+					$strFormatedResult[$strResultArrSetValue['lead_owner_code']]['value']	= $intValue;
+				}else{
+					/* Setting the performance value */
+					$intValue	= numberFormating($strResultArrSetValue['lead_count'] * 100); 
+					/* Setting record by lead code */
+					$strFormatedResult[$strResultArrSetValue['lead_owner_code']]	= array_merge(array('closed'=>$strResultArrSetValue['lead_count'], 'value'=>$intValue,'open'=>0),$strResultArrSetValue);
+				}
+			}
+		}
+		
+		/* Sorting by value */
+		usort($strFormatedResult, function($pFirstRefrenceArr, $pSecondRefrenceArr) {
+			return $pFirstRefrenceArr['value'] - $pSecondRefrenceArr['value'];
+		});
+		
+		/* Setting value */
+		$strResultArr['data']	= $strFormatedResult;
+		$strResultArr['region']	= $this->getRegionDetails();
+		$strResultArr['branch']	= $this->getBranchDetails();
+		
+		/* removed used variables */
+		unset($strFormatedResult, $strStatusArr, $strIndexName, $strResultSetArr, $strIndexArr, $strFinalReturnArr);
+		
+		/* Return  new lead HTML */
+		return $this->load->view('dashboard/employee_performace_count', array('strResultArr'=>$strResultArr), true);
 		
 		/* removed used variables */
 		unset($strResultArr);
