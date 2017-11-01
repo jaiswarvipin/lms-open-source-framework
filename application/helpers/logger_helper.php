@@ -176,7 +176,7 @@ class Logger{
 				/* Iterating the loop */
 				foreach($strLeadSourceArr as $strLeadSourceArrKey => $strLeadSourceArrValue){
 					/* Settings lead source */
-					$strLoggerArr['leadSource'][getEncyptionValue($strLeadArrtirbuteArrValue['id'])] = $strLeadSourceArrValue;
+					$strLoggerArr['leadSource'][getEncyptionValue($strLeadSourceArrValue['id'])] = $strLeadSourceArrValue;
 				}
 			}else{
 				$strLoggerArr['leadSource']	= array();

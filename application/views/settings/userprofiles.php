@@ -5,6 +5,7 @@
 	          <tr>
 	              <th width='5%'>#</th>
 	              <th>Name</th>
+	              <th>Email</th>
 				  <th>Role</th>
 				  <th>Status</th>
 				  <th width='7%'>Action</th>
@@ -17,8 +18,9 @@
 	        		foreach($dataSet as $dataSetKey => $dataSetValue){?>
 						<tr>
 		          			<td><?php echo $intCoounter?></td>
-		            		<td><?php echo $dataSetValue['name']?></td>
-							<td><?php echo $dataSetValue['email']?></td>
+		            		<td><?php echo $dataSetValue['user_name']?></td>
+							<td><?php echo $dataSetValue['user_email']?></td>
+							<td><?php echo $dataSetValue['role_name']?></td>
 							<td><?php echo $dataSetValue['is_active']?></td>
 					  		<td>
 		            			<a href="javascript:void(0);" onclick="openEditModel('deleteModel','<?php echo getEncyptionValue($dataSetValue['id'])?>',0);" class="waves-effect waves-circle waves-light btn-floating secondary-content red"><i class="material-icons">delete</i></a>&nbsp;
@@ -28,7 +30,7 @@
 						<?php $intCoounter++;?>
 	        	<?php }
 	        		}else{
-	        			echo getNoRecordFoundTemplate(3);
+	        			echo getNoRecordFoundTemplate(6);
 	        		}
 				?>
 	        </tbody>
@@ -50,11 +52,11 @@
 
             <div class='row'>
               <div class='input-field col s4'>
-                <input class='validate' type='text' name='txtUserName' id='txtUserName' data-set="name" />
+                <input class='validate' type='text' name='txtUserName' id='txtUserName' data-set="user_name" />
                 <label for='txtUserName'>Enter User Name *</label>
               </div>
 			  <div class='input-field col s4'>
-                <input class='validate' type='text' name='txtEmail' id='txtEmail' data-set="email" />
+                <input class='validate' type='text' name='txtEmail' id='txtEmail' data-set="user_email" />
                 <label for='txtEmail'>Enter Email ID *</label>
               </div>
 			  <div class='input-field col s4'>

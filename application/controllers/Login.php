@@ -47,7 +47,7 @@ class Login extends CI_Controller {
 		/* Creating the common DML object reference */
 		$ObjdbOperation	= new Dbrequestprocess_model();
 		/* Checking for requested user authentication */
-		$strResponseArr	= $ObjdbOperation->getDataFromTable(array('table'=>$this->_strPrimaryTableName, 'where'=>array('email'=>$strEmail,'password'=>md5($strpassword))));
+		$strResponseArr	= $ObjdbOperation->getDataFromTable(array('table'=>$this->_strPrimaryTableName, 'where'=>array('user_email'=>$strEmail,'password'=>md5($strpassword))));
 		/* removed used variables */
 		unset($ObjdbOperation);
 

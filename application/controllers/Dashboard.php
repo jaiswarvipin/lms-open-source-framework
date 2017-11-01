@@ -46,6 +46,7 @@ class Dashboard	 extends Requestprocess {
 		$strDataArr['strRegionPerformance']	= $this->_getRegionBranchPerformaceWiseCount('region_code');
 		$strDataArr['strBranchPerformance']	= $this->_getRegionBranchPerformaceWiseCount('branch_code');
 		$strDataArr['strEmpPerformance']	= $this->_getTopPerformingEmployee();
+		$strDataArr['strSalesFunnel']		= $this->_getSaleFunnel();
 
 		/* Load the View */
 		$strDataArr['body']	= $this->load->view(DASHBOARD_TEMPLATE, $strDataArr, true);
@@ -341,8 +342,6 @@ class Dashboard	 extends Requestprocess {
 		unset($strResultArr);
 	}
 	
-	
-	
 	/**********************************************************************/
 	/*Purpose 	: Get top performaing lead owner lead count from reporting strecture.
 	/*Inputs	: None.
@@ -366,7 +365,7 @@ class Dashboard	 extends Requestprocess {
 									'table'=>array('trans_rpt_employee_performance','master_user'),
 									'join'=>array('','trans_rpt_employee_performance.lead_owner_code = master_user.id'),
 									'where'=>$strWhereArr,
-									'column'=>array('sum(lead_count) as lead_count','status_type','lead_owner_code','name','region_code','branch_code'),
+									'column'=>array('sum(lead_count) as lead_count','status_type','lead_owner_code','user_name as name','region_code','branch_code'),
 									'group'=>array('lead_owner_code','status_type')
 							);
 		
@@ -395,7 +394,7 @@ class Dashboard	 extends Requestprocess {
 									'table'=>array('trans_rpt_employee_performance','master_user'),
 									'join'=>array('','trans_rpt_employee_performance.lead_owner_code = master_user.id'),
 									'where'=>$strWhereArr,
-									'column'=>array('sum(lead_count) as lead_count','status_type','lead_owner_code','name','region_code','branch_code'),
+									'column'=>array('sum(lead_count) as lead_count','status_type','lead_owner_code','user_name as name','region_code','branch_code'),
 									'group'=>array('lead_owner_code','status_type')
 							);
 		
@@ -452,5 +451,54 @@ class Dashboard	 extends Requestprocess {
 		
 		/* removed used variables */
 		unset($strResultArr);
+	}
+	
+	/**********************************************************************/
+	/*Purpose 	: Get sales funnel.
+	/*Inputs	: None.
+	/*Returns 	: Sales funnel data.
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
+	private function _getSaleFunnel(){
+		/* Variable initialization */
+		$strReturnArr	=  	$strFilterArr = array();
+		$intYesterdayDate	= date('Ymd',mktime(date('H'),date('i'),date('s'),date('m'),date('d')-1,date('Y')));
+		
+		/* Getting lead status based on paraent code */
+		$strReturnArr['statusArr']		= $this->getLeadStatusBasedOnRequest();
+		$strReturnArr['intDate']		= $intYesterdayDate;
+		
+		/* Creating the query array */
+		$strFilterArr	= array(
+									'table'=>array('trans_rpt_leads','master_status'),
+									'join'=>array('','trans_rpt_leads.status_code = master_status.id'),
+									'column'=>array('count(trans_rpt_leads.id) as leadCount','description','status_code','parent_id','left(lead_record_date,8) as lead_date'),
+									'where'=>array('trans_rpt_leads.company_code'=>$this->getCompanyCode(),'branch_code'=>decodeKeyValueArr($this->getBranchCodes(),true),'trans_rpt_leads.record_date'=>$intYesterdayDate),
+									'group'=>array('status_code')
+							);
+		
+		/* getting number of lead count from location */
+		$strResultArrSet 		= $this->_objDataOperation->getDataFromTable($strFilterArr);
+		/* Removed used variable */
+		unset($strFilterArr);
+		
+		/* if result having some records then do needful */
+		if(!empty($strResultArrSet)){
+			/* Iterating the loop */
+			foreach($strResultArrSet as $strResultArrSetKey => $strResultArrSetValue){
+				/* Setting the array group by parent status */
+				$strReturnArr['data'][$strResultArrSetValue['parent_id']][$strResultArrSetValue['status_code']] = $strResultArrSetValue;
+			}
+			
+		}
+		
+		/* Removed used variable */
+		unset($strResultArrSet);
+		
+		/* Return  new lead HTML */
+		return $this->load->view('dashboard/sales_funnel', array('strResultArr'=>$strReturnArr), true);
+		
+		/* removed used variables */
+		unset($strReturnArr);
 	}
 }

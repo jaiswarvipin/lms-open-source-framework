@@ -63,7 +63,7 @@ class Register extends CI_Controller {
 		/* User Registration */
 		}else{
 			/* Company Registration */
-			$intResponseCode	= $ObjdbOperation->setDataInTable(array('table'=>$this->_strSecondaryTableName, 'data'=>array('name'=>$strAdminName,'email'=>$strEmail,'password'=>md5($strpassword),'company_code'=>$intResponseCode,'is_admin'=>1)));
+			$intResponseCode	= $ObjdbOperation->setDataInTable(array('table'=>$this->_strSecondaryTableName, 'data'=>array('user_name'=>$strAdminName,'user_email'=>$strEmail,'password'=>md5($strpassword),'company_code'=>$intResponseCode,'is_admin'=>1)));
 
 
 			/* Checking user existance respone */
@@ -104,7 +104,7 @@ class Register extends CI_Controller {
 			jsonReturn(array('status'=>0,'message'=>"Company already exists with same name."), true);
 		}else{
 			/* Checking for requested user alreay exists with requested email address */
-			$strResponseArr	= $ObjdbOperation->getDataFromTable(array('table'=>$this->_strSecondaryTableName, 'where'=>array('email'=>$pStrEmail)));
+			$strResponseArr	= $ObjdbOperation->getDataFromTable(array('table'=>$this->_strSecondaryTableName, 'where'=>array('user_email'=>$pStrEmail)));
 
 			/* if company alreay exists then do needful */
 			if(!empty($strResponseArr)){

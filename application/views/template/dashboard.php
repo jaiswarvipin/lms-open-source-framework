@@ -1,25 +1,5 @@
 <div class="row">
-	<div class="col s12">
-		<table class="bordered highlight responsive-table">
-			<thead>
-				<tr>
-					<th width="100%">Sales Funnel</th>
-			  </tr>
-			</thead>
-			<tbody>
-				<tr>
-					<table border="0" width="100%">
-						<tr>
-							<td>Total leads Input</td>
-							<td>Opening lead</td>
-							<td>Negative Lead</td>
-							<td>Positive Lead</td>
-						</tr>
-					</table>
-				</tr>
-			</tbody>
-		</table>
-	</div>
+	<div class="col s12"><?php echo $strSalesFunnel?></div>
 </div>
 <div class="row">
 	<div class="col s12">

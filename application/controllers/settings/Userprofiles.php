@@ -108,7 +108,7 @@ class Userprofiles extends Requestprocess {
 		}
 		
 		/* Setting the company filter */
-		$strWhereClauseArr	= array('company_code'=>$this->getCompanyCode());
+		$strWhereClauseArr	= array($this->_strPrimaryTableName.'.company_code'=>$this->getCompanyCode());
 		
 		/* if user profile filter code is passed then do needful */
 		if($pUserCodeCode < 0){
@@ -144,10 +144,10 @@ class Userprofiles extends Requestprocess {
 				/* iF edit request then do needful */
 				if($isEditRequest){
 					/* Adding Status code filter */
-					$strWhereClauseArr	= array_merge($strWhereClauseArr, array('id !='=>$pUserCodeCode));
+					$strWhereClauseArr	= array_merge($strWhereClauseArr, array($this->_strPrimaryTableName.'.id !='=>$pUserCodeCode));
 				}else{
 					/* Adding Status code filter */
-					$strWhereClauseArr	= array_merge($strWhereClauseArr, array('id'=>$pUserCodeCode));
+					$strWhereClauseArr	= array_merge($strWhereClauseArr, array($this->_strPrimaryTableName.'.id'=>$pUserCodeCode));
 				}
 			}
 		}
@@ -159,11 +159,16 @@ class Userprofiles extends Requestprocess {
 		}
 		
 		/* Filter array */
-		$strFilterArr	= array('table'=>$this->_strPrimaryTableName,'where'=>$strWhereClauseArr);
+		$strFilterArr	= array(
+									'table'=>array($this->_strPrimaryTableName,'master_role'),
+									'column'=>array($this->_strPrimaryTableName.'.*','master_role.description as role_name'),
+									'join'=>array('',$this->_strPrimaryTableName.'.role_code =  master_role.id'),
+									'where'=>$strWhereClauseArr
+								);
 		
 		/* if count needed then do needful */
 		if($pBlnCountNeeded ){
-			$strFilterArr['column']	 = array(' count(id) as recordCount ');
+			$strFilterArr['column']	 = array(' count('.$this->_strPrimaryTableName.'.id) as recordCount ');
 		}
 		
 		/* if requested page number is > 0 then do needful */ 
@@ -201,10 +206,10 @@ class Userprofiles extends Requestprocess {
 				foreach($strUserLocationArr as $strUserLocationArrKey => $strUserLocationArrValue){
 					$strLocationArr['zone'][]	= $strUserLocationArrValue['zone_code'];
 				}
+				
+				/* Get all Region,City, Area and Branches selected */
+				$strLocationArr	=  $objLocation->getLocationsByZoneCode($strLocationArr['zone']);
 			}
-			
-			/* Get all Region,City, Area and Branches selected */
-			$strLocationArr	=  $objLocation->getLocationsByZoneCode($strLocationArr['zone']);
 			
 			/* if location array found then do needful */
 			if(!empty($strLocationArr)){
@@ -306,7 +311,7 @@ class Userprofiles extends Requestprocess {
 		}
 		
 		/* Checking enter email address is already register or not */
-		$strUserDataArr	= $this->_objDataOperation->getDataFromTable(array('table'=>$this->_strPrimaryTableName, 'where'=>array('email'=>$strEmailAddress)));
+		$strUserDataArr	= $this->_objDataOperation->getDataFromTable(array('table'=>$this->_strPrimaryTableName, 'where'=>array('user_email'=>$strEmailAddress)));
 		
 		/* if status already exists then do needful */
 		if(!empty($strUserDataArr)){
@@ -317,8 +322,8 @@ class Userprofiles extends Requestprocess {
 			$strDataArr		= array(
 										'table'=>$this->_strPrimaryTableName,
 											'data'=>array(
-														'name'=>$strUserName,
-														'email'=>$strEmailAddress,
+														'user_name'=>$strUserName,
+														'user_email'=>$strEmailAddress,
 														'password'=>md5($strPassword),
 														'company_code'=>$this->getCompanyCode(),
 														'is_active'=>$intUserStatusCode,

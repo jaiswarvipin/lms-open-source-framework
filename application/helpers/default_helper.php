@@ -349,6 +349,7 @@ function getDateFormat($pIntDate = 0, $intDateFormat = 0){
 			return str_replace(array('/',':'),array('',''),$pIntDate);
 			break;
 		case 2:
+			return date('d M Y',strtotime($pIntDate));
 			break;
 	}
 }

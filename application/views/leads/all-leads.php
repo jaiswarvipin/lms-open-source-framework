@@ -15,7 +15,8 @@
 	        <tbody id="tblLeadContaierBody">
 				<?php if((!empty($dataSet)) && (!empty($strColumnsArr))){?>
 					<?php foreach($dataSet as $dataSetKey => $dataSetValue){?>
-						<tr>
+						<?php $strRowClass = (isset($dataSetValue['task_notifi'])?' '.$dataSetValue['task_notifi']:'');?>
+						<tr<?php echo $strRowClass;?>>
 							<?php if((isset($dataSetValue['is_open'])) && ($dataSetValue['is_open'] == 1)){?>
 								<td><input type="checkbox" name="chkLeadCode[]" value="<?php echo getEncyptionValue($dataSetValue['lead_code']).DELIMITER.getEncyptionValue($dataSetValue['lead_owner_code'])?>" /><label for="test5"></label></td>
 							<?php }else{?>
@@ -30,11 +31,15 @@
 							<?php }?>
 							<td>
 								<?php if((isset($dataSetValue['is_open'])) && ($dataSetValue['is_open'] == 1)){?>
-									<a href="javascript:void(0);" onclick="openEditModel('divLeadProfileDetails','<?php echo getEncyptionValue($dataSetValue['lead_code']).DELIMITER.''?>',4);" class="waves-effect waves-circle waves-light btn-floating secondary-content"><i class="material-icons">add</a>
-									<a href="javascript:void(0);" onclick="openEditModel('divlLeadFolloupDetails','<?php echo getEncyptionValue($dataSetValue['lead_code']).DELIMITER.getEncyptionValue($dataSetValue['lead_owner_code'])?>',4);" class="waves-effect waves-circle waves-light btn-floating secondary-content"><i class="material-icons">edit</i></a>
+									<?php if($strDataAddEditPanel != 'taskModules'){?>
+										<a href="javascript:void(0);" onclick="openEditModel('divLeadProfileDetails','<?php echo getEncyptionValue($dataSetValue['lead_code']).DELIMITER.''?>',4);" class="waves-effect waves-circle waves-light btn-floating secondary-content"><i class="material-icons">edit</a>
+									<?php }?>
+									<a href="javascript:void(0);" onclick="openEditModel('divlLeadFolloupDetails','<?php echo getEncyptionValue($dataSetValue['lead_code']).DELIMITER.getEncyptionValue($dataSetValue['lead_owner_code'])?>',4);" class="waves-effect waves-circle waves-light btn-floating secondary-content"><i class="material-icons">add</i></a>
 								<?php }else{?>
-									<a href="javascript:void(0);" class="disabled waves-effect waves-circle waves-light btn-floating secondary-content"><i class="material-icons">add</a>
-									<a href="javascript:void(0);" class="disabled waves-effect waves-circle waves-light btn-floating secondary-content"><i class="material-icons">edit</i></a>
+									<?php if($strDataAddEditPanel != 'taskModules'){?>
+										<a href="javascript:void(0);" class="disabled waves-effect waves-circle waves-light btn-floating secondary-content"><i class="material-icons">edit</a>
+									<?php }?>
+									<a href="javascript:void(0);" class="disabled waves-effect waves-circle waves-light btn-floating secondary-content"><i class="material-icons">add</i></a>
 								<?php }?>
 							</td>
 						</tr>

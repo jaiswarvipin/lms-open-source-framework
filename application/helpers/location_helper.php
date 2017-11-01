@@ -109,7 +109,7 @@ class Location{
 		$strFilterArr	= array(
 									'table'=>array($this->_strTableName.' as zone',$this->_strTableName.' as region',$this->_strTableName.' as city',$this->_strTableName.' as area',$this->_strTableName.' as branch','trans_user_location','master_user','master_role'),
 									'join'=>array('','zone.id = region.parent_code','region.id = city.parent_code','city.id = area.parent_code','area.id = branch.parent_code','branch.id = trans_user_location.branch_code','master_user.id = trans_user_location.user_code','master_user.role_code = master_role.id'),
-									'column'=>array('zone.description zone_name','zone.id zone_code','region.description region_name','region.id region_code','city.description city_name','city.id city_code','area.description area_name','area.id area_code','branch.description branch_name','branch.id branch_code',"CONCAT(name, '-', master_role.description) as user_name",'master_user.id as user_code'),
+									'column'=>array('zone.description zone_name','zone.id zone_code','region.description region_name','region.id region_code','city.description city_name','city.id city_code','area.description area_name','area.id area_code','branch.description branch_name','branch.id branch_code',"CONCAT(user_name, '-', master_role.description) as user_name",'master_user.id as user_code'),
 									'where'=>$strWhereArr
 							);
 		

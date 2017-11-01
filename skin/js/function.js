@@ -112,7 +112,6 @@ function processRequestAfterResponse(pStrFormName, pStrResponseObject){
 						$.each(objResponse, function(strKeyColumn, strColumnValue){
 							$('#'+objectRefrence).find('input').each(function(){
 								if(($(this).attr('type') == 'radio') || ($(this).attr('type') == 'checkbox')){
-									console.log($(this).attr('data-set') + ' -> ' + strKeyColumn);
 									if(($(this).attr('data-set') == strKeyColumn) && ($(this).val() == strColumnValue)){
 										$(this).attr('checked','checked');
 									}
@@ -392,6 +391,7 @@ $(document).ready(function(){
 		}else{
 			showLoader();
 			clearAllToast();
+			alert($('#'+strFormName).find('input[id="txtSearch"]').val());
 			if($('#'+strFormName).find('input[id="txtSearch"]').val() == '1'){
 				goToPage(0,strFormName);
 				//$('#'+strFormName).submit();

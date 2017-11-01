@@ -20,7 +20,7 @@ class Employeeperformance extends Requestprocess {
 		parent::__construct();
 		
 		/* getting yesterday */
-		$this->_intYesterDate	= (isset($_REQUEST['date']))?$_REQUEST['date']:date('Ymd', mktime(date('m'),date('d')-1,date('Y')));
+		$this->_intYesterDate	= (isset($_REQUEST['date']))?$_REQUEST['date']:date('Ymd', mktime(date('H'),date('i'),date('s'),date('m'),date('d')-1,date('Y')));
 		
 		/* Setting debug */
 		$this->_isDebug			= (isset($_REQUEST['debug']))?true:false;
@@ -63,7 +63,7 @@ class Employeeperformance extends Requestprocess {
 			$strMessageArr	= jsonReturn(array('status'=>0,'message'=>'No lead details found.'));
 		}else{
 			/* Deactivate requested date data */
-			$this->_objDataOperation->setUpdateData(array('table'=>'trans_rpt_employee_performance','data'=>array('deleted'=>1),'where'=>array('record_date'=>date('Ymd'))));
+			$this->_objDataOperation->setUpdateData(array('table'=>'trans_rpt_employee_performance','data'=>array('deleted'=>1),'where'=>array('record_date'=>$this->_intYesterDate)));
 			
 			/* Iterating the loop */
 			foreach($strLeadCountArr as $strLeadCountArrKey => $strLeadCountArrValue){
