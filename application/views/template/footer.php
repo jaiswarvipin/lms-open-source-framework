@@ -11,5 +11,4 @@
   	<script type="text/javascript" src="<?php echo SITE_URL.RESOURCE_SCRIPT_PATH?>function<?php echo $strFileName?>.js?v=1.0.0.0.0"></script>
   	<?php unset($strFileName);?>
 </body>
-
 </html>
