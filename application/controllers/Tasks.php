@@ -41,7 +41,7 @@ class Tasks	 extends Requestprocess {
 		$strDataArr['strColumnsArr'] 		= $this->_strColumnArr;
 		$strDataArr['dataSet'] 				= $this->_getLeadsDetails(0,'',false,false, $intCurrentPageNumber);
 		$strDataArr['intPageNumber'] 		= ($intCurrentPageNumber * DEFAULT_RECORDS_ON_PER_PAGE) + 1;
-		$strDataArr['pagination'] 			= getPagniation($this->_getLeadsDetails(0,'',false,true), ($intCurrentPageNumber + 1), $this->_strModuleForm);
+		$strDataArr['pagination'] 			= getPagniation($this->_getLeadsDetails(0,'',false,true), ($intCurrentPageNumber + 1), 'frmLeadsColumnSearch');
 		$strDataArr['moduleTitle']			= $this->_strModuleName;
 		$strDataArr['moduleForm']			= $this->_strModuleForm;
 		$strDataArr['moduleUri']			= SITE_URL.__CLASS__;
@@ -186,7 +186,14 @@ class Tasks	 extends Requestprocess {
 		if(!empty($strLeadArr)){
 			/* Lead count */
 			if($pBlnCountNeeded){
-				$strReturnArr	= $strLeadArr;
+				/* Variable initialziation */
+				$intREcordCount = 0;
+				/* Iterating the loop */
+				foreach($strLeadArr as $strLeadArrKey => $strLeadArrValue){	
+					/* Setting counter */
+					$intREcordCount	+= $strLeadArrValue['recordCount'];
+				}
+				$strReturnArr[0]['recordCount'] = $intREcordCount;
 			}else{
 				/* Setting current date and time */
 				$intTodaysDate	= date('Ymd');

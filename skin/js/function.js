@@ -200,18 +200,27 @@ function processRequestAfterResponse(pStrFormName, pStrResponseObject){
 /**************************************************************************
  Purpose 		: Getting result set of requested page number.
  Inputs  		: intpageNumber :: page Number,
-				: fromObject :: From Object
+				: fromObject :: From Object,
+				: blnSetValue :: Reset value from Se3arch JSON
  Return 		: None.
  Created By 	: Jaiswar Vipin Kumar R
 /**************************************************************************/
-function goToPage(intpageNumber, fromObject){
+function goToPage(intpageNumber, fromObject, blnSetValue){
 	if(isNaN(intpageNumber)){
 		showToast('Invalid page number request.');
 	}else{
+		if(($('#txtSearchFilters').html() != '') && (blnSetValue)){
+			var strSearchArr	= jQuery.parseJSON($('#txtSearchFilters').html());
+			$.each(strSearchArr, function(strElementRefObj, strElementValue){
+				$('#'+fromObject).find('#'+strElementRefObj).val(strElementValue);
+			});
+			$('#'+fromObject).find('select').material_select();
+		}
+				
 		$('#frmModuleSearch').html('');
 		$('#frmModuleSearch').append('<input type="hidden" name="txtPageNumber" id="txtPageNumber" value="'+intpageNumber+'" />');
 		
-		if($('#'+fromObject).length > 0){
+		if($('#'+fromObject).length > 0){		
 			$('#'+fromObject).find('input').each(function(){
 				if((($(this).attr('type') == 'checkbox') || ($(this).attr('type') == 'radio')) && ($(this).attr('checked'))){
 					$('#frmModuleSearch').append('<input type="hidden" name="'+$(this).attr('name')+'" id="'+$(this).attr('id')+'" value="'+$(this).val()+'" />');
@@ -221,7 +230,9 @@ function goToPage(intpageNumber, fromObject){
 			});
 			
 			$('#'+fromObject).find('select').each(function(){
-				$('#frmModuleSearch').append('<input type="hidden" name="'+$(this).attr('name')+'" id="'+$(this).attr('id')+'" value="'+$(this).val()+'" />');
+				if($(this).attr('name')){
+						$('#frmModuleSearch').append('<input type="hidden" name="'+$(this).attr('name')+'" id="'+$(this).attr('id')+'" value="'+$(this).val()+'" />');
+				}
 			});
 		}
 		
@@ -340,6 +351,7 @@ function openEditModel(pModelRefenceObject, pIntRecordCode, isEdit){
 				$(objFrom).find('select').material_select();
 				break;
 			case 3:
+				
 				if($('#frmLeadsColumnSearch').length == 1){
 					objFrom	= 'frmLeadsColumnSearch';
 					$('.cmdDMLAction').attr('formname','frmLeadsColumnSearch');
@@ -347,8 +359,11 @@ function openEditModel(pModelRefenceObject, pIntRecordCode, isEdit){
 				}else{
 					$(objFrom).find("#txtSearch").val('1');
 				}
-				$('.spnActionText').html('Search');
 				
+				if(('leadModules' == pModelRefenceObject) || ('taskModules' == pModelRefenceObject)){
+					objFrom	= $('#frmLeadsColumnSearch');
+				}
+				$('.spnActionText').html('Search');
 				$('.cmdSearchReset').removeClass('hide');
 				$('.no-search').addClass('hide');
 				$('.no-add').removeClass('hide');
@@ -359,6 +374,12 @@ function openEditModel(pModelRefenceObject, pIntRecordCode, isEdit){
 						$(objFrom).find('#'+strElementRefObj).val(strElementValue);
 					});
 					$(objFrom).find('select').material_select();
+				}
+				
+				if($('#frmLeadsColumnSearch').length == 1){
+					$('#'+objFrom).find('input[id="txtSearch"]').val('1');
+				}else{
+					$(objFrom).find("#txtSearch").val('1');
 				}
 				
 				break;
@@ -391,9 +412,8 @@ $(document).ready(function(){
 		}else{
 			showLoader();
 			clearAllToast();
-			alert($('#'+strFormName).find('input[id="txtSearch"]').val());
 			if($('#'+strFormName).find('input[id="txtSearch"]').val() == '1'){
-				goToPage(0,strFormName);
+				goToPage(0,strFormName, false);
 				//$('#'+strFormName).submit();
 				return;
 			}else{
@@ -427,11 +447,18 @@ $(document).ready(function(){
 		var blnIsCheked	= $(this).is(':checked');
 		$('input[name="chkLeadCode[]"]').each(function(){
 			$(this).removeAttr('checked');
-			if(blnIsCheked){
+			if((blnIsCheked) && (!$(this).is(':disabled'))){
 				$(this).attr('checked','checked');
 			}
 		});
 	});
+	
+	/* Checking for action items */
+	if($('.dlActionList li').length == 0){
+		$('.aActionContainer').hide();
+	}
+	
+	drawChart();
 });
 
 /**************************************************************************
@@ -540,4 +567,57 @@ function setFollowUpView(pObjectRefrence){
 	var strValue = {'statusCode':$(pObjectRefrence).val()};
 	
 	postUserRequestVirualForm('frmStatusClassification',strValue,SITE_URL+'leadsoperation/leadsoperation/isOpenStatusCheck');
+}
+
+/**************************************************************************
+ Purpose 		: Draw chat based on request.
+ Inputs  		: None.
+ Return 		: None.
+ Created By 	: Jaiswar Vipin Kumar R
+/**************************************************************************/
+function drawChart(){
+	/* Lead Report - Parent status v/s date */
+	if($('#divParentStatusVSDateContainer').length > 0){
+		setParentStatusVSDateChart();
+	}
+	
+			
+}
+
+/**************************************************************************
+ Purpose 		: Lead Report - Parent status v/s date.
+ Inputs  		: None.
+ Return 		: None.
+ Created By 	: Jaiswar Vipin Kumar R
+/**************************************************************************/
+function setParentStatusVSDateChart(){
+	
+	Highcharts.chart('divParentStatusVSDateContainer', {
+		chart: {
+			type: 'line'
+		},
+		title: {
+			text: ''
+		},
+		subtitle: {
+			text: ''
+		},
+		xAxis: {
+			categories: strParentStatusVSDateJSON.date
+		},
+		yAxis: {
+			title: {
+				text: 'Lead Count(s)'
+			}
+		},
+		plotOptions: {
+			line: {
+				dataLabels: {
+					enabled: false
+				},
+				enableMouseTracking: true
+			}
+		},
+		series: strParentStatusVSDateJSON.data
+	});
 }

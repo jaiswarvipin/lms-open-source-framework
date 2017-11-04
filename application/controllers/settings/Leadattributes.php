@@ -119,7 +119,7 @@ class Leadattributes extends Requestprocess {
 			$strSlugKey				= getSlugify($strSlugName);
 			
 			if($strSlugKey != ''){
-				$strWhereClauseArr	= array_merge($strWhereClauseArr, array('attri_slug_key'=>$strSlugKey));
+				$strWhereClauseArr	= array_merge($strWhereClauseArr, array('attri_slug_key like'=>$strSlugKey));
 			}
 		}else{
 			/* Getting status categories */
@@ -138,7 +138,7 @@ class Leadattributes extends Requestprocess {
 		/* filter by email name */
 		if($pStrSlugName !=''){
 			/* Adding Status code filter */
-			$strWhereClauseArr	= array_merge($strWhereClauseArr, array('attri_slug_key'=>getSlugify($pStrSlugName)));
+			$strWhereClauseArr	= array_merge($strWhereClauseArr, array('attri_slug_key like'=>getSlugify($pStrSlugName)));
 		}
 		
 		/* Filter array */

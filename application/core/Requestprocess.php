@@ -69,7 +69,7 @@ class Requestprocess extends CI_Controller {
 			$this->_doDistryLoginCookie();
 
 			/* redirecting to login */
-			redirect(SITE_URL.'login', 'refresh');
+			redirect(SITE_URL.'login');
 		}else{
 			/* getting logger details */
 			$strLoggerArr 	= $this->_getLoggerDetails($strCookiesCode);

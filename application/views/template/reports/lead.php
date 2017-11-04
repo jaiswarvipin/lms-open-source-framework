@@ -10,7 +10,10 @@
 				<tr>
 					<table border="0" width="100%">
 						<tr>
-							<td><H1 style="color:gray; text-align:center;">Lead Count By Status & Date</H1></td>
+							<td>
+								<div id="divParentStatusVSDateContainer"></div>
+								<script language="JavaScript">var strParentStatusVSDateJSON = <?php echo $strParentStatusJSON?>;</script>
+							</td>
 						</tr>
 					</table>
 				</tr>
@@ -19,7 +22,25 @@
 	</div>
 </div>
 <div class="row">
-	<div class="col s12">
+	<div class="col s6">
+		<table class="bordered highlight responsive-table">
+			<thead>
+				<tr>
+					<th width="100%">Status v/s Date</th>
+			  </tr>
+			</thead>
+			<tbody>
+				<tr>
+					<table border="0" width="100%">
+						<tr>
+							<td><H1 style="color:gray; text-align:center;">Lead By Source and Date</H1></td>
+						</tr>
+					</table>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<div class="col s6">
 		<table class="bordered highlight responsive-table">
 			<thead>
 				<tr>
@@ -52,6 +73,7 @@
 						<thead>
 							<?php $intColumnCount = 0;?>
 							<?php if(!empty($strColumnsArr)){?>
+								<?php unset($strColumnsArr['date_range']);?>
 								<?php foreach($strColumnsArr as $strColumnsArrKey => $strColumnsArrValue){?>
 									<th><?php echo $strColumnsArrValue['label']?></th>
 									<?php $intColumnCount++;?>
@@ -64,11 +86,11 @@
 								if((isset($strDataArr['data'])) && (!empty($strDataArr['data']))){
 									/* Iterating the loop */
 									foreach($strDataArr['data'] as $strDataArrKey => $strDataArrValue){
-										
 										echo '<tr>';
 										
 										/* Iterating the column loop */
 										foreach($strColumnsArr as $strColumnsArrKey => $strColumnsArrValue){
+											
 											/* Setting value of respactive columns */
 											$strValue	= isset($strDataArrValue[$strColumnsArrValue['column']])?$strDataArrValue[$strColumnsArrValue['column']]:'-';
 											/* checking is data type column */

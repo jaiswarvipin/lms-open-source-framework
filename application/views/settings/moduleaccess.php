@@ -51,11 +51,13 @@
 								<th width="25%">Module Name</th>
 								<th>All</th>
 							</tr>
-							<?php foreach($strModuleArr as $strModuleArrKey => $strModuleArrValue){?>
-								<tr>
-									<td><?php echo str_replace('[divider]','',$strModuleArrValue['description'])?></td>
-									<td><input class='validate' type='checkbox' name='txtModulename[]' id='txtModulename[]' value="<?php echo getEncyptionValue($strModuleArrValue['id'])?>" data-set="module_code" />&nbsp;<label>&nbsp;</label></td>
-								</tr>
+							<?php foreach($strModuleArr as $strModuleArrKey => $strModuleArrValue){
+									if(isset($strModuleArrValue['description'])){?>
+										<tr>
+											<td><?php echo str_replace('[divider]','',$strModuleArrValue['description'])?></td>
+											<td><input class='validate' type='checkbox' name='txtModulename[]' id='txtModulename[]' value="<?php echo getEncyptionValue($strModuleArrValue['id'])?>" data-set="module_code" />&nbsp;<label>&nbsp;</label></td>
+										</tr>
+								<?php }?>
 								<?php if(isset($strModuleArrValue['child'])){?>
 									<?php foreach($strModuleArrValue['child'] as $strModuleArrValueKey => $strModuleArrValueDetails){?>
 										<tr>

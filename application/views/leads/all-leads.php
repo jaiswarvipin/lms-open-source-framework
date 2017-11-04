@@ -3,7 +3,7 @@
 		<table class="bordered highlight responsive-table">
 	        <thead>
 				<tr>
-					<th><input type="checkbox" id="chkBoxSelectAllLeads" /><label for="test5"></label></th>
+					<th><input type="checkbox" name="chkBoxSelectAllLeads" id="chkBoxSelectAllLeads" /><label for="chkBoxSelectAllLeads"></label></th>
 					<?php if(!empty($strColumnsArr)){?>
 						<?php foreach($strColumnsArr as $strColumnsArrKey => $strColumnsArrValue){?>
 							<th><?php echo $strColumnsArrValue['label']?></th>
@@ -18,9 +18,9 @@
 						<?php $strRowClass = (isset($dataSetValue['task_notifi'])?' '.$dataSetValue['task_notifi']:'');?>
 						<tr<?php echo $strRowClass;?>>
 							<?php if((isset($dataSetValue['is_open'])) && ($dataSetValue['is_open'] == 1)){?>
-								<td><input type="checkbox" name="chkLeadCode[]" value="<?php echo getEncyptionValue($dataSetValue['lead_code']).DELIMITER.getEncyptionValue($dataSetValue['lead_owner_code'])?>" /><label for="test5"></label></td>
+								<td><input type="checkbox" name="chkLeadCode[]" value="<?php echo getEncyptionValue($dataSetValue['lead_code']).DELIMITER.getEncyptionValue($dataSetValue['lead_owner_code'])?>" /><label for="chkLeadCode[]"></label></td>
 							<?php }else{?>
-								<td><input type="checkbox" name="chkLeadCode[]" disabled="disabled" /><label for="test5"></label></td>
+								<td><input type="checkbox" name="chkLeadCode[]" disabled="disabled" /><label for="chkLeadCode[]"></label></td>
 							<?php }?>
 							<?php foreach($strColumnsArr as $strColumnsArrKey => $strColumnsArrValue){?>
 								<?php if(isset($strColumnsArrValue['is_date'])){?>

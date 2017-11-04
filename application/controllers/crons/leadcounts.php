@@ -254,7 +254,7 @@ class Leadcounts extends Requestprocess {
 									'table'=>array('master_leads','trans_leads_'.$pIntCompnayCode),
 									'join'=>array('','master_leads.id = trans_leads_'.$pIntCompnayCode.'.lead_code'),
 									'where'=>array('company_code'=>$pIntCompnayCode,'left(master_leads.record_date,8) <='=>$this->_intYesterDate,'status_code'=>$strOpenArry),
-									'column'=>array('lead_code','status_code','region_code','branch_code','lead_owner_code','lead_source_code','master_leads.record_date as lead_record_date'),
+									'column'=>array('lead_code','status_code','region_code','branch_code','lead_owner_code','lead_source_code','master_leads.record_date as lead_record_date','assigment_date'),
 									//'group'=>array('status_code','region_code','branch_code','lead_owner_code','lead_source_code')
 							);
 		
@@ -274,34 +274,3 @@ class Leadcounts extends Requestprocess {
 		return $strReturnArr;
 	}
 }
-
-
-
-
-				
-				
-				
-				
-				/* Filter array *
-				$strFilterArr	= array(
-											'table'=>array('master_leads','trans_leads_'.$strCompanyArrValue['id']),
-											'join'=>array('','master_leads.id = trans_leads_'.$strCompanyArrValue['id'].'.lead_code'),
-											'where'=>array('company_code'=>$strCompanyArrValue['id'],'master_leads.record_date <='=>$this->_intYesterDate.'235959'),
-											'column'=>array('count(master_leads.id) as lead_count','status_code','region_code','branch_code','lead_owner_code','lead_source_code'),
-											'group'=>array('status_code','region_code','branch_code','lead_owner_code','lead_source_code')
-									);
-				/* Get count *
-				$strCountArr	= $this->_objDataOperation->getDataFromTable($strFilterArr);
-				
-				if(empty($strCountArr)){
-					/* Setting error message *
-					$strMessageArr	= jsonReturn(array('status'=>0,'message'=>'No lad details found for '.$strCompanyArrValue['id']));
-				}else{
-					/* Iterating the number *
-					foreach($strCountArr as $strCountArrKey => $strCountArrValue){
-						/* Creating the insert array *
-						$strInsertArr = array_merge($strCountArrValue , array('company_code'=>$strCompanyArrValue['id'],'record_date'=>date('Ymd'), 'updated_by'=>1));
-						/* Inserting into table *
-						//$this->_objDataOperation->setDataInTable(array('table'=>'trans_rpt_lead_count','data'=>$strInsertArr));
-					}
-				}*/

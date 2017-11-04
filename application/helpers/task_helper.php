@@ -189,12 +189,17 @@ class Task{
 		/* Variable initialization */
 		$strReturnArr	= array();
 		$strColumn		= $strWhere		= '';
+		$intLimit		= DEFAULT_RECORDS_ON_PER_PAGE;
+		$intffSet		= 0;
 		
 		/* Setting column */
 		$strColumn					= 'master_leads.*, trans_leads_'.$this->_intCompanyCode.'.* ,master_lead_source.description as souce_name, master_status.description as status_name, master_leads.record_date as lead_created_date, 0 as taskNotifiation';
 		
 		/* if lead filter is not empty then do needful */
 		if(!empty($pStrFilterArr)){
+			/* value overridding */
+			$intLimit		= isset($pStrFilterArr['limit'])?$pStrFilterArr['limit']:$intLimit;
+			$intffSet		= isset($pStrFilterArr['offset'])?$pStrFilterArr['offset']:$intffSet;
 			/* Removed page limit */
 			unset($pStrFilterArr['offset'] , $pStrFilterArr['limit']);
 			
@@ -264,6 +269,7 @@ class Task{
 										AND master_leads.company_code = '.$this->_intCompanyCode.'
 										AND trans_leads_'.$this->_intCompanyCode.'.branch_code in ('.implode(',',$this->_strBranchCodeArr).')
 										AND left(master_leads.next_followup_date,8) > '.date('Ymd').' '.$strWhere.'
+								LIMIT '.$intffSet.','.$intLimit.'
 							';
 		
 		/* if limit is set then do needful */

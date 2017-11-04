@@ -13,6 +13,7 @@
   <link rel="stylesheet" type="text/css" href="<?php echo SITE_URL.RESOURCE_CSS_PATH?>materialize<?php echo $strFileName?>.css">
   <link rel="stylesheet" type="text/css" href="<?php echo SITE_URL.RESOURCE_CSS_PATH?>jquery.fancybox<?php echo $strFileName?>.css">
   <link rel="stylesheet" type="text/css" href="<?php echo SITE_URL.RESOURCE_CSS_PATH?>style<?php echo $strFileName?>.css">
+  <link rel="stylesheet" type="text/css" href="<?php echo SITE_URL.RESOURCE_CSS_PATH?>highcharts<?php echo $strFileName?>.css">
   <style>
     body {
       display: flex;

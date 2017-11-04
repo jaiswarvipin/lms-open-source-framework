@@ -192,6 +192,17 @@ class Widget{
 			
 			/* Checking for element type */
 			if(isset($pStrColumnArrayValue['is_date'])){
+				/* Checking for date range element */
+				if((string)$pStrColumnArrayKey == 'date_range'){
+					$strReturmHTML.=	'<div class="input-field col s12">
+											<label for="'.$strElementPrefix.'FromDate">From Date</label>
+											<input type="text" name="'.$strElementPrefix.'FromDate" id="'.$strElementPrefix.'FromDate" class="datepicker" />
+										</div>
+										<div class="input-field col s12">
+												<label for="'.$strElementPrefix.'ToDate">To Date</label>
+												<input type="text" name="'.$strElementPrefix.'ToDate" id="'.$strElementPrefix.'ToDate" class="datepicker" />
+										</div>';
+				}
 			}else if(isset($pStrColumnArrayValue['dropdown'])){
 				$strReturmHTML.=	'<div class="input-field col s12">
 										<select name="'.$strElementPrefix.$pStrColumnArrayValue['column'].'" id="'.$strElementPrefix.$pStrColumnArrayValue['column'].'" data-set="'.$pStrColumnArrayValue['column'].'">'.$pStrColumnArrayValue['data'].'</select>

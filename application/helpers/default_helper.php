@@ -200,8 +200,8 @@ function getPagniation($pIntNumberOfPecordsArr = array(), $pIntCurrentPageNumber
 		}
 		/* Setting first page counter */
 		$strPagnationHTML	.= '
-									<li class="waves-effect"><a href="javascript:void(0);" onClick="goToPage(1,\''.$strFormName.'\');"><i class="material-icons">first_page</i></a></li>
-									<li class="waves-effect"><a href="javascript:void(0);" onClick="goToPage('.$intPreviousPageNumber.',\''.$strFormName.'\');"><i class="material-icons">chevron_left</i></a></li>
+									<li class="waves-effect"><a href="javascript:void(0);" onClick="goToPage(1,\''.$strFormName.'\',true);"><i class="material-icons">first_page</i></a></li>
+									<li class="waves-effect"><a href="javascript:void(0);" onClick="goToPage('.$intPreviousPageNumber.',\''.$strFormName.'\',true);"><i class="material-icons">chevron_left</i></a></li>
 								';
 	}else{
 		/* Setting first page counter */
@@ -232,8 +232,8 @@ function getPagniation($pIntNumberOfPecordsArr = array(), $pIntCurrentPageNumber
 		}
 		/* Setting first page counter */
 		$strPagnationHTML	.= '
-									<li class="waves-effect"><a href="javascript:void(0);" onClick="goToPage('.$intNextPageNumber.',\''.$strFormName.'\');"><i class="material-icons">chevron_right</i></a></li>
-									<li class="waves-effect"><a href="javascript:void(0);" onClick="goToPage('.$intNumberOfpages.',\''.$strFormName.'\');"><i class="material-icons">last_page</i></a></li>
+									<li class="waves-effect"><a href="javascript:void(0);" onClick="goToPage('.$intNextPageNumber.',\''.$strFormName.'\',true);"><i class="material-icons">chevron_right</i></a></li>
+									<li class="waves-effect"><a href="javascript:void(0);" onClick="goToPage('.$intNumberOfpages.',\''.$strFormName.'\',true);"><i class="material-icons">last_page</i></a></li>
 								';
 	}else{
 		/* Setting first page counter */
@@ -351,6 +351,12 @@ function getDateFormat($pIntDate = 0, $intDateFormat = 0){
 		case 2:
 			return date('d M Y',strtotime($pIntDate));
 			break;
+		case 3:
+			return date('M-Y',strtotime($pIntDate));
+			break;
+		case 4:
+			return date('d-M',strtotime($pIntDate));
+			break;
 	}
 }
 
@@ -385,7 +391,6 @@ function decodeKeyValueArr($pStrValueSetArr = array(), $isValueDecode = false){
 	return $strReturnArr;
 }
 
-
 /**********************************************************************/
 /*Purpose 	: Number formating.
 /*Inputs	: $pNumber	:: Value,
@@ -410,4 +415,15 @@ function numberFormating($pNumber = 0, $pIntFormatingType = 0){
 	
 	/* return formatted number */
 	return $pNumber;
+}
+
+/**********************************************************************/
+/*Purpose 	: Redirecting to other page .
+/*Inputs	: $pNumber	:: Value,
+			: $pIntFormatingType :: Formating type.
+/*Returns 	: Formated number.
+/*Created By: Jaiswar Vipin Kumar R.
+/**********************************************************************/
+function redirect($pStrDestinationURL){
+	die('<script language="JavaScript">window.location.href = "'.$pStrDestinationURL.'"</script>');
 }

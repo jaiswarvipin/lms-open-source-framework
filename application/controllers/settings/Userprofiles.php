@@ -124,10 +124,10 @@ class Userprofiles extends Requestprocess {
 			$intUserStatusCode		= ($this->input->post('cboUserStatus') != '')?getDecyptionValue($this->input->post('cboUserStatus')):0;
 			
 			if($strUserName != ''){
-				$strWhereClauseArr	= array_merge($strWhereClauseArr, array('name like'=>$strUserName));
+				$strWhereClauseArr	= array_merge($strWhereClauseArr, array('user_name like'=>$strUserName));
 			}
 			if($strEmailAddress != ''){
-				$strWhereClauseArr	= array_merge($strWhereClauseArr, array('email like'=>$strEmailAddress));
+				$strWhereClauseArr	= array_merge($strWhereClauseArr, array('user_email like'=>$strEmailAddress));
 			}
 			if($intUserRoleCode != 0){
 				$strWhereClauseArr	= array_merge($strWhereClauseArr, array('role_code'=>$intUserRoleCode));

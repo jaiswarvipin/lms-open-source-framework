@@ -132,7 +132,7 @@ class Modules extends Requestprocess {
 			$intParentModuleCode	= ($this->input->post('cboParentModuleCode') != '')?getDecyptionValue($this->input->post('cboParentModuleCode')):0;
 			
 			if($strModuleName != ''){
-				$strWhereClauseArr	= array_merge($strWhereClauseArr, array('description'=>$strModuleName));
+				$strWhereClauseArr	= array_merge($strWhereClauseArr, array('description like'=>$strModuleName));
 			}
 			if($intParentModuleCode > 0){
 				$strWhereClauseArr	= array_merge($strWhereClauseArr, array('parent_code'=>$intParentModuleCode));
@@ -154,7 +154,7 @@ class Modules extends Requestprocess {
 		/* filter by module name and parent code */
 		if($pStrModuleName !=''){
 			/* Adding module description and parent code as filter */
-			$strWhereClauseArr	= array_merge($strWhereClauseArr, array('description'=>$pStrModuleName));
+			$strWhereClauseArr	= array_merge($strWhereClauseArr, array('description like'=>$pStrModuleName));
 		}
 		
 		/* Filter array */

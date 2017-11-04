@@ -61,21 +61,25 @@
 				<div class="col s6 m6 l4"><h5><?php echo $moduleTitle;?></h5></div>
 				<div class="col s6 m6 l36 right">
 					<!-- Dropdown Trigger -->
-					<a class='dropdown-button btn right w200' href='#' data-activates='dropdown1'><i class="material-icons"></i>Action</a>
+					<a class='dropdown-button btn right w200 aActionContainer' href='javascript:void(0);' data-activates='dropdown1'><i class="material-icons"></i>Action</a>
 
 					<!-- Dropdown Structure -->
-					<ul id='dropdown1' class='dropdown-content'>
+					<ul id='dropdown1' class='dropdown-content dlActionList'>
 						<?php if(!isset($noSearchAdd)){?>
-							<li><a class="addItemInModule" href="javascript:void(0);" onclick="openEditModel('<?php echo $strDataAddEditPanel?>','',2);"><i class="material-icons">add_circle</i>Add New Lead</a></li>
-							<li class="divider"></li>
+							<?php if(($moduleForm != 'frmLeadReportSearch') && ($moduleForm != 'frmTaskReportSearch')){?>
+								<li><a class="addItemInModule" href="javascript:void(0);" onclick="openEditModel('<?php echo $strDataAddEditPanel?>','',2);"><i class="material-icons">add_circle</i>Add New Lead</a></li>
+								<li class="divider"></li>
+							<?php }?>
 							<li><a class="searchItemInModule" href="javascript:void(0);" onclick="openEditModel('<?php echo $strDataAddEditPanel?>','',3);"><i class="material-icons">search</i>Search</a></li>
 							<li class="divider"></li>
 						<?php }?>
-						<li><a href="javascript:void(0);" onclick="openEditModel('divlLeadTransfer','selected',4);"><i class="material-icons">transfer_within_a_station</i>Lead(s) Transfer</a></li>
-						<li class="divider"></li>
-						<li><a href="#!"><i class="material-icons">email</i>Mass Email</a></li>
-						<li class="divider"></li>
-						<li><a href="javascript:void(0);" onclick="openEditModel('divlLeadFolloupDetails','selected',4);"><i class="material-icons">update</i>Mass Update</a></li>
+						<?php if(($moduleForm == 'frmLeads') || ($moduleForm == 'frmTask')){?>
+							<li><a href="javascript:void(0);" onclick="openEditModel('divlLeadTransfer','selected',4);"><i class="material-icons">transfer_within_a_station</i>Lead(s) Transfer</a></li>
+							<li class="divider"></li>
+							<li><a href="#!"><i class="material-icons">email</i>Mass Email</a></li>
+							<li class="divider"></li>
+							<li><a href="javascript:void(0);" onclick="openEditModel('divlLeadFolloupDetails','selected',4);"><i class="material-icons">update</i>Mass Update</a></li>
+						<?php }?>
 					</ul>
 				</div>
 			</div>

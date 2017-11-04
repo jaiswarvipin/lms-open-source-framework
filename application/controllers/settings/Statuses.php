@@ -179,7 +179,7 @@ class Statuses extends Requestprocess {
 	public function setStatus(){
 		/* variable initialization */
 		$strStausName			= ($this->input->post('txtStatusName') != '')?$this->input->post('txtStatusName'):'';
-		$intParentStatusCode	= ($this->input->post('cboParnetStatus') != '')?$this->input->post('cboParnetStatus'):0;
+		$intParentStatusCode	= ($this->input->post('cboParnetStatus') != '')?getDecyptionValue($this->input->post('cboParnetStatus')):0;
 		$intDefaultStatus		= ($this->input->post('rdoisDefault') != '')?$this->input->post('rdoisDefault'):0;
 		$intStatusCode			= ($this->input->post('txtStatusCode') != '')?$this->input->post('txtStatusCode'):0;
 		$blnEditRequest			= (($intStatusCode > 0)?true:false);
@@ -257,6 +257,7 @@ class Statuses extends Requestprocess {
 			/* Return error message */
 			jsonReturn(array('status'=>0,'message'=>"Invalid status code requested."), true);
 		}
+		
 		/* Setting the updated array */
 		$strUpdatedArr	= array(
 									'table'=>$this->_strPrimaryTableName,
