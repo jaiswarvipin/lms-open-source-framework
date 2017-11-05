@@ -26,14 +26,14 @@
 		<table class="bordered highlight responsive-table">
 			<thead>
 				<tr>
-					<th width="100%">Status v/s Date</th>
+					<th width="100%">Status Wise Report</th>
 			  </tr>
 			</thead>
 			<tbody>
 				<tr>
 					<table border="0" width="100%">
 						<tr>
-							<td><H1 style="color:gray; text-align:center;">Lead By Source and Date</H1></td>
+							<td><div id="divParentStatusAndChildStatus"></div></td>
 						</tr>
 					</table>
 				</tr>
@@ -44,14 +44,17 @@
 		<table class="bordered highlight responsive-table">
 			<thead>
 				<tr>
-					<th width="100%">Source v/s Date</th>
+					<th width="100%">Source Wise Report</th>
 			  </tr>
 			</thead>
 			<tbody>
 				<tr>
 					<table border="0" width="100%">
 						<tr>
-							<td><H1 style="color:gray; text-align:center;">Lead By Source and Date</H1></td>
+							<td>
+								<div id="divLeadSourceStatus"></div>
+								<script language="JavaScript">var strLeadSourceVSDateJSON = <?php echo $strLeadSourceJSON?>;</script>
+							</td>
 						</tr>
 					</table>
 				</tr>

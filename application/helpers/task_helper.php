@@ -87,7 +87,7 @@ class Task{
 		$intUpdatedBySystem	= isset($pTaskArr['isSystem'])?$pTaskArr['isSystem']:0;
 		$intStatusCode		= isset($pTaskArr['statusCode'])?$pTaskArr['statusCode']:0;
 		$intStatusType		= isset($pTaskArr['statusType'])?$pTaskArr['statusType']:1;
-		
+		debugVar($pTaskArr, true);
 		$intTransStatus		= 0;
 		/* Requested details is not found then do needful */
 		if(($intLeadCode == 0) || ($intLeadOwnerCode == 0)){
@@ -147,7 +147,7 @@ class Task{
 		}
 		
 		if((int)$intStatusCode > 0){
-			/* if open status code found then dp needful */
+			/* if open status code found then do needful */
 			if($intStatusType == 0){
 				/* Setting new status same lead */
 				$intTransStatus	= $this->_databaseObject->getDirectQueryResult("update master_leads set status_code = ".$intStatusCode.", comments ='".$strComments."', updated_by = ".$intUpdateBy.", updated_date =".date('YmdHis')." where id = ".$intLeadCode);

@@ -51,6 +51,7 @@ class Leadsreports extends Requestprocess {
 		$strDataArr['strColumnSearchPanel'] = $this->getColumnAsSearchPanel(array_merge($this->_strColumnArr,array('frmName'=>$this->_strModuleForm)),SITE_URL.'reports/'.__CLASS__);
 		$strDataArr['strSearchArr']			= (!empty($_REQUEST))?jsonReturn($_REQUEST):jsonReturn(array());
 		$strDataArr['strParentStatusJSON']	= $this->_getParentStatusAndDateWiseReportData();
+		$strDataArr['strLeadSourceJSON']	= $this->_getLeadSourceWiseReportData();
 		
 		/* Load the View */
 		$strDataArr['body']	= $this->load->view(REPORTS_TEMPLATE.'lead', $strDataArr, true);
@@ -78,8 +79,8 @@ class Leadsreports extends Requestprocess {
 		$intYesterdayDate		= date('Ymd',mktime(date('H'),date('i'),date('s'),date('m'),date('d')-1,date('Y')));
 		$intWeekDate			= date('Ymd',mktime(date('H'),date('i'),date('s'),date('m'),date('d')-WEEAK_DAYS,date('Y')));
 		
-		/* Setting filter caluse */
-		$strWhereClauseArr				= array('trans_rpt_leads.branch_code'=>decodeKeyValueArr($this->getBranchCodes(),true),'trans_rpt_leads.record_date'=>$intYesterdayDate);
+		/* Setting filter clause */
+		$strWhereClauseArr				= array('trans_rpt_leads.branch_code'=>decodeKeyValueArr($this->getBranchCodes(),true),'trans_rpt_leads.record_date'=>$intYesterdayDate,'trans_rpt_leads.company_code'=>$this->getCompanyCode());
 		
 		/* if lead record filter code is passed then do needful */
 		if(($this->input->post('txtSearch')) && ($this->input->post('txtSearch') == '1')){
@@ -216,8 +217,6 @@ class Leadsreports extends Requestprocess {
 		return $strReturnArr;
 	}
 	
-	
-	
 	/**********************************************************************/
 	/*Purpose 	: Get lead count by Parent status v/s date range.
 	/*Inputs	: None.
@@ -236,8 +235,47 @@ class Leadsreports extends Requestprocess {
 		/* Parent Child Status Array */
 		$strStatusArr			= array_keys(decodeKeyValueArr($this->getLeadStatus()));
 		
-		/* Setting filter caluse */
-		$strWhereClauseArr		= array('trans_rpt_leads.branch_code'=>decodeKeyValueArr($this->getBranchCodes(),true),'trans_rpt_leads.record_date'=>$intYesterdayDate,'trans_rpt_leads.status_code'=>$strStatusArr);
+		/* Setting filter clause */
+		$strWhereClauseArr		= array('trans_rpt_leads.branch_code'=>decodeKeyValueArr($this->getBranchCodes(),true),'trans_rpt_leads.record_date'=>$intYesterdayDate,'trans_rpt_leads.status_code'=>$strStatusArr,'trans_rpt_leads.company_code'=>$this->getCompanyCode());
+		
+		/* if lead record filter code is passed then do needful */
+		if(($this->input->post('txtSearch')) && ($this->input->post('txtSearch') == '1')){
+				/* Iterating the search object */
+			foreach($this->input->post() as $strPostObjectKey => $strPostObjectValue){
+				/* Checking for search column */
+				if(strstr($strPostObjectKey,'txtSearch')){
+					/* Creating the column filter */
+					$strColumnName	= str_replace('txtSearch', '', $strPostObjectKey);
+					/* Creating the value */
+					$strValue		= ((trim($strPostObjectValue)!= '') && (trim($strPostObjectValue) != 'null'))?$strPostObjectValue:'';
+					/* if value is not empty then do needful */
+					if(($strValue != '') && ($strColumnName != '')){
+						/* checking for index column */
+						if(strstr($strColumnName,'_code')){
+							if(is_numeric(getDecyptionValue($strValue))){
+								$strValue	= getDecyptionValue($strValue);
+							}else{
+								$strValue	= getDecyptionValue(getDecyptionValue($strValue));
+							}
+							/* Setting filter column */
+							$strWhereClauseArr	= array_merge($strWhereClauseArr, array($strColumnName=>$strValue));
+						}else if($strColumnName == 'FromDate'){
+							/* Setting filter column */
+							$strWhereClauseArr	= array_merge($strWhereClauseArr, array('left(lead_record_date,8) >='=>getDateFormat($strValue,1)));
+							$intWeekDate		= getDateFormat($strValue,1);
+						}else if($strColumnName == 'ToDate'){
+							/* Setting filter column */
+							$strWhereClauseArr	= array_merge($strWhereClauseArr, array('left(lead_record_date,8) <='=>getDateFormat($strValue,1)));
+							$strWhereClauseArr['trans_rpt_leads.record_date']	= getDateFormat($strValue,1);
+							$intYesterdayDate	= $strValue;
+						}else{
+							/* Setting filter column */
+							$strWhereClauseArr	= array_merge($strWhereClauseArr, array($strColumnName.' like'=>$strValue));
+						}
+					}
+				}
+			}
+		}
 		
 		/* Parent Child Status Array */
 		$strStatusArr			= $this->getLeadStatusBasedOnRequest();
@@ -258,12 +296,16 @@ class Leadsreports extends Requestprocess {
 		$strLeadArr 		= $this->_objDataOperation->getDataFromTable($strFilterArr);
 		
 		/* Variable initialization */
-		$strReturnArr[OPEN_CLOSURE_STATUS_CODE]		= array();
-		$strReturnArr[POSITIVE_CLOSURE_STATUS_CODE]	= array();
-		$strReturnArr[NEGATIVE_CLOSURE_STATUS_CODE]	= array();
-		$strReturnArr[NEGATIVE_CLOSURE_STATUS_CODE]	= array();
-		$strReturnArr['date']						= array();
-		$strReturnArr['data']						= array();
+		$strReturnArr[OPEN_CLOSURE_STATUS_CODE]					= array();
+		$strReturnArr[POSITIVE_CLOSURE_STATUS_CODE]				= array();
+		$strReturnArr[NEGATIVE_CLOSURE_STATUS_CODE]				= array();
+		$strReturnArr[NEGATIVE_CLOSURE_STATUS_CODE]				= array();
+		$strReturnArr[POSITIVE_CLOSURE_STATUS_CODE]['status']	= array();
+		$strReturnArr[OPEN_CLOSURE_STATUS_CODE]['status']		= array();
+		$strReturnArr[NEGATIVE_CLOSURE_STATUS_CODE]['status']	= array();
+		$strReturnArr['data']									= array();
+		$strReturnArr['dataStatusDrill']						= array();
+		$strReturnArr['dataStatusDrillSeries']					= array();
 		
 		/* if record found then do needful */
 		if(!empty($strLeadArr)){
@@ -294,16 +336,72 @@ class Leadsreports extends Requestprocess {
 					/* Exists then increment it */
 					$strReturnArr[OPEN_CLOSURE_STATUS_CODE][$strDate]	+= $strLeadArrValue['leadCount'];
 					
+					if(isset($strReturnArr[OPEN_CLOSURE_STATUS_CODE]['status'][$strLeadArrValue['status_code']])){
+						$strReturnArr[OPEN_CLOSURE_STATUS_CODE]['status'][$strLeadArrValue['status_code']]['value']	+= $strLeadArrValue['leadCount'];
+					}else{
+						$strReturnArr[OPEN_CLOSURE_STATUS_CODE]['status'][$strLeadArrValue['status_code']]	= array('name'=>$strLeadArrValue['description'],'value'=>$strLeadArrValue['leadCount']);
+					}
+					
 				/* Checking for negative closure status */
 				}else if(isset($strStatusArr[NEGATIVE_CLOSURE_STATUS_CODE][$strLeadArrValue['status_code']])){
 					/* Exists then increment it */
 					$strReturnArr[NEGATIVE_CLOSURE_STATUS_CODE][$strDate]	+= $strLeadArrValue['leadCount'];
+					
+					if(isset($strReturnArr[NEGATIVE_CLOSURE_STATUS_CODE]['status'][$strLeadArrValue['status_code']])){
+						$strReturnArr[NEGATIVE_CLOSURE_STATUS_CODE]['status'][$strLeadArrValue['status_code']]['value']	+= $strLeadArrValue['leadCount'];
+					}else{
+						$strReturnArr[NEGATIVE_CLOSURE_STATUS_CODE]['status'][$strLeadArrValue['status_code']]	= array('name'=>$strLeadArrValue['description'],'value'=>$strLeadArrValue['leadCount']);
+					}
+					
 				/* positive closure status */
 				}else{
 					/* Exists then increment it */
 					$strReturnArr[POSITIVE_CLOSURE_STATUS_CODE][$strDate]	+= $strLeadArrValue['leadCount'];
+					
+					if(isset($strReturnArr[POSITIVE_CLOSURE_STATUS_CODE]['status'][$strLeadArrValue['status_code']])){
+						$strReturnArr[POSITIVE_CLOSURE_STATUS_CODE]['status'][$strLeadArrValue['status_code']]['value']	+= $strLeadArrValue['leadCount'];
+					}else{
+						$strReturnArr[POSITIVE_CLOSURE_STATUS_CODE]['status'][$strLeadArrValue['status_code']]	= array('name'=>$strLeadArrValue['description'],'value'=>$strLeadArrValue['leadCount']);
+					}
 				}
 			}
+			
+			$strReturnArr['dataStatusDrill'][]	= array(
+															'name'=>'Open / New Leads',
+															'y'=>array_sum(array_values($strReturnArr[OPEN_CLOSURE_STATUS_CODE])),
+															'drilldown'=>'Open / New Leads'
+													   );
+			$strReturnArr['dataStatusDrill'][]	= array(
+															'name'=>'Negative Closure',
+															'y'=>array_sum(array_values($strReturnArr[NEGATIVE_CLOSURE_STATUS_CODE])),
+															'drilldown'=>'Negative Closure'
+													   );
+			$strReturnArr['dataStatusDrill'][]	= array(
+															'name'=>'Positive Closure',
+															'y'=>array_sum(array_values($strReturnArr[POSITIVE_CLOSURE_STATUS_CODE])),
+															'drilldown'=>'Positive Closure'
+													   );
+			
+			$strReturnArr['dataStatusDrillSeries'][]	= array(
+																	'name'=>'Open / New Leads',
+																	'id'=>'Open / New Leads',
+																	'data'=>array_values($strReturnArr[OPEN_CLOSURE_STATUS_CODE]['status'])
+															   );
+			$strReturnArr['dataStatusDrillSeries'][]	= array(
+																	'name'=>'Negative Closure',
+																	'id'=>'Negative Closure',
+																	'data'=>array_values($strReturnArr[NEGATIVE_CLOSURE_STATUS_CODE]['status'])
+															   );
+			$strReturnArr['dataStatusDrillSeries'][]	= array(
+																	'name'=>'Positive Closure',
+																	'id'=>'Positive Closure',
+																	'data'=>array_values($strReturnArr[POSITIVE_CLOSURE_STATUS_CODE]['status'])
+															   );
+			
+			unset($strReturnArr[OPEN_CLOSURE_STATUS_CODE]['status']);
+			unset($strReturnArr[NEGATIVE_CLOSURE_STATUS_CODE]['status']);
+			unset($strReturnArr[POSITIVE_CLOSURE_STATUS_CODE]['status']);
+													   
 			/* Set Open / new lead series */
 			$strReturnArr['data'][]	 = array(
 												'name'=>'Open / New Leads',
@@ -330,8 +428,96 @@ class Leadsreports extends Requestprocess {
 		
 		/* Removed used variables */
 		unset($strLeadArr, $strFilterArr, $strWhereClauseArr);
-		
+		 
 		/* Return the data array */
 		return jsonReturn($strReturnArr);
+	}
+	
+	/**********************************************************************/
+	/*Purpose 	: Get lead count by lead source v/s date range.
+	/*Inputs	: None.
+	/*Returns 	: Lead count by X: lead count v/s 
+								Y: date range.
+								Z: Lead Source
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
+	private function _getLeadSourceWiseReportData(){
+		/* Variable initialization */
+		$strWhereClauseArr	= $strReturnArr = $strStatusArr = array();
+		
+		/* Variable initialization */
+		$intYesterdayDate		= date('Ymd',mktime(date('H'),date('i'),date('s'),date('m'),date('d')-1,date('Y')));
+		$intWeekDate			= date('Ymd',mktime(date('H'),date('i'),date('s'),date('m'),date('d')-WEEAK_DAYS,date('Y')));
+		
+		/* Setting filter clause */
+		$strWhereClauseArr		= array('trans_rpt_leads.branch_code'=>decodeKeyValueArr($this->getBranchCodes(),true),'trans_rpt_leads.record_date'=>$intYesterdayDate,'trans_rpt_leads.company_code'=>$this->getCompanyCode());
+		
+		/* if lead record filter code is passed then do needful */
+		if(($this->input->post('txtSearch')) && ($this->input->post('txtSearch') == '1')){
+				/* Iterating the search object */
+			foreach($this->input->post() as $strPostObjectKey => $strPostObjectValue){
+				/* Checking for search column */
+				if(strstr($strPostObjectKey,'txtSearch')){
+					/* Creating the column filter */
+					$strColumnName	= str_replace('txtSearch', '', $strPostObjectKey);
+					/* Creating the value */
+					$strValue		= ((trim($strPostObjectValue)!= '') && (trim($strPostObjectValue) != 'null'))?$strPostObjectValue:'';
+					/* if value is not empty then do needful */
+					if(($strValue != '') && ($strColumnName != '')){
+						/* checking for index column */
+						if(strstr($strColumnName,'_code')){
+							if(is_numeric(getDecyptionValue($strValue))){
+								$strValue	= getDecyptionValue($strValue);
+							}else{
+								$strValue	= getDecyptionValue(getDecyptionValue($strValue));
+							}
+							/* Setting filter column */
+							$strWhereClauseArr	= array_merge($strWhereClauseArr, array($strColumnName=>$strValue));
+						}else if($strColumnName == 'FromDate'){
+							/* Setting filter column */
+							$strWhereClauseArr	= array_merge($strWhereClauseArr, array('left(lead_record_date,8) >='=>getDateFormat($strValue,1)));
+							$intWeekDate		= getDateFormat($strValue,1);
+						}else if($strColumnName == 'ToDate'){
+							/* Setting filter column */
+							$strWhereClauseArr	= array_merge($strWhereClauseArr, array('left(lead_record_date,8) <='=>getDateFormat($strValue,1)));
+							$strWhereClauseArr['trans_rpt_leads.record_date']	= getDateFormat($strValue,1);
+							$intYesterdayDate	= $strValue;
+						}else{
+							/* Setting filter column */
+							$strWhereClauseArr	= array_merge($strWhereClauseArr, array($strColumnName.' like'=>$strValue));
+						}
+					}
+				}
+			}
+		}
+		
+		/* Set data column */ 
+		$strColumArr			= array('count(trans_rpt_leads.id) as leadCount','trans_rpt_leads.lead_source_code as lead_source_code','master_lead_source.description');
+		
+		$strFilterArr	= array(
+									'table'=>array('trans_rpt_leads','trans_leads_'.$this->getCompanyCode(),'master_user','master_lead_source'),
+									'join'=>array('','trans_rpt_leads.lead_code = trans_leads_'.$this->getCompanyCode().'.lead_code','master_user.id = trans_rpt_leads.lead_owner_code','master_lead_source.id = trans_rpt_leads.lead_source_code'),
+									'column'=>$strColumArr,
+									'where'=>$strWhereClauseArr,
+									'group'=>array('trans_rpt_leads.lead_source_code')
+								);
+		
+		/* getting number of lead count from location */
+		$strLeadArr 		= $this->_objDataOperation->getDataFromTable($strFilterArr);
+		
+		/* if record found then do needful */
+		if(!empty($strLeadArr)){
+			/* Iterating the loop */	
+			foreach($strLeadArr as $strLeadArrKey => $strLeadArrValue){
+				/* Setting date */
+				$strReturnArr[]					= array('name'=>$strLeadArrValue['description'],'y'=>(double)$strLeadArrValue['leadCount']);
+			}
+		}
+		
+		/* Removed used variables */
+		unset($strLeadArr, $strFilterArr, $strWhereClauseArr);
+		 
+		/* Return the data array */
+		return jsonReturn(array_values($strReturnArr));
 	}
 }

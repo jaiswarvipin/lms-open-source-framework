@@ -5,6 +5,8 @@
   	<script type="text/javascript" src="<?php echo SITE_URL.RESOURCE_SCRIPT_PATH?>highcharts<?php echo $strFileName?>.js"></script>
   	<script type="text/javascript" src="<?php echo SITE_URL.RESOURCE_SCRIPT_PATH?>modules/exporting<?php echo $strFileName?>.js"></script>
   	<script type="text/javascript" src="<?php echo SITE_URL.RESOURCE_SCRIPT_PATH?>modules/series-label<?php echo $strFileName?>.js"></script>
+  	<script type="text/javascript" src="<?php echo SITE_URL.RESOURCE_SCRIPT_PATH?>modules/data<?php echo $strFileName?>.js"></script>
+  	<!--script type="text/javascript" src="<?php echo SITE_URL.RESOURCE_SCRIPT_PATH?>modules/drilldown<?php echo $strFileName?>.js"></script-->
 	
   	<script type="text/javascript" src="<?php echo SITE_URL.RESOURCE_SCRIPT_PATH?>default<?php echo $strFileName?>.js?v=1.0.0.0.0"></script>
   	<script type="text/javascript" src="<?php echo SITE_URL.RESOURCE_SCRIPT_PATH?>validation<?php echo $strFileName?>.js?v=1.0.0.0.0"></script>

@@ -620,4 +620,68 @@ function setParentStatusVSDateChart(){
 		},
 		series: strParentStatusVSDateJSON.data
 	});
+	
+	Highcharts.chart('divParentStatusAndChildStatus', {
+		chart: {
+			type: 'pie'
+		},
+		title: {
+			text: ''
+		},
+		subtitle: {
+			text: ''
+		},
+		plotOptions: {
+			series: {
+				dataLabels: {
+					enabled: true,
+					format: '{point.name}: {point.y:.1f}%'
+				}
+			}
+		},
+
+		tooltip: {
+			headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+			pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y:.2f}%</b> of total<br/>'
+		},
+		series: [{
+			name: 'Brands',
+			colorByPoint: true,
+			data: strParentStatusVSDateJSON.dataStatusDrill
+		}],
+		drilldown: strParentStatusVSDateJSON.dataStatusDrillSeries
+	});
+	
+	Highcharts.chart('divLeadSourceStatus', {
+		chart: {
+			plotBackgroundColor: null,
+			plotBorderWidth: null,
+			plotShadow: false,
+			type: 'pie'
+		},
+		title: {
+			text: ''
+		},
+		tooltip: {
+			pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+		},
+		plotOptions: {
+			pie: {
+				allowPointSelect: true,
+				cursor: 'pointer',
+				dataLabels: {
+					enabled: true,
+					format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+					style: {
+						color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+					}
+				}
+			}
+		},
+		series: [{
+			name: 'Brands',
+			colorByPoint: true,
+			data: strLeadSourceVSDateJSON
+		}]
+	});
 }

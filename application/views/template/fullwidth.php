@@ -58,8 +58,8 @@
 		</div>
 		<div class="main-container">
 			<div class="row">
-				<div class="col s6 m6 l4"><h5><?php echo $moduleTitle;?></h5></div>
-				<div class="col s6 m6 l36 right">
+				<div class="col s6"><h5><?php echo $moduleTitle;?></h5></div>
+				<div class="col s6 right" style="margin:-10 0 0 0 !important">
 					<!-- Dropdown Trigger -->
 					<a class='dropdown-button btn right w200 aActionContainer' href='javascript:void(0);' data-activates='dropdown1'><i class="material-icons"></i>Action</a>
 

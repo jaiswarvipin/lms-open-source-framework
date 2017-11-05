@@ -34,7 +34,7 @@
 									<?php if($strDataAddEditPanel != 'taskModules'){?>
 										<a href="javascript:void(0);" onclick="openEditModel('divLeadProfileDetails','<?php echo getEncyptionValue($dataSetValue['lead_code']).DELIMITER.''?>',4);" class="waves-effect waves-circle waves-light btn-floating secondary-content"><i class="material-icons">edit</a>
 									<?php }?>
-									<a href="javascript:void(0);" onclick="openEditModel('divlLeadFolloupDetails','<?php echo getEncyptionValue($dataSetValue['lead_code']).DELIMITER.getEncyptionValue($dataSetValue['lead_owner_code'])?>',4);" class="waves-effect waves-circle waves-light btn-floating secondary-content"><i class="material-icons">add</i></a>
+									<a href="javascript:void(0);" onclick="openEditModel('divlLeadFolloupDetails','<?php echo getEncyptionValue($dataSetValue['lead_code']).DELIMITER.getEncyptionValue($dataSetValue['lead_owner_code'])?>',4);" class="waves-effect waves-circle waves-light btn-floating secondary-content"><i class="material-icons">feedback</i></a>
 								<?php }else{?>
 									<?php if($strDataAddEditPanel != 'taskModules'){?>
 										<a href="javascript:void(0);" class="disabled waves-effect waves-circle waves-light btn-floating secondary-content"><i class="material-icons">edit</a>
