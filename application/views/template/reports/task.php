@@ -3,14 +3,17 @@
 		<table class="bordered highlight responsive-table">
 			<thead>
 				<tr>
-					<th width="100%">Status v/s Date<span class="right f20"><?php echo $strDataArr['strFromDate']?> - <?php echo $strDataArr['strToDate']?></span></th>
+					<th width="100%">Task Performance v/s Date<span class="right f20"><?php echo $strDataArr['strFromDate']?> - <?php echo $strDataArr['strToDate']?></span></th>
 			  </tr>
 			</thead>
 			<tbody>
 				<tr>
 					<table border="0" width="100%">
 						<tr>
-							<td><H1 style="color:gray; text-align:center;">Task Count By Status & Date</H1></td>
+							<td>
+								<div id="divTaskClassifcationContainer"></div>
+								<script language="JavaScript">var strTaskClassifcationJSON = <?php echo $strTaskOpenCloseGraph?>;</script>
+							</td>
 						</tr>
 					</table>
 				</tr>
@@ -30,7 +33,10 @@
 				<tr>
 					<table border="0" width="100%">
 						<tr>
-							<td><H1 style="color:gray; text-align:center;">By Task type and Date</H1></td>
+							<td>
+								<div id="divTaskTypeChartContainer"></div>
+								<script language="JavaScript">var strTaskTypeGraph = <?php echo $strTaskTypeGraph?>;</script>
+							</td>
 						</tr>
 					</table>
 				</tr>

@@ -50,6 +50,8 @@ class Tasksreports extends Requestprocess {
 		$strDataArr['pagination'] 			= getPagniation($this->_getLeadReportData(true),($intCurrentPageNumber + 1), $this->_strModuleForm);
 		$strDataArr['strColumnSearchPanel'] = $this->getColumnAsSearchPanel(array_merge($this->_strColumnArr,array('frmName'=>$this->_strModuleForm)),SITE_URL.'reports/'.__CLASS__);
 		$strDataArr['strSearchArr']			= (!empty($_REQUEST))?jsonReturn($_REQUEST):jsonReturn(array());
+		$strDataArr['strTaskOpenCloseGraph']= $this->_getTaskOpenandClosedTaskCountAndDateWiseReportData();
+		$strDataArr['strTaskTypeGraph']		= $this->_getTaskTypeAndDateWiseReportData();
 		/* Load the View */
 		$strDataArr['body']	= $this->load->view(REPORTS_TEMPLATE.'task', $strDataArr, true);
 		
@@ -75,7 +77,7 @@ class Tasksreports extends Requestprocess {
 		$intYesterdayDate		= date('Ymd',mktime(date('H'),date('i'),date('s'),date('m'),date('d')-1,date('Y')));
 		$intWeekDate			= date('Ymd',mktime(date('H'),date('i'),date('s'),date('m'),date('d')-WEEAK_DAYS,date('Y')));
 		
-		/* Setting filter caluse */
+		/* Setting filter clause */
 		$strWhereClauseArr				= array('trans_leads_'.$this->getCompanyCode().'.branch_code'=>decodeKeyValueArr($this->getBranchCodes(),true),'trans_task.record_date <='=>$intYesterdayDate.'240000','trans_task.record_date >='=>$intWeekDate.'000000');
 		
 		/* if task record filter code is passed then do needful */
@@ -147,7 +149,7 @@ class Tasksreports extends Requestprocess {
 									'order'=>array('trans_task.record_date'=>'desc')
 								);
 		
-		/* getting number of lead count from location */
+		/* getting number of task count */
 		$strLeadArr 		= $this->_objDataOperation->getDataFromTable(array_merge($strFilterArr, $strLimitFilter));
 		
 		/* if lead details found then do needful */
@@ -171,7 +173,7 @@ class Tasksreports extends Requestprocess {
 			}
 		}
 		
-		/* Rerurn the report data */
+		/* Return the report data */
 		return $strReturnArr;
 	}
 	
@@ -211,5 +213,231 @@ class Tasksreports extends Requestprocess {
 		
 		/* Return column array */
 		return $strReturnArr;
+	}
+	
+	/**********************************************************************/
+	/*Purpose 	: Get Task count by task open and closed v/s date range.
+	/*Inputs	: None.
+	/*Returns 	: Task count by X: Open and closed task  count v/s 
+								Y: date range.
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
+	private function _getTaskOpenandClosedTaskCountAndDateWiseReportData(){
+		/* Variable initialization */
+		$strWhereClauseArr	= $strReturnArr = $strStatusArr = array();
+		
+		/* Variable initialization */
+		$intYesterdayDate		= date('Ymd',mktime(date('H'),date('i'),date('s'),date('m'),date('d')-1,date('Y')));
+		$intWeekDate			= date('Ymd',mktime(date('H'),date('i'),date('s'),date('m'),date('d')-WEEAK_DAYS,date('Y')));
+		
+		/* Parent Child Status Array */
+		$strStatusArr			= array_keys(decodeKeyValueArr($this->getLeadStatus()));
+		
+		/* Setting filter clause */
+		$strWhereClauseArr		= array('trans_leads_'.$this->getCompanyCode().'.branch_code'=>decodeKeyValueArr($this->getBranchCodes(),true),'trans_task.record_date <='=>$intYesterdayDate.'240000','trans_task.record_date >='=>$intWeekDate.'000000');
+		
+		/* if lead record filter code is passed then do needful */
+		if(($this->input->post('txtSearch')) && ($this->input->post('txtSearch') == '1')){
+				/* Iterating the search object */
+			foreach($this->input->post() as $strPostObjectKey => $strPostObjectValue){
+				/* Checking for search column */
+				if(strstr($strPostObjectKey,'txtSearch')){
+					/* Creating the column filter */
+					$strColumnName	= str_replace('txtSearch', '', $strPostObjectKey);
+					/* Creating the value */
+					$strValue		= ((trim($strPostObjectValue)!= '') && (trim($strPostObjectValue) != 'null'))?$strPostObjectValue:'';
+					/* if value is not empty then do needful */
+					if(($strValue != '') && ($strColumnName != '')){
+						/* checking for index column */
+						if(strstr($strColumnName,'_code')){
+							if(is_numeric(getDecyptionValue($strValue))){
+								$strValue	= getDecyptionValue($strValue);
+							}else{
+								$strValue	= getDecyptionValue(getDecyptionValue($strValue));
+							}
+							/* Setting filter column */
+							$strWhereClauseArr	= array_merge($strWhereClauseArr, array($strColumnName=>$strValue));
+						}else if($strColumnName == 'FromDate'){
+							/* Setting filter column */
+							$strWhereClauseArr['trans_task.record_date >='] = getDateFormat($strValue,1).'000000';
+							$intWeekDate		= getDateFormat($strValue,1);
+						}else if($strColumnName == 'ToDate'){
+							/* Setting filter column */
+							$strWhereClauseArr['trans_task.record_date <=']	= getDateFormat($strValue,1).'240000';
+							$intYesterdayDate	= $strValue;
+						}else{
+							/* Setting filter column */
+							$strWhereClauseArr	= array_merge($strWhereClauseArr, array($strColumnName.' like'=>$strValue));
+						}
+					}
+				}
+			}
+		}
+		
+		/* Set data column */ 
+		$strColumArr			= array('CASE WHEN trans_task.updated_date > 0 THEN COUNT(trans_task.id) END AS closedTask','CASE WHEN trans_task.updated_date = 0 THEN COUNT(trans_task.id) END AS openTask','left(trans_task.record_date ,8) as lead_record_date');
+		
+		$strFilterArr	= array(
+									'table'=>array('trans_task','trans_leads_'.$this->getCompanyCode()),
+									'join'=>array('','trans_task.lead_code = trans_leads_'.$this->getCompanyCode().'.lead_code'),
+									'column'=>$strColumArr,
+									'where'=>$strWhereClauseArr,
+									'group'=>array('left(trans_task.record_date ,8)'),
+									'order'=>array('3'=>'asc')
+								);
+								
+		/* getting number of task count */
+		$strLeadTaskArr 		= $this->_objDataOperation->getDataFromTable($strFilterArr);
+		
+		/* Variable initialization  */
+		$strReturnArr['date']	 = array();
+		$strReturnArr['open']	 = array();
+		$strReturnArr['closed']	 = array();
+		
+		/* If data found then do needful */
+		if(!empty($strLeadTaskArr)){
+			/* Iterating the loop */
+			foreach($strLeadTaskArr as $strLeadTaskArrKey => $strLeadTaskArrValue){
+				/* Setting date */
+				$strReturnArr['date'][]		= getDateFormat($strLeadTaskArrValue['lead_record_date'],4);
+				$strReturnArr['open'][]		= (int)$strLeadTaskArrValue['openTask'];
+				$strReturnArr['closed'][]	= (int)$strLeadTaskArrValue['closedTask'];
+			}
+		}
+		/* removed used variables */
+		unset($strLeadTaskArr, $strFilterArr);
+		
+		/* Setting the value as per chart request */		
+		$strReturnArr['date']			= array_values($strReturnArr['date']);
+		$strReturnArr['data'][]			= array('name'=>'Open Task','data'=>array_values($strReturnArr['open']));
+		$strReturnArr['data'][]			= array('name'=>'Closed Task','data'=>array_values($strReturnArr['closed']));
+		/* removed used variables */
+		unset($strReturnArr['open'], $strReturnArr['closed']);
+		/* Return the JSON string */
+		return jsonReturn($strReturnArr);
+	}
+	
+	
+	/**********************************************************************/
+	/*Purpose 	: Get task count by task type v/s date range.
+	/*Inputs	: None.
+	/*Returns 	: Task count by X:  task  type count v/s 
+								Y: date range.
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
+	private function _getTaskTypeAndDateWiseReportData(){
+		/* Variable initialization */
+		$strWhereClauseArr	= $strReturnArr = $strTaskTypeArr = array();
+		
+		/* Variable initialization */
+		$intYesterdayDate		= date('Ymd',mktime(date('H'),date('i'),date('s'),date('m'),date('d')-1,date('Y')));
+		$intWeekDate			= date('Ymd',mktime(date('H'),date('i'),date('s'),date('m'),date('d')-WEEAK_DAYS,date('Y')));
+		
+		/* Parent Child Status Array */
+		$strStatusArr			= array_keys(decodeKeyValueArr($this->getLeadStatus()));
+		
+		/* Setting filter clause */
+		$strWhereClauseArr		= array('trans_leads_'.$this->getCompanyCode().'.branch_code'=>decodeKeyValueArr($this->getBranchCodes(),true),'trans_task.record_date <='=>$intYesterdayDate.'240000','trans_task.record_date >='=>$intWeekDate.'000000');
+		
+		/* if lead record filter code is passed then do needful */
+		if(($this->input->post('txtSearch')) && ($this->input->post('txtSearch') == '1')){
+				/* Iterating the search object */
+			foreach($this->input->post() as $strPostObjectKey => $strPostObjectValue){
+				/* Checking for search column */
+				if(strstr($strPostObjectKey,'txtSearch')){
+					/* Creating the column filter */
+					$strColumnName	= str_replace('txtSearch', '', $strPostObjectKey);
+					/* Creating the value */
+					$strValue		= ((trim($strPostObjectValue)!= '') && (trim($strPostObjectValue) != 'null'))?$strPostObjectValue:'';
+					/* if value is not empty then do needful */
+					if(($strValue != '') && ($strColumnName != '')){
+						/* checking for index column */
+						if(strstr($strColumnName,'_code')){
+							if(is_numeric(getDecyptionValue($strValue))){
+								$strValue	= getDecyptionValue($strValue);
+							}else{
+								$strValue	= getDecyptionValue(getDecyptionValue($strValue));
+							}
+							/* Setting filter column */
+							$strWhereClauseArr	= array_merge($strWhereClauseArr, array($strColumnName=>$strValue));
+						}else if($strColumnName == 'FromDate'){
+							/* Setting filter column */
+							$strWhereClauseArr['trans_task.record_date >='] = getDateFormat($strValue,1).'000000';
+							$intWeekDate		= getDateFormat($strValue,1);
+						}else if($strColumnName == 'ToDate'){
+							/* Setting filter column */
+							$strWhereClauseArr['trans_task.record_date <=']	= getDateFormat($strValue,1).'240000';
+							$intYesterdayDate	= $strValue;
+						}else{
+							/* Setting filter column */
+							$strWhereClauseArr	= array_merge($strWhereClauseArr, array($strColumnName.' like'=>$strValue));
+						}
+					}
+				}
+			}
+		}
+		
+		/* Task object initialization */
+		$objTask		= new Task($this->_objDataOperation, $this->getCompanyCode());
+		/* Get Task type */
+		$strTaskTypeArr	= $objTask->getTaskTypeByCompanyCode();
+		/* removed used variables */
+		unset($objTask);
+		
+		/* Set data column */ 
+		$strColumArr			= array('COUNT(trans_task.id) AS taskCount','task_type_code','master_task.description','left(trans_task.record_date ,8) as lead_record_date');
+		
+		$strFilterArr	= array(
+									'table'=>array('trans_task','trans_leads_'.$this->getCompanyCode(),'master_task'),
+									'join'=>array('','trans_task.lead_code = trans_leads_'.$this->getCompanyCode().'.lead_code','master_task.id = trans_task.task_type_code'),
+									'column'=>$strColumArr,
+									'where'=>$strWhereClauseArr,
+									'group'=>array('left(trans_task.record_date ,8)','task_type_code'),
+									'order'=>array('4'=>'asc')
+								);
+								
+		/* getting number of task count */
+		$strLeadTaskArr 		= $this->_objDataOperation->getDataFromTable($strFilterArr);
+		
+		/* Variable initialization  */
+		$strReturnArr['date']	 = array();
+		
+		/* If data found then do needful */
+		if(!empty($strLeadTaskArr)){
+			/* Iterating the loop */
+			foreach($strLeadTaskArr as $strLeadTaskArrKey => $strLeadTaskArrValue){
+				/* Setting date */
+				$strReturnArr['date'][getDateFormat($strLeadTaskArrValue['lead_record_date'],4)] = getDateFormat($strLeadTaskArrValue['lead_record_date'],4);
+				/* Iterating the task type */
+				foreach($strTaskTypeArr as $strTaskTypeArrKey => $strTaskTypeArrValue){
+					if((!isset($strReturnArr[$strTaskTypeArrValue['description']][$strLeadTaskArrValue['lead_record_date']])) && ($strTaskTypeArrValue['id'] == $strLeadTaskArrValue['task_type_code'])){
+						$strReturnArr[$strTaskTypeArrValue['description']][$strLeadTaskArrValue['lead_record_date']]	= (double)$strLeadTaskArrValue['taskCount'];
+					}else{
+						$strReturnArr[$strTaskTypeArrValue['description']][$strLeadTaskArrValue['lead_record_date']]	= 0;
+					}
+				}
+			}
+		}
+		
+		/* removed used variables */
+		unset($strLeadTaskArr, $strFilterArr, $strTaskTypeArr);
+		/* Setting the value as per chart request */		
+		$strDateArr						= array_values($strReturnArr['date']);
+		unset($strReturnArr['date']);
+		
+		/* Iterating task type the loop */
+		foreach($strReturnArr as $strReturnArrKey => $strReturnArrValue){
+			/* Set array values */
+			$strReturnArr['data'][$strReturnArrKey]	 = array('name'=>$strReturnArrKey, 'data'=>array_values($strReturnArrValue));
+			/* removed used variables */
+			unset($strReturnArr[$strReturnArrKey]);
+		}
+		
+		/* Set returns values */
+		$strReturnArr['date']			= $strDateArr;
+		$strReturnArr['data']			= array_values($strReturnArr['data']);
+		
+		/* Return the JSON string */
+		return jsonReturn($strReturnArr);
 	}
 }

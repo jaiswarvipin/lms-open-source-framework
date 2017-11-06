@@ -176,7 +176,7 @@ class Leadsreports extends Requestprocess {
 			}
 		}
 		
-		/* Rerurn the report data */
+		/* Return the report data */
 		return $strReturnArr;
 	}
 	
@@ -432,6 +432,7 @@ class Leadsreports extends Requestprocess {
 		/* Return the data array */
 		return jsonReturn($strReturnArr);
 	}
+	
 	
 	/**********************************************************************/
 	/*Purpose 	: Get lead count by lead source v/s date range.

@@ -578,20 +578,25 @@ function setFollowUpView(pObjectRefrence){
 function drawChart(){
 	/* Lead Report - Parent status v/s date */
 	if($('#divParentStatusVSDateContainer').length > 0){
-		setParentStatusVSDateChart();
+		setLeadChart();
+	}
+	
+	/* Lead Report - Parent status v/s date */
+	if($('#divTaskClassifcationContainer').length > 0){
+		setTaskChart();
 	}
 	
 			
 }
 
 /**************************************************************************
- Purpose 		: Lead Report - Parent status v/s date.
+ Purpose 		: Setting Lead Report.
  Inputs  		: None.
  Return 		: None.
  Created By 	: Jaiswar Vipin Kumar R
 /**************************************************************************/
-function setParentStatusVSDateChart(){
-	
+function setLeadChart(){
+	/* Setting parent status categories v/s lead count v.s date */
 	Highcharts.chart('divParentStatusVSDateContainer', {
 		chart: {
 			type: 'line'
@@ -621,6 +626,7 @@ function setParentStatusVSDateChart(){
 		series: strParentStatusVSDateJSON.data
 	});
 	
+	/* Setting Parent and child status wise lead count in drill down chart */
 	Highcharts.chart('divParentStatusAndChildStatus', {
 		chart: {
 			type: 'pie'
@@ -652,6 +658,7 @@ function setParentStatusVSDateChart(){
 		drilldown: strParentStatusVSDateJSON.dataStatusDrillSeries
 	});
 	
+	/* Setting lead source wise lead count chart */
 	Highcharts.chart('divLeadSourceStatus', {
 		chart: {
 			plotBackgroundColor: null,
@@ -683,5 +690,145 @@ function setParentStatusVSDateChart(){
 			colorByPoint: true,
 			data: strLeadSourceVSDateJSON
 		}]
+	});
+}
+
+
+/**************************************************************************
+ Purpose 		: Setting Task Chart.
+ Inputs  		: None.
+ Return 		: None.
+ Created By 	: Jaiswar Vipin Kumar R
+/**************************************************************************/
+function setTaskChart(){
+	/* Setting Open and closed task  v/s task count v.s date */
+	Highcharts.chart('divTaskClassifcationContainer', {
+		chart: {
+			type: 'line'
+		},
+		title: {
+			text: ''
+		},
+		subtitle: {
+			text: ''
+		},
+		xAxis: {
+			categories: strTaskClassifcationJSON.date
+		},
+		yAxis: {
+			title: {
+				text: 'Task Count(s)'
+			}
+		},
+		plotOptions: {
+			line: {
+				dataLabels: {
+					enabled: false
+				},
+				enableMouseTracking: true
+			}
+		},
+		series: strTaskClassifcationJSON.data
+	});
+	
+	/* Setting the Task type count bar chart */
+	Highcharts.chart('divTaskTypeChartContainer', {
+		chart: {
+			type: 'column'
+		},
+		title: {
+			text: ''
+		},
+		xAxis: {
+			categories: strTaskTypeGraph.date
+		},
+		yAxis: {
+			min: 0,
+			title: {
+				text: 'Task Count(s)'
+			},
+			stackLabels: {
+				enabled: true,
+				style: {
+					fontWeight: 'bold',
+					color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+				}
+			}
+		},
+		legend: {
+			align: 'center',
+			x: -30,
+			verticalAlign: 'bottom',
+			y: 25,
+			floating: true,
+			backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
+			borderColor: '#CCC',
+			borderWidth: 1,
+			shadow: false
+		},
+		tooltip: {
+			headerFormat: '<b>{point.x}</b><br/>',
+			pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
+		},
+		plotOptions: {
+			column: {
+				stacking: 'normal',
+				dataLabels: {
+					enabled: true,
+					color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white'
+				}
+			}
+		},
+		series: strTaskTypeGraph.data
+	});
+	
+	console.log({
+		chart: {
+			type: 'column'
+		},
+		title: {
+			text: ''
+		},
+		xAxis: {
+			categories: strTaskTypeGraph.date
+		},
+		yAxis: {
+			min: 0,
+			title: {
+				text: 'Task Count(s)'
+			},
+			stackLabels: {
+				enabled: true,
+				style: {
+					fontWeight: 'bold',
+					color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+				}
+			}
+		},
+		legend: {
+			align: 'center',
+			x: -30,
+			verticalAlign: 'bottom',
+			y: 25,
+			floating: true,
+			backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
+			borderColor: '#CCC',
+			borderWidth: 1,
+			shadow: false
+		},
+		tooltip: {
+			headerFormat: '<b>{point.x}</b><br/>',
+			pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
+		},
+		plotOptions: {
+			column: {
+				stacking: 'normal',
+				dataLabels: {
+					enabled: true,
+					color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white'
+				}
+			}
+		},
+		series: strTaskTypeGraph.data
 	});
 }
