@@ -5,50 +5,17 @@
 				<div class="col s10">
 					<!-- Dropdown Structure -->
 					<?php echo $strChildMenu ?>
-					<!-- ul id="dropdown1" class="dropdown-content">
-					  <li><a href="#!">Lead</a></li>
-					  <li class="divider"></li>
-					  <li><a href="#!">Task</a></li>
-					</ul>
-					<ul id="dropdown2" class="dropdown-content">
-					  <li><a href="#!">Company</a></li>
-					  <li><a href="#!">Department</a></li>
-					  <li class="divider"></li>
-					  <li><a href="#!">Mail</a></li>
-					  <li><a href="#!">SMS</a></li>
-					  <li class="divider"></li>
-					  <li><a href="<?php echo SITE_URL?>settings/modules">Modules</a></li>
-					  <li><a href="<?php echo SITE_URL?>settings/modulesaccess">Modules Access</a></li>
-					  <li class="divider"></li>
-					  <li><a href="<?php echo SITE_URL?>settings/status">Lead Status</a></li>
-					  <li><a href="<?php echo SITE_URL?>settings/leadattributes">Leads Attributes</a></li>
-					  <li><a href="<?php echo SITE_URL?>settings/leadsource">Leads Sources</a></li>
-					  <li class="divider"></li>
-					  <li><a href="<?php echo SITE_URL?>settings/locations">Locations</a></li>
-					  <li class="divider"></li>
-					  <li><a href="<?php echo SITE_URL?>settings/userrole">User Role</a></li>
-					  <li><a href="<?php echo SITE_URL?>settings/userprofiles">User Profile</a></li>
-					  <li class="divider"></li>
-					  <li><a href="#!">Integration</a></li>
-					</ul-->
 					<nav>
 			    		<div class="nav-wrapper">
 			      			<a href="#" class="brand-logo"><img src="<?php echo SITE_URL.DEFAULT_LOGO?>" width="70px" height="70px" class="responsive-img"/></a>
 							<?php echo $strMainMenu?>
-			  				<!--ul id="nav-mobile" class="hide-on-med-and-down">
-			    				<li class="w100">&nbsp;</li>
-			    				<li class="active"><a href="<?php echo SITE_URL?>dashboard">Dashboard</a></li>
-			    				<li><a href="<?php echo SITE_URL?>leads/leads">Leads</a></li>
-			    				<li><a href="<?php echo SITE_URL?>leads/tasks">Task</a></li>
-			    				<!-- Dropdown Trigger ->
-								<li><a class="dropdown-button" href="#!" data-activates="dropdown1">Reports<i class="material-icons right">arrow_drop_down</i></a></li>
-								<li><a class="dropdown-button" href="#!" data-activates="dropdown2">Settings&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class="material-icons right">arrow_drop_down</i></a></li>
-			  				</ul-->
-
+							<ul id="userSettings" class="dropdown-content">
+								<li><a href="<?php echo SITE_URL?>login/lougout">Logout</a></li>
+							</ul>
 			  				<ul id="nav-mobile" class="right hide-on-med-and-down">
-			  					<li><a href="sass.html"><i class="material-icons">search</i></a></li>
-			  					<li><img src="<?php echo SITE_URL.DEFAULT_USER_IMG?>" class="responsive-img circle pt10" width="50px" height="50px"/></li>
-								<li><a href="mobile.html"><i class="material-icons">more_vert</i></a></li>
+			  					<li><a href="javascript:void(0);"><i class="material-icons">search</i></a></li>
+			  					<li><img src="<?php echo SITE_URL.DEFAULT_USER_IMG?>" class="responsive-img circle pt10 tooltipped" width="50px" height="50px" data-position="bottom" data-delay="50" data-tooltip="<?php echo $userName.' >> '.$roleName?>"/></li>
+								<li><a href="javascript:void(0);" data-activates='userSettings' class="dropdown-button"><i class="material-icons">more_vert</i></a></li>
 			  				</ul>
 						</div>
 			  		</nav>
@@ -62,16 +29,18 @@
 				<div class="col s6 right" style="margin:-10 0 0 0 !important">
 					<!-- Dropdown Trigger -->
 					<a class='dropdown-button btn right w200 aActionContainer' href='javascript:void(0);' data-activates='dropdown1'><i class="material-icons"></i>Action</a>
-
+					<?php $strAddNewItemLabel = ((isset($moduleCustomTitle))&&($moduleCustomTitle != '')?$moduleCustomTitle:$moduleTitle);?>
 					<!-- Dropdown Structure -->
 					<ul id='dropdown1' class='dropdown-content dlActionList'>
 						<?php if(!isset($noSearchAdd)){?>
-							<?php if(($moduleForm != 'frmLeadReportSearch') && ($moduleForm != 'frmTaskReportSearch')){?>
-								<li><a class="addItemInModule" href="javascript:void(0);" onclick="openEditModel('<?php echo $strDataAddEditPanel?>','',2);"><i class="material-icons">add_circle</i>Add New Lead</a></li>
+							<?php if(($moduleForm != 'frmLeadReportSearch') && ($moduleForm != 'frmTaskReportSearch')  && ($moduleForm != 'frmCompany')){?>
+								<li><a class="addItemInModule" href="javascript:void(0);" onclick="openEditModel('<?php echo $strDataAddEditPanel?>','',2);"><i class="material-icons">add_circle</i>Add New <?php echo $strAddNewItemLabel?></a></li>
 								<li class="divider"></li>
 							<?php }?>
-							<li><a class="searchItemInModule" href="javascript:void(0);" onclick="openEditModel('<?php echo $strDataAddEditPanel?>','',3);"><i class="material-icons">search</i>Search</a></li>
-							<li class="divider"></li>
+							<?php if($moduleForm != ''){?>
+								<li><a class="searchItemInModule" href="javascript:void(0);" onclick="openEditModel('<?php echo $strDataAddEditPanel?>','',3);"><i class="material-icons">search</i>Search</a></li>
+								<li class="divider"></li>
+							<?php }?>
 						<?php }?>
 						<?php if(($moduleForm == 'frmLeads') || ($moduleForm == 'frmTask')){?>
 							<li><a href="javascript:void(0);" onclick="openEditModel('divlLeadTransfer','selected',4);"><i class="material-icons">transfer_within_a_station</i>Lead(s) Transfer</a></li>

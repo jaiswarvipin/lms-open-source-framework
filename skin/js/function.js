@@ -159,6 +159,16 @@ function processRequestAfterResponse(pStrFormName, pStrResponseObject){
 							});
 						});
 					}
+					
+					if($('#'+objectRefrence).find('textarea').length > 0){
+						$.each(objResponse, function(strKeyColumn, strColumnValue){
+							$('#'+objectRefrence).find('textarea').each(function(){
+								if($(this).attr('data-set') == strKeyColumn){
+									$(this).val(strColumnValue);
+								}
+							});
+						});
+					}
 				}
 				return false;
 				break;
@@ -275,6 +285,9 @@ function init(){
 		aftershow: function(){} //Function for after opening timepicker
 	});
 	
+	/* Setting tool-tips */
+	$('.tooltipped').tooltip({delay: 50});
+	 
 	/* Register the events */
 	setPullDownEvents();
 }
@@ -347,7 +360,12 @@ function openEditModel(pModelRefenceObject, pIntRecordCode, isEdit){
 				}
 				$('.spnActionText').html('Add New');
 				$(objFrom)[0].reset();
+				var strMailCode	= '';
+				if($('#eMaIlCoDe').length > 0){
+					strMailCode	= $('#eMaIlCoDe').val();
+				}
 				$(objFrom).find('input[type=hidden]').val('');
+				$('#eMaIlCoDe').val(strMailCode);
 				$(objFrom).find('select').material_select();
 				break;
 			case 3:

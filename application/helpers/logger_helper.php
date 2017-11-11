@@ -29,7 +29,7 @@ class Logger{
 	/*Returns 	: None.
 	/*Created By: Jaiswar Vipin Kumar R.
 	/*******************************************************************/
-	/* Checking for requested user authincation */
+	/* Checking for requested user authentication */
 	public function setLogger($pIntUserCode = 0){
 		/* variable initialization */
 		$strLoggerArr	= array();
@@ -40,7 +40,14 @@ class Logger{
 		}
 
 		/* Getting user details */
-		$strResponseArr	= $this->_objDefaultModel->getDataFromTable(array('table'=>'master_user', 'where'=>array('id'=>$pIntUserCode)));
+		$strResponseArr	= $this->_objDefaultModel->getDataFromTable(
+																		array(
+																				'table'=>array('master_user','master_role'), 
+																				'join'=>array('','master_user.role_code = master_role.id'),
+																				'column'=>array('master_user.*','master_role.description as role_name'),
+																				'where'=>array('master_user.id'=>$pIntUserCode)
+																			)
+																	);
 
 		/* if not response found then do needful */
 		if(empty($strResponseArr)){

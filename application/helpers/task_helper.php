@@ -87,7 +87,7 @@ class Task{
 		$intUpdatedBySystem	= isset($pTaskArr['isSystem'])?$pTaskArr['isSystem']:0;
 		$intStatusCode		= isset($pTaskArr['statusCode'])?$pTaskArr['statusCode']:0;
 		$intStatusType		= isset($pTaskArr['statusType'])?$pTaskArr['statusType']:1;
-		debugVar($pTaskArr, true);
+		
 		$intTransStatus		= 0;
 		/* Requested details is not found then do needful */
 		if(($intLeadCode == 0) || ($intLeadOwnerCode == 0)){

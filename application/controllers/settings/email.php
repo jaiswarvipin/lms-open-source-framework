@@ -1,15 +1,15 @@
 <?php
 /***********************************************************************/
-/* Purpose 		: Application module management.
+/* Purpose 		: Email module Request and response management.
 /* Created By 	: Jaiswar Vipin Kumar R.
 /***********************************************************************/
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Email extends Requestprocess {
 	/* variable deceleration */
-	private $_strPrimaryTableName	= 'master_modues';
-	private $_strModuleName			= "Modules";
-	private $_strModuleForm			= "frmModules";
+	private $_strPrimaryTableName	= 'master_email';
+	private $_strEmailName			= "Email";
+	private $_strModuleForm			= "frmEmail";
 	
 	/**********************************************************************/
 	/*Purpose 	: Element initialization.
@@ -32,22 +32,20 @@ class Email extends Requestprocess {
 		/* Getting current page number */
 		$intCurrentPageNumber					= ($this->input->post('txtPageNumber') != '') ? ((($this->input->post('txtPageNumber') - 1) < 0)?0:($this->input->post('txtPageNumber') - 1)) : 0;
 		
-		/* Getting moduels list */
-		$strUserRoleArr['dataSet'] 				= $this->_getModulesDetails(0,'',false,false, $intCurrentPageNumber);
-		$strUserRoleArr['intPageNumber'] 		= ($intCurrentPageNumber * DEFAULT_RECORDS_ON_PER_PAGE) + 1;
-		$strUserRoleArr['pagination'] 			= getPagniation($this->_getModulesDetails(0,'',false,true), ($intCurrentPageNumber + 1), $this->_strModuleForm);
-		$strUserRoleArr['moduleTitle']			= $this->_strModuleName;
-		$strUserRoleArr['moduleForm']			= $this->_strModuleForm;
-		$strUserRoleArr['moduleUri']			= SITE_URL.'settings/'.__CLASS__;
-		$strUserRoleArr['deleteUri']			= SITE_URL.'settings/'.__CLASS__.'/deleteRecord';
-		$strUserRoleArr['getRecordByCodeUri']	= SITE_URL.'settings/'.__CLASS__.'/getModuesDetailsByCode';
-		$strUserRoleArr['strDataAddEditPanel']	= 'moduleModel';
-		$strUserRoleArr['strSearchArr']			= (!empty($_REQUEST))?jsonReturn($_REQUEST):jsonReturn(array());
-		$strUserRoleArr['strModuleArr']			= getArrByKeyvaluePairs($this->_getModulesDetails(-1,''),'id','description');			
-		$strUserRoleArr['strParentMenu']		= $this->_objForm->getDropDown($strUserRoleArr['strModuleArr'],'');
+		/* Getting email list */
+		$strResponseArr['dataSet'] 				= $this->_getEmailDetails(0,'',false,false, $intCurrentPageNumber);
+		$strResponseArr['intPageNumber'] 		= ($intCurrentPageNumber * DEFAULT_RECORDS_ON_PER_PAGE) + 1;
+		$strResponseArr['pagination'] 			= getPagniation($this->_getEmailDetails(0,'',false,true), ($intCurrentPageNumber + 1), $this->_strModuleForm);
+		$strResponseArr['moduleTitle']			= $this->_strEmailName;
+		$strResponseArr['moduleForm']			= $this->_strModuleForm;
+		$strResponseArr['moduleUri']			= SITE_URL.'settings/'.__CLASS__;
+		$strResponseArr['deleteUri']			= SITE_URL.'settings/'.__CLASS__.'/deleteRecord';
+		$strResponseArr['getRecordByCodeUri']	= SITE_URL.'settings/'.__CLASS__.'/getEmailDetailsByCode';
+		$strResponseArr['strDataAddEditPanel']	= 'emailModel';
+		$strResponseArr['strSearchArr']			= (!empty($_REQUEST))?jsonReturn($_REQUEST):jsonReturn(array());
 		
 		/* Load the View */
-		$dataArr['body']	= $this->load->view('settings/modules', $strUserRoleArr, true);
+		$dataArr['body']	= $this->load->view('settings/email', $strResponseArr, true);
 		
 		/* Loading the template for browser rending */
 		$this->load->view(FULL_WIDTH_TEMPLATE, $dataArr);
@@ -57,46 +55,46 @@ class Email extends Requestprocess {
 	}
 
 	/**********************************************************************/
-	/*Purpose 	: Get module details by code.
+	/*Purpose 	: Get email details by code.
 	/*Inputs	: None.
-	/*Returns 	: Module details Details.
+	/*Returns 	: Email details Details.
 	/*Created By: Jaiswar Vipin Kumar R.
 	/**********************************************************************/
-	public function getModuesDetailsByCode(){
+	public function getEmailDetailsByCode(){
 		/* Setting the module code */
-		$intModuleCode 		= ($this->input->post('txtCode') != '') ? getDecyptionValue($this->input->post('txtCode')) : 0;
-		$strModulesArr		= array();
+		$intEmailCode 		= ($this->input->post('txtCode') != '') ? getDecyptionValue($this->input->post('txtCode')) : 0;
+		$strEmailArr		= array();
 		
-		/* Checking the module code shared */
-		if($intModuleCode > 0){
-			/* getting requested module code details */
-			$strModulesArr	= $this->_getModulesDetails($intModuleCode);
+		/* Checking the email code shared */
+		if($intEmailCode > 0){
+			/* getting requested email code details */
+			$strEmailArr	= $this->_getEmailDetails($intEmailCode);
 			
 			/* if record not found then do needful */
-			if(empty($strLeadAttributeArr)){
+			if(empty($strEmailArr)){
 				jsonReturn(array('status'=>0,'message'=>'Details not found.'), true);
 			}else{
 				/* Return the JSON string */
-				jsonReturn($strLeadAttributeArr[0], true);
+				jsonReturn($strEmailArr[0], true);
 			}
 		}else{
-			jsonReturn(array('status'=>0,'message'=>'Invalid module code requested.'), true);
+			jsonReturn(array('status'=>0,'message'=>'Invalid email code requested.'), true);
 		}
 	}
 
 	/**********************************************************************/
-	/*Purpose 	: Getting the module details.
-	/*Inputs	: $pModuleCode :: Module code,
-				: $pStrModuleName :: Module Name,
+	/*Purpose 	: Getting the email details.
+	/*Inputs	: $pEmailCode :: Email code,
+				: $pStrEmailName :: Email Name,
 				: $isEditRequest :: Edit request,
 				: $pBlnCountNeeded :: Count Needed,
 				: $pBlnPagination :: pagination.
-	/*Returns 	: Lead attribute details.
+	/*Returns 	: Email details.
 	/*Created By: Jaiswar Vipin Kumar R.
 	/**********************************************************************/
-	private function _getModulesDetails($pModuleCode = 0, $pStrModuleName = '', $isEditRequest = false, $pBlnCountNeeded = false, $pBlnPagination = 0){
+	private function _getEmailDetails($pEmailCode = 0, $pStrEmailName = '', $isEditRequest = false, $pBlnCountNeeded = false, $pBlnPagination = 0){
 		/* variable initialization */
-		$strUserRoleArr	= $strWhereClauseArr 	= array();
+		$strResponseArr	= $strWhereClauseArr 	= array();
 		
 		/* Setting page number */
 		$intCurrentPageNumber	= $pBlnPagination;
@@ -107,40 +105,33 @@ class Email extends Requestprocess {
 		/* Setting the company filter */
 		$strWhereClauseArr	= array('company_code'=>$this->getCompanyCode());
 		
-		/* if module filter code is passed then do needful */
-		if($pModuleCode < 0){
-			/* Adding modules code filter */
-			$strWhereClauseArr	= array('parent_code'=>0);
-		/* if profile filter code is passed then do needful */
-		}else if(($this->input->post('txtSearch')) && ($this->input->post('txtSearch') == '1')){
+		if(($this->input->post('txtSearch')) && ($this->input->post('txtSearch') == '1')){
 			/* if search request then do needful */
-			$strModuleName			= ($this->input->post('txtModuleName') != '')?$this->input->post('txtModuleName'):'';
-			$intParentModuleCode	= ($this->input->post('cboParentModuleCode') != '')?getDecyptionValue($this->input->post('cboParentModuleCode')):0;
+			$strEmailName		= ($this->input->post('txtEmailName') != '')?$this->input->post('txtEmailName'):'';
+			$intSystem			= ($this->input->post('rdoisDefault') != '')?$this->input->post('rdoisDefault'):0;
 			
-			if($strModuleName != ''){
-				$strWhereClauseArr	= array_merge($strWhereClauseArr, array('description'=>$strModuleName));
+			if($strEmailName != ''){
+				$strWhereClauseArr	= array_merge($strWhereClauseArr, array('description like'=>$strEmailName));
 			}
-			if($intParentModuleCode > 0){
-				$strWhereClauseArr	= array_merge($strWhereClauseArr, array('parent_code'=>$intParentModuleCode));
-			}
+			$strWhereClauseArr	= array_merge($strWhereClauseArr, array('is_system'=>$intSystem));
 		}else{
-			/* Getting module categories */
-			if($pModuleCode > 0){
+			/* Getting email categories */
+			if($pEmailCode > 0){
 				/* iF edit request then do needful */
 				if($isEditRequest){
-					/* Adding Status code filter */
-					$strWhereClauseArr	= array_merge($strWhereClauseArr, array('id !='=>$pModuleCode));
+					/* Adding email code filter */
+					$strWhereClauseArr	= array_merge($strWhereClauseArr, array('id !='=>$pEmailCode));
 				}else{
-					/* Adding Status code filter */
-					$strWhereClauseArr	= array_merge($strWhereClauseArr, array('id'=>$pModuleCode));
+					/* Adding email code filter */
+					$strWhereClauseArr	= array_merge($strWhereClauseArr, array('id'=>$pEmailCode));
 				}
 			}
 		}
 		
-		/* filter by module name and parent code */
-		if($pStrModuleName !=''){
-			/* Adding module description and parent code as filter */
-			$strWhereClauseArr	= array_merge($strWhereClauseArr, array('description'=>$pStrModuleName));
+		/* filter by email name and parent code */
+		if($pStrEmailName !=''){
+			/* Adding email description as filter */
+			$strWhereClauseArr	= array_merge($strWhereClauseArr, array('description like'=>$pStrEmailName));
 		}
 		
 		/* Filter array */
@@ -152,80 +143,65 @@ class Email extends Requestprocess {
 		}
 		
 		/* if requested page number is > 0 then do needful */ 
-		if(($intCurrentPageNumber >= 0) && ($pModuleCode >= 0)){
+		if(($intCurrentPageNumber >= 0) && ($pEmailCode >= 0)){
 			$strFilterArr['offset']	 = ($intCurrentPageNumber * DEFAULT_RECORDS_ON_PER_PAGE);
 			$strFilterArr['limit']	 = DEFAULT_RECORDS_ON_PER_PAGE;
 		}
 		
-		/* Getting the module list */
-		$strModuleArr	=  $this->_objDataOperation->getDataFromTable($strFilterArr);
-		
-		/* Getting status categories */
-		if($pModuleCode > 0){
-			$strModuleArr[0]['parent_code']	= getEncyptionValue($strModuleArr[0]['parent_code']);
-		}
+		/* Getting the email list */
+		$strEmailDetailsArr	=  $this->_objDataOperation->getDataFromTable($strFilterArr);
 		
 		/* Removed used variables */
 		unset($strFilterArr);
 
 		/* return status */
-		return $strModuleArr;
+		return $strEmailDetailsArr;
 	}
 
 	/**********************************************************************/
-	/*Purpose 	: Setting lead attribute details.
+	/*Purpose 	: Setting email details.
 	/*Inputs	: None.
 	/*Returns 	: Transaction Status.
 	/*Created By: Jaiswar Vipin Kumar R.
 	/**********************************************************************/
-	public function setModuesDetails(){
+	public function setEmailDetails(){
 		/* variable initialization */
-		$intModuleCode		= ($this->input->post('txtModuleCode') != '')? $this->input->post('txtModuleCode'):0;
-		$strModuleName		= ($this->input->post('txtModuleName') != '')?$this->input->post('txtModuleName'):'';
-		$strModuleURL		= ($this->input->post('txtModuleURL') != '')?$this->input->post('txtModuleURL'):'';
-		$intParentCode		= ($this->input->post('cboParentModuleCode') != '')?getDecyptionValue($this->input->post('cboParentModuleCode')):0;
-		$blnEditRequest		= (($intModuleCode > 0)?true:false);
+		$intEmailCode		= ($this->input->post('txtEmailCode') != '')? $this->input->post('txtEmailCode'):0;
+		$strEmailName		= ($this->input->post('txtEmailName') != '')?$this->input->post('txtEmailName'):'';
+		$intIsSystem		= ($this->input->post('rdoisDefault') != '')?$this->input->post('rdoisDefault'):0;
+		$blnEditRequest		= (($intEmailCode > 0)?true:false);
 		$blnSearch			= ($this->input->post('txtSearch') != '')?true:false;
 		$strWhereClauseArr	= array();
-		
-		if($blnSearch){
-			$this->index();
-			exit;
-		}
-
+		 
 		/* Checking to all valid information passed */
-		if(($strModuleName == '')){
+		if(($strEmailName == '')){
 			/* Return Information */
-			jsonReturn(array('status'=>0,'message'=>'Module description field is empty.'), true);
-		}else if(($strModuleURL == '')){
-			/* Return Information */
-			jsonReturn(array('status'=>0,'message'=>'Module URL field is empty.'), true);
+			jsonReturn(array('status'=>0,'message'=>'Email name field is empty.'), true);
 		}
 		
-		/* Adding module description filter */
-		$strWhereClauseArr	= array('description'=>$strModuleName);
+		/* Adding email description filter */
+		$strWhereClauseArr	= array('description'=>$strEmailName);
 			
 		/* Checking for edit request */
 		if($blnEditRequest){
-			/* Adding module code filter */
-			$strWhereClauseArr	= array_merge($strWhereClauseArr, array('id !='=>$intModuleCode));
+			/* Adding email code filter */
+			$strWhereClauseArr	= array_merge($strWhereClauseArr, array('id !='=>$intEmailCode));
 		}
 		
-		/* Checking enter module description is already register or not */
+		/* Checking enter email description is already register or not */
 		$strLeadAttribueDataArr	= $this->_objDataOperation->getDataFromTable(array('table'=>$this->_strPrimaryTableName, 'where'=>$strWhereClauseArr));
 		
 		/* if module already exists then do needful */
 		if(!empty($strLeadAttribueDataArr)){
 			/* Return Information */
-			jsonReturn(array('status'=>0,'message'=>'Requested Module is already exists.'), true);	
+			jsonReturn(array('status'=>0,'message'=>'Requested Email Name is already exists.'), true);	
 		}else{
 			/* Data Container */
 			$strDataArr		= array(
 										'table'=>$this->_strPrimaryTableName,
 										'data'=>array(
-													'description'=>$strModuleName,
-													'module_url'=>$strModuleURL,
-													'parent_code'=>$intParentCode,
+													'description'=>$strEmailName,
+													'is_system'=>$intIsSystem,
 													'company_code'=>$this->getCompanyCode()
 												)
 									);
@@ -233,23 +209,23 @@ class Email extends Requestprocess {
 			/* Checking for edit request */
 			if($blnEditRequest){
 				/* Setting the key updated value */
-				$strDataArr['where']	= array('id' => $intModuleCode);
+				$strDataArr['where']	= array('id' => $intEmailCode);
 				/* Updating lead details in the database */
 				$this->_objDataOperation->setUpdateData($strDataArr);
 			}else{
-				/* Adding lead details in the database */
-				$intModuleCode = $this->_objDataOperation->setDataInTable($strDataArr);
+				/* Adding email details in the database */
+				$intEmailCode = $this->_objDataOperation->setDataInTable($strDataArr);
 			}
 			/* Removed used variables */
 			unset($strDataArr);
 			
 			/* checking last insert id / updated record count */
-			if($intModuleCode > 0){
+			if($intEmailCode > 0){
 				/* Checking for edit request */
 				if($blnEditRequest){
-					jsonReturn(array('status'=>1,'message'=>'Module details Updated successfully.'), true);
+					jsonReturn(array('status'=>1,'message'=>'Email name details Updated successfully.'), true);
 				}else{
-					jsonReturn(array('status'=>1,'message'=>'Module added successfully.'), true);
+					jsonReturn(array('status'=>1,'message'=>'Email name added successfully.'), true);
 				}
 			}else{
 				jsonReturn(array('status'=>0,'message'=>DML_ERROR), true);
@@ -265,12 +241,12 @@ class Email extends Requestprocess {
 	/**********************************************************************/
 	public function deleteRecord(){
 		/* Variable initialization */
-		$intModuleCode 	= ($this->input->post('txtDeleteRecordCode') !='') ? getDecyptionValue($this->input->post('txtDeleteRecordCode')) : 0;
+		$intEmailCode 	= ($this->input->post('txtDeleteRecordCode') !='') ? getDecyptionValue($this->input->post('txtDeleteRecordCode')) : 0;
 
-		/* if module code is not pass then do needful */
-		if($intModuleCode == 0){
+		/* if email code is not pass then do needful */
+		if($intEmailCode == 0){
 			/* Return error message */
-			jsonReturn(array('status'=>0,'message'=>"Invalid module code requested."), true);
+			jsonReturn(array('status'=>0,'message'=>"Invalid email code requested."), true);
 		}
 		/* Setting the updated array */
 		$strUpdatedArr	= array(
@@ -280,7 +256,7 @@ class Email extends Requestprocess {
 												'updated_by'=>$this->getUserCode(),
 											),
 									'where'=>array(
-												'id'=>$intModuleCode
+												'id'=>$intEmailCode
 											)
 
 								);
@@ -288,12 +264,62 @@ class Email extends Requestprocess {
 		$intNunberOfRecordUpdated = $this->_objDataOperation->setUpdateData($strUpdatedArr);
 
 		if($intNunberOfRecordUpdated > 0){
-			jsonReturn(array('status'=>1,'message'=>'Requested module deleted successfully.'), true);
+			jsonReturn(array('status'=>1,'message'=>'Requested email deleted successfully.'), true);
 		}else{
 			jsonReturn(array('status'=>0,'message'=>DML_ERROR), true);
 		}
 
 		/* removed variables */
 		unset($strUpdatedArr);
+	}
+	
+	/**********************************************************************/
+	/*Purpose 	: Get selected emails, email template listing.
+	/*Inputs	: None.
+	/*Returns 	: Email template HTML.
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
+	public function moduletemplate(){
+		/* Variable initialization */
+		$strWhereArr				= $strFilterArr 	= $strReturnArr	= array();
+		$intEmailCode							= ($this->input->get('eMaIlCoDe') != '')? getDecyptionValue($this->input->get('eMaIlCoDe')):0;
+		$strReturnArr['moduleForm']				= 'fromEmailTemplate';
+		$strReturnArr['moduleUri']				= SITE_URL.'settings/'.strtolower(__CLASS__).'/moduletemplate?eMaIlCoDe='.$this->input->get('eMaIlCoDe');
+		$strReturnArr['deleteUri']				= SITE_URL.'settings/'.__CLASS__.'/deleteEmailTemplateRecord?eMaIlCoDe='.$this->input->get('eMaIlCoDe');
+		$strReturnArr['getRecordByCodeUri']		= SITE_URL.'settings/'.__CLASS__.'/getEmailTemplateDetailsByCode';
+		$strReturnArr['strDataAddEditPanel']	= 'emailTemplateModel';
+		$strReturnArr['strSearchArr']			= (!empty($_REQUEST))?jsonReturn($_REQUEST):jsonReturn(array());
+		
+		/* checking for email code, if not found then redirect it session on the email name listing module */
+		if($intEmailCode == 0){
+			/* Redirect */
+			redirect(SITE_URL.'settings/'.strtolower(__CLASS__));
+		}
+		
+		/* Setting the email template filter */
+		$strWhereArr	= array('master_email_templates.email_code = '.$intEmailCode, 'master_email.company_code = '.$this->getCompanyCode());
+		
+		/* Setting the filter array */
+		$strFilterArr	= array(
+									'table'=>array('master_email','master_email_templates'),
+									'join'=>array('','master_email.id = master_email_templates.email_code'),
+									'column'=>array('master_email_templates.*','master_email.description as email_name'),
+									'where'=>$strWhereArr
+							);
+		
+		/* Updating the requested record set */
+		$strReturnArr['strDataSet'] = $this->_objDataOperation->getDataFromTable($strFilterArr);
+		/* Setting the view with data */
+		$this->load->view('settings/email_templates', $strReturnArr);
+	}
+	
+	/**********************************************************************/
+	/*Purpose 	: Setting the email template.
+	/*Inputs	: None.
+	/*Returns 	: Transaction Status.
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
+	public function setEmailTemplateDetails(){
+		
 	}
 }

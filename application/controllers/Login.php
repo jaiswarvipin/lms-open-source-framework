@@ -71,4 +71,21 @@ class Login extends CI_Controller {
 			jsonReturn(array('status'=>1,'message'=>'Valid account .','destinationURL'=>SITE_URL.'dashboard'),true);
 		}
 	}
+	
+	/**********************************************************************/
+	/*Purpose 	: Logging out existing session.
+	/*Inputs	: None.
+	/*Returns 	: None.
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
+	public function lougout(){
+		/* Creating logger object */
+		$objLogger	= new Logger();
+		/* removed existing all cookies */
+		$objLogger->doDistryLoginCookie();
+		/* Removed used variable */
+		unset($objLogger);
+		/* Redirect to login screen */
+		redirect(SITE_URL);
+	}
 }

@@ -401,7 +401,7 @@ class Tasksreports extends Requestprocess {
 		
 		/* Variable initialization  */
 		$strReturnArr['date']	 = array();
-		
+				
 		/* If data found then do needful */
 		if(!empty($strLeadTaskArr)){
 			/* Iterating the loop */
@@ -412,13 +412,17 @@ class Tasksreports extends Requestprocess {
 				foreach($strTaskTypeArr as $strTaskTypeArrKey => $strTaskTypeArrValue){
 					if((!isset($strReturnArr[$strTaskTypeArrValue['description']][$strLeadTaskArrValue['lead_record_date']])) && ($strTaskTypeArrValue['id'] == $strLeadTaskArrValue['task_type_code'])){
 						$strReturnArr[$strTaskTypeArrValue['description']][$strLeadTaskArrValue['lead_record_date']]	= (double)$strLeadTaskArrValue['taskCount'];
-					}else{
-						$strReturnArr[$strTaskTypeArrValue['description']][$strLeadTaskArrValue['lead_record_date']]	= 0;
+					}else {
+						if((double)$strLeadTaskArrValue['taskCount'] > 0){
+							$strReturnArr[$strTaskTypeArrValue['description']][$strLeadTaskArrValue['lead_record_date']]	= (double)$strLeadTaskArrValue['taskCount'];
+						}else{
+							$strReturnArr[$strTaskTypeArrValue['description']][$strLeadTaskArrValue['lead_record_date']]	= 0;
+						}
 					}
 				}
 			}
 		}
-		
+		debugVar($strReturnArr);
 		/* removed used variables */
 		unset($strLeadTaskArr, $strFilterArr, $strTaskTypeArr);
 		/* Setting the value as per chart request */		
@@ -435,7 +439,7 @@ class Tasksreports extends Requestprocess {
 		
 		/* Set returns values */
 		$strReturnArr['date']			= $strDateArr;
-		$strReturnArr['data']			= array_values($strReturnArr['data']);
+		$strReturnArr['data']			= (isset($strReturnArr['data'])?array_values($strReturnArr['data']):array());
 		
 		/* Return the JSON string */
 		return jsonReturn($strReturnArr);

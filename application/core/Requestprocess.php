@@ -110,6 +110,7 @@ class Requestprocess extends CI_Controller {
 		
 		/* Logger variable declaration */
 		$strLoggerName				= $ObjStrLoggerDetails->user_info->user_name;
+		$strLoggerRoleDesc			= $ObjStrLoggerDetails->user_info->role_name;
 		$this->_intUserCode			= $ObjStrLoggerDetails->user_info->id;
 		$this->_intCompanyCode		= $ObjStrLoggerDetails->user_info->company_code;
 		$this->_intAdminCode		= $ObjStrLoggerDetails->user_info->is_admin;
@@ -126,6 +127,7 @@ class Requestprocess extends CI_Controller {
 		/* Global variable declaration */
 		$this->load->vars(array(
 									'userName'		=>$strLoggerName,
+									'roleName'		=>$strLoggerRoleDesc,
 									'strMainMenu'	=>$this->_strMainModule,
 									'strChildMenu'	=>$this->_strChildModule
 							)
@@ -466,7 +468,7 @@ class Requestprocess extends CI_Controller {
 					$strKeyValue	= isset($this->_strLeadSourceArr[getEncyptionValue($pStrValue)])?$this->_strLeadSourceArr[getEncyptionValue($pStrValue)]->description:'-';
 					break;
 				case 'lead_owner_code':
-					$strKeyValue	= isset($this->_strLeadSourceArr[getEncyptionValue($pStrValue)])?$this->_strLeadSourceArr[getEncyptionValue($pStrValue)]->description:$pStrValue;
+					$strKeyValue	= isset($this->_strLeadSourceArr[getEncyptionValue($pStrValue)])?$pStrValue:$pStrValue;
 					break;
 				case 'status_code':
 					$strKeyValue	= isset($this->_strLeadStatusArr[getEncyptionValue($pStrValue)])?$this->_strLeadStatusArr[getEncyptionValue($pStrValue)]->description:'-';

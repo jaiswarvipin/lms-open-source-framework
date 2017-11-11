@@ -51,3 +51,16 @@
 		</table>
 	</div>
 </div>
+
+<!-- Add /Edit Modal Structure -->
+<div id="<?php echo $strDataAddEditPanel?>" class="modal modal-fixed-footer">
+    <div class="modal-content">
+		<h4><span class="spnActionText">Add New</span> <?php echo $moduleTitle?></h4>
+		<?php echo $strAddPanel?>
+	</div>
+	<div class="modal-footer">
+    	<a href="javascript:void(0);" class="modal-action modal-close waves-effect waves-green btn-flat">Cancel</a>
+		<button class="btn waves-effect waves-light cmdSearchReset green lighten-2 hide" type="submit" name="cmdAddNewLeadsCancel" id="cmdAddNewLeadsClearFilter" formName="cmdAddNewLeadsClearFilter" >Clear Filter<i class="material-icons right">find_replace</i></button>
+    	<button class="btn waves-effect waves-light cmdDMLAction" type="submit" name="cmdAddNewLeads" id="cmdAddNewLeads" formName="frmAddNewLead" >Submit<i class="material-icons right">send</i></button>
+    </div>
+</div>

@@ -180,6 +180,11 @@ function getPagniation($pIntNumberOfPecordsArr = array(), $pIntCurrentPageNumber
 	/* Number of records */
 	$intNumberofRecords	= (!empty($pIntNumberOfPecordsArr) && isset($pIntNumberOfPecordsArr[0]['recordCount']))?$pIntNumberOfPecordsArr[0]['recordCount']:0;
 	
+	/* if no record found then do needful */
+	if($intNumberofRecords == 0){
+		return '';
+	}
+	
 	/* Setting number of pages */
 	$intNumberOfpages	= ceil($intNumberofRecords / DEFAULT_RECORDS_ON_PER_PAGE);
 	

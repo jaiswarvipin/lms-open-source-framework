@@ -47,7 +47,8 @@ class Dashboard	 extends Requestprocess {
 		$strDataArr['strBranchPerformance']	= $this->_getRegionBranchPerformaceWiseCount('branch_code');
 		$strDataArr['strEmpPerformance']	= $this->_getTopPerformingEmployee();
 		$strDataArr['strSalesFunnel']		= $this->_getSaleFunnel();
-
+		$strDataArr['strAddPanel']			= $this->getLeadOperationPanel(0);
+		
 		/* Load the View */
 		$strDataArr['body']	= $this->load->view(DASHBOARD_TEMPLATE, $strDataArr, true);
 		
