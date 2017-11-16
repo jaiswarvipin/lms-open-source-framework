@@ -44,10 +44,14 @@ function processRequestAfterResponse(pStrFormName, pStrResponseObject){
 				break;
 			case 'frmDynamicEventDataSet':
 				$('#'+objectRefrence).find("option").hide();
-				
 				var strReturnArr	= jQuery.parseJSON(objResponse.message);
+				
 				$.each(strReturnArr, function(strKeyColumn, strColumnValue){
-					$('#'+objectRefrence).children('option[value="'+strColumnValue+'"]').show();
+					if(objectRefrence == 'cboUSerCode'){
+						$('#'+objectRefrence).append('<option value="'+strKeyColumn+'">'+strColumnValue+'</option>');
+					}else{
+						$('#'+objectRefrence).children('option[value="'+strColumnValue+'"]').show();
+					}
 				});
 				$('#'+objectRefrence).material_select();
 				return false;
@@ -311,7 +315,7 @@ function openEditModel(pModelRefenceObject, pIntRecordCode, isEdit){
 		}else{
 			var strleadArr	= strLeadCode	= strLeadOwnerCode = '';
 			
-			$('input[name="chkLeadCode[]"]').each(function (){
+			$('input[name="chkLeadCode[]"]:checked').each(function (){
 				var strleadArr	= $(this).val().split(DELIMITER);
 				if(strLeadCode == ''){
 					strLeadCode			= strleadArr[0];
@@ -569,6 +573,15 @@ function setPullDownEvents(){
 				$('#frmDynamicEventDataSet').append('<input type="hidden" name="txtRegionCode" id="txtRegionCode" value="'+$(this).val()+'" />');
 				$('#frmDynamicEventDataSet').attr('action',SITE_URL+'leadsoperation/leadsoperation/'+strAction);
 				postUserRequest('frmDynamicEventDataSet');
+				
+				/* if current drop down is lead transfer region or branch box then do below */
+				if($(this).attr('id') == 'cboTransferRegionCode'){
+					setTimeout(function(){
+						$('#frmDynamicEventDataSet').attr('action',SITE_URL+'settings/locations/getUserListByLocation');
+						objectRefrence	= 'cboUSerCode';
+						postUserRequest('frmDynamicEventDataSet');
+					},1000);
+				}
 			});
 		}
 		
@@ -711,7 +724,6 @@ function setLeadChart(){
 	});
 }
 
-
 /**************************************************************************
  Purpose 		: Setting Task Chart.
  Inputs  		: None.
@@ -849,4 +861,45 @@ function setTaskChart(){
 		},
 		series: strTaskTypeGraph.data
 	});
+}
+
+
+/**************************************************************************
+ Purpose 		: Setting the content visibility based on the selected record.
+ Inputs  		: objRefrence = Current object reference,
+				: objTargetObjectRerence :: Target object reference.
+ Return 		: None.
+ Created By 	: Jaiswar Vipin Kumar R
+/**************************************************************************/
+function showRelatedRecord(objRefrence, objTargetObjectRerence){
+	/* variable initialization */
+	var strValue = $(objRefrence).val();
+	
+	/* no value found then show values from target drop down */
+	if(strValue == ''){
+		/* Show all values */
+		$('#'+objTargetObjectRerence).find('option').show();
+	}
+	
+	/* Iterating the value */
+	$('#'+objTargetObjectRerence).find('option').each(function(){
+		var strValues	= $(this).attr('value');
+		/* if user code from transfer / assign the lead */
+		if(objTargetObjectRerence == 'cboUSerCode'){
+			strValues	= strValues.split(DELIMITER);
+			strValues	= strValues[0];
+		}
+		
+		/* Setting the value */
+		if(strValue == strValues){
+			$(this).show();
+		}else{
+			$(this).hide();
+		}
+		
+	});
+	
+	if(objTargetObjectRerence == 'cboUSerCode'){
+		$('#cboUSerCode').material_select();
+	}
 }

@@ -14,7 +14,7 @@
 							</ul>
 			  				<ul id="nav-mobile" class="right hide-on-med-and-down">
 			  					<li><a href="javascript:void(0);"><i class="material-icons">search</i></a></li>
-			  					<li><img src="<?php echo SITE_URL.DEFAULT_USER_IMG?>" class="responsive-img circle pt10 tooltipped" width="50px" height="50px" data-position="bottom" data-delay="50" data-tooltip="<?php echo $userName.' >> '.$roleName?>"/></li>
+			  					<li><img src="<?php echo SITE_URL.DEFAULT_USER_IMG?>" class="responsive-img circle pt10 tooltipped" width="50px" height="50px" data-position="bottom" data-delay="50" data-tooltip="<?php echo $userName.' | '.$roleName?>"/></li>
 								<li><a href="javascript:void(0);" data-activates='userSettings' class="dropdown-button"><i class="material-icons">more_vert</i></a></li>
 			  				</ul>
 						</div>

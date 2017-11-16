@@ -18,7 +18,7 @@
 						<?php $strRowClass = (isset($dataSetValue['task_notifi'])?' '.$dataSetValue['task_notifi']:'');?>
 						<tr<?php echo $strRowClass;?>>
 							<?php if((isset($dataSetValue['is_open'])) && ($dataSetValue['is_open'] == 1)){?>
-								<td><input type="checkbox" name="chkLeadCode[]" value="<?php echo getEncyptionValue($dataSetValue['lead_code']).DELIMITER.getEncyptionValue($dataSetValue['lead_owner_code'])?>" /><label for="chkLeadCode[]"></label></td>
+								<td><input type="checkbox" id="chk<?php echo getEncyptionValue($dataSetValue['lead_code'])?>" name="chkLeadCode[]" value="<?php echo getEncyptionValue($dataSetValue['lead_code']).DELIMITER.getEncyptionValue($dataSetValue['lead_owner_code'])?>" /><label for="chk<?php echo getEncyptionValue($dataSetValue['lead_code'])?>"></label></td>
 							<?php }else{?>
 								<td><input type="checkbox" name="chkLeadCode[]" disabled="disabled" /><label for="chkLeadCode[]"></label></td>
 							<?php }?>

@@ -87,6 +87,8 @@ class Task{
 		$intUpdatedBySystem	= isset($pTaskArr['isSystem'])?$pTaskArr['isSystem']:0;
 		$intStatusCode		= isset($pTaskArr['statusCode'])?$pTaskArr['statusCode']:0;
 		$intStatusType		= isset($pTaskArr['statusType'])?$pTaskArr['statusType']:1;
+		$intActionType		= isset($pTaskArr['action_type'])?$pTaskArr['action_type']:0;
+		$strEmailArr		= array();
 		
 		$intTransStatus		= 0;
 		/* Requested details is not found then do needful */
@@ -155,7 +157,17 @@ class Task{
 				/* Setting new status and follow-up date of same lead */
 				$intTransStatus	= $this->_databaseObject->getDirectQueryResult("update master_leads set last_followup_date = next_followup_date, next_followup_date = '".$inNetxFollowUpDate."', status_code = ".$intStatusCode.", comments ='".$strComments."', updated_by = ".$intUpdateBy.", updated_date =".date('YmdHis')." where id = ".$intLeadCode);
 			}
-		}							
+		}
+		
+		/* If Action type is set then do needful */
+		if($intActionType > 0){
+			/* Creating email Sending helper object */
+			$emailprocessObj	= new Emailprocess($this->_objDataOperation, $this->getCompanyCode());
+			/* Sending email */
+			$strEmailArr		= $emailprocessObj->sendEmail($intActionType,$intLeadOwnerCode,$intLeadCode);
+			/* removed use variables */
+			unset($emailprocessObj);
+		}
 		
 		/* Setting communication history */
 		$communicationHistoryObj	= new communicationhistory($this->_databaseObject, $this->_intCompanyCode);
@@ -167,7 +179,7 @@ class Task{
 																	'follow_up_date'=>$inNetxFollowUpDate,
 																	'status_code'=>$intStatusCode,
 																	'comments'=>$strComments,
-																	'comm_text'=>'',
+																	'comm_text'=>(isset($strEmailArr['message'])?$strEmailArr['message']:''),
 																	'is_system'=>$intUpdatedBySystem,
 																	'updated_by'=>$intUpdateBy
 															)
@@ -176,6 +188,65 @@ class Task{
 		unset($communicationHistoryObj);
 		
 		/* Return task transaction status */
+		return $intTransStatus;
+	}
+	
+	/***************************************************************************/
+	/* Purpose	: Transfer all open task to new lead owner.
+	/* Inputs 	: $pStrFilterArr :: Filter array.
+	/* Returns	: Transaction Status.
+	/* Created By: Jaiswar Vipin Kumar R.
+	/***************************************************************************/
+	public function setTransferOlderLeadOwnerTaskToNew($pStrFilterArr = array()){
+		/* variable initialization */
+		$intLeadCode		= isset($pStrFilterArr['leadCode'])?$pStrFilterArr['leadCode']:0;
+		$intLeadOwnerCode	= isset($pStrFilterArr['leadOwnerCode'])?$pStrFilterArr['leadOwnerCode']:0;
+		$intUpdateBy		= isset($pStrFilterArr['updatedBy'])?$pStrFilterArr['updatedBy']:0;
+		$intActionType		= isset($pStrFilterArr['action_type'])?$pStrFilterArr['action_type']:0;
+		$intTransStatus		= false;
+		$strEmailArr		= array();
+		
+		/* if lead owner or lead code is empty then do needful */
+		if(($intLeadCode == 0) || ($intLeadOwnerCode == 0)){
+			/* value overriding */
+			$intTransStatus	=  false;
+		}else{
+			/* Setting new lead owner of requested lead */
+			$intTransStatus	= $this->_databaseObject->getDirectQueryResult("update ".$this->_strTableName." set lead_owner_code = ".$intLeadOwnerCode.", updated_by = ".$intUpdateBy." where id = ".$intLeadCode.' and updated_date = 0');
+			
+			/* If Action type is set then do needful */
+			if($intActionType > 0){
+				/* Creating email Sending helper object */
+				$emailprocessObj	= new Emailprocess($this->_databaseObject, $this->_intCompanyCode);
+				/* Sending email */
+				$strEmailArr		= $emailprocessObj->sendEmail($intActionType,$intLeadOwnerCode,$intLeadCode);
+				/* removed use variables */
+				unset($emailprocessObj);
+			}
+			
+			/* Setting communication history */
+			$communicationHistoryObj	= new communicationhistory($this->_databaseObject, $this->_intCompanyCode);
+			/* Setting communication history */
+			$communicationHistoryObj->setCommuncationHistory(
+																array(
+																		'lead_code'=>$intLeadCode,
+																		'lead_owner_code'=>$intLeadOwnerCode,
+																		'follow_up_date'=>0,
+																		'status_code'=>0,
+																		'comments'=>'Lead Transfer',
+																		'comm_text'=>(isset($strEmailArr['message'])?$strEmailArr['message']:''),
+																		'is_system'=>0,
+																		'updated_by'=>$intUpdateBy
+																)
+														);
+			/* Removed used variables */
+			unset($communicationHistoryObj);
+			
+			/* value overriding */
+			$intTransStatus	=  true;
+		}
+		
+		/* return action status */
 		return $intTransStatus;
 	}
 	
@@ -197,7 +268,7 @@ class Task{
 		
 		/* if lead filter is not empty then do needful */
 		if(!empty($pStrFilterArr)){
-			/* value overridding */
+			/* value overriding */
 			$intLimit		= isset($pStrFilterArr['limit'])?$pStrFilterArr['limit']:$intLimit;
 			$intffSet		= isset($pStrFilterArr['offset'])?$pStrFilterArr['offset']:$intffSet;
 			/* Removed page limit */

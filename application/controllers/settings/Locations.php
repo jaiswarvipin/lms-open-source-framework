@@ -378,4 +378,45 @@ class Locations extends Requestprocess {
 		/* removed variables */
 		unset($strUpdatedArr);
 	}
+	
+	/**********************************************************************/
+	/*Purpose 	: Get user list by location.
+	/*Inputs	: None.
+	/*Returns 	: user list by location.
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
+	public function getUserListByLocation(){
+		/* Variable initialization */
+		$strRegionArr	= ($this->input->post('txtRegionCode')!='')?explode(DELIMITER, $this->input->post('txtRegionCode')):array();
+		$strReturnArr	= array();
+		/* if region code is pass then do needful */
+		if(!empty($strRegionArr)){
+			/* Iterating the region loop */
+			foreach($strRegionArr as $strRegionArrKey => $strRegionArrValue){
+				/* Decoding the region code */
+				$strRegionArr[$strRegionArrKey]	= getDecyptionValue(getDecyptionValue($strRegionArrValue));
+			}
+		}
+		
+		/* Creating location object */
+		$locationObj 		= new Location($this->_objDataOperation, $this->getCompanyCode());
+		/* Get all employee under requested region */
+		$strEmployeeArr 	= $locationObj->getEmployeeByLocations(2, $strRegionArr);
+		/* removed used variables */
+		unset($locationObj);
+		
+		/* Checking for employee array */
+		if(!empty($strEmployeeArr)){
+			/* Iterating the loop */
+			foreach($strEmployeeArr as $strEmployeeArrKey => $strEmployeeArrValue){
+				/* Setting employee array value */
+				$strReturnArr[getEncyptionValue(getEncyptionValue($strEmployeeArrValue['branch_code'])).DELIMITER.getEncyptionValue($strEmployeeArrValue['user_code']).DELIMITER.getEncyptionValue($strEmployeeArrValue['region_code'])]	= $strEmployeeArrValue['user_name'];
+			}
+		}
+		/* removed used variables */
+		unset($strEmployeeArr);
+		
+		/* Return employee array list */
+		jsonReturn(array('status'=>1,'message'=>jsonReturn($strReturnArr)), true);
+	}
 }

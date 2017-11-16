@@ -4,18 +4,18 @@
 		<form name="frmLeadTransfer" id="frmLeadTransfer" method="post" action="leadsoperation/leadsoperation/setNewLeadOwner">
 			<div class="row">
 				<div class="col s6">
-					<label for='cboParnetStatus'>Select Region</label>
+					<label for='cboTransferRegionCode'>Select Region</label>
 					<select name="cboTransferRegionCode" id="cboTransferRegionCode" data-set="region_code" check-dependency="getBranchListByRegionCodeAct" dependency-element="cboTransferBranchCode"><?php echo $strRegionArr?></select>
 				</div>
 				<div class="col s6">
-					<label for='cboParnetStatus'>Select Branch</label>
-					<select name="cboTransferBranchCode" id="cboTransferBranchCode" data-set="branch_code"><?php echo $strBranchArr?></select>
+					<label for='cboTransferBranchCode'>Select Branch</label>
+					<select name="cboTransferBranchCode" id="cboTransferBranchCode" data-set="branch_code" onChange="showRelatedRecord(this,'cboUSerCode');"><?php echo $strBranchArr?></select>
 				</div>
 			</div>
 			<div class="row">
 				<div class="input-field col s12">
 					<select name="cboUSerCode" id="cboUSerCode" data-set="user_code"></select>
-					<label for='cboParnetStatus'>Select User</label>
+					<label for='cboUSerCode'>Select User</label>
 				</div>
 			</div>
 			<input type="hidden" name="txtLeadCode" id="txtLeadCode" value= "" />

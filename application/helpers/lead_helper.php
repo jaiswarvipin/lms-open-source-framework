@@ -207,8 +207,8 @@ class Lead{
 	/* Returns	: lead code array details.
 	/* Created By 	: Jaiswar Vipin Kumar R.
 	/***************************************************************************/
-	public function setLeadDetails($pStrLeadArr = array()){
 		/* variable initialization */
+	public function setLeadDetails($pStrLeadArr = array()){
 		$intLeadCode 		= 0;
 		$blnIsDirect		= false;
 		$intLeadOwnerCode	= (isset($pStrLeadArr['lead_owner_code']) && ((int)$pStrLeadArr['lead_owner_code'] >0 ))?$pStrLeadArr['lead_owner_code']:0;
@@ -300,7 +300,7 @@ class Lead{
 		/* Creating task object */
 		$taskObj	= new Task($this->_databaseObject, $this->_intCompanyCode);
 		/* Setting the task */
-		$taskObj->setTask(array('leadCode'=>$intLeadCode, 'leadOwnerCode'=>$intLeadOwnerCode, 'updatedBy'=>$intLeadOwnerCode,'statusCode'=>$strLedAddingArr['status_code']));
+		$taskObj->setTask(array('leadCode'=>$intLeadCode, 'leadOwnerCode'=>$intLeadOwnerCode, 'updatedBy'=>$intLeadOwnerCode,'statusCode'=>$strLedAddingArr['status_code'],'action_type'=>LEAD_ASSIGMENT_EMAIL));
 		/* Removed used variables */
 		unset($taskObj);
 		
@@ -358,6 +358,13 @@ class Lead{
 																			'data'=>$strAssigementArr
 																		)
 																	);
+		
+		/* Creating task object */
+		$taskObj	= new Task($this->_databaseObject, $this->_intCompanyCode);
+		/* Transfer exiting all open task to new lead owner */
+		$taskObj->setTransferOlderLeadOwnerTaskToNew(array('leadCode'=>$pIntLeadCode, 'leadOwnerCode'=>$pIntLeadOwnerCode, 'updatedBy'=>$pStrDetailsArr['updated_by'],'action_type'=>LEAD_ASSIGMENT_EMAIL));
+		/* Removed used variables */
+		unset($taskObj);
 		
 		/* Return Operation Status */
 		return $intOperationStatus;

@@ -227,7 +227,11 @@ class Emailtemplate extends Requestprocess {
 		}
 		if(($strFromEmail == '')){
 			/* Return Information */
-			jsonReturn(array('status'=>0,'message'=>'Email email name field is empty.'), true);
+			jsonReturn(array('status'=>0,'message'=>'Email name field is empty.'), true);
+		}
+		if(($strEmailBody == '')){
+			/* Return Information */
+			jsonReturn(array('status'=>0,'message'=>'Email body field is empty.'), true);
 		}
 		
 		/* Adding email subject description filter */

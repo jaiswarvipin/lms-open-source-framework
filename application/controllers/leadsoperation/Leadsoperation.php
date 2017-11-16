@@ -328,6 +328,75 @@ class LeadsOperation extends Requestprocess {
 	}
 	
 	/**********************************************************************/
+	/*Purpose 	: Setting new lead owner.
+	/*Inputs	: None.
+	/*Returns	: Transaction Status.
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
+	public function setNewLeadOwner(){
+		/* Variable initialization */
+		$intLeadCodeArr		= ($this->input->post('txtLeadCode'))?explode( DELIMITER, ($this->input->post('txtLeadCode'))):array();
+		$intUserBranchArr	= ($this->input->post('cboUSerCode'))?explode( DELIMITER, $this->input->post('cboUSerCode')):array();
+		$intUserCode		=	$intBranchCode		= $intRegionCode 	= 0;
+		
+		/* Checking requested value is passed or not */
+		if(empty($intLeadCodeArr)){
+			/* Return Information */
+			jsonReturn(array('status'=>0,'message'=>'Invalid lead code. Operation can not perform.'), true);
+		}else{
+			/* Iterating the loop */
+			foreach($intLeadCodeArr as $intLeadCodeArrKey => $intLeadCodeArrValue){
+				/* Setting the lead code in readable format */
+				$intLeadCodeArr[$intLeadCodeArrKey]	= getDecyptionValue($intLeadCodeArrValue);
+			}
+		}
+		if(empty($intUserBranchArr)){
+			/* Return Information */
+			jsonReturn(array('status'=>0,'message'=>'Lead owner is not select or invalid lead owner code. Operation can not perform.'), true);
+		}else{
+			/* Setting value */
+			$intUserCode		= isset($intUserBranchArr[1])?getDecyptionValue($intUserBranchArr[1]):0;
+			$intBranchCode		= isset($intUserBranchArr[0])?getDecyptionValue(getDecyptionValue($intUserBranchArr[0])):0;
+			$intRegionCode		= isset($intUserBranchArr[2])?getDecyptionValue($intUserBranchArr[2]):0;
+			
+			/* Removed used variables */
+			unset($intUserBranchArr);
+			
+			/* Checking requested value is passed or not */
+			if((int)$intUserCode == 0){
+				/* Return Information */
+				jsonReturn(array('status'=>0,'message'=>'Lead owner is not select or invalid lead owner code. Operation can not perform.'), true);
+			}
+			if((int)$intBranchCode == 0){
+				/* Return Information */
+				jsonReturn(array('status'=>0,'message'=>'Invalid Branch code. Operation can not perform.'), true);
+			}
+			if((int)$intRegionCode == 0){
+				/* Return Information */
+				jsonReturn(array('status'=>0,'message'=>'Invalid Region code. Operation can not perform.'), true);
+			}
+		}
+		/* Creating lead object */
+		$ObjLead	= new Lead($this->_objDataOperation, $this->getCompanyCode(), $this->getBranchCodes());
+		/* Get exiting lead owner code details */
+		$strLeadDetailArr 	= $ObjLead->getLeadDetialsByLogger(false,array('master_leads.id'=>$intLeadCodeArr));
+		/* if requested lead details not found then do needful */
+		if(empty($strLeadDetailArr)){
+			/* Return Information */
+			jsonReturn(array('status'=>0,'message'=>'Requested Lead details not found.'), true);
+		}else{
+			/* Iterating the loop for assigning the loop */
+			foreach($strLeadDetailArr as $strLeadDetailArrKey => $strLeadDetailArrValue){
+				/* Setting lead owner */
+				$ObjLead->setLeadOwner($strLeadDetailArrValue['id'], $intUserCode, array('lead_owner_code'=>$intUserCode,'status_code'=>$strLeadDetailArrValue['status_code'],'updated_by'=>$this->getUserCode()));
+			}
+		}
+		
+		/* Return Information */
+		jsonReturn(array('status'=>1,'message'=>'Lead transferred successfully.'), true);
+	}
+	
+	/**********************************************************************/
 	/*Purpose 	: Get lead task type details .
 	/*Inputs	: None.
 	/*Returns	: Task type List. 
