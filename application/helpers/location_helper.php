@@ -175,6 +175,16 @@ class Location{
 										'column'=>array('zone.description zone_name','zone.id zone_code','region.description region_name','region.id region_code','city.description city_name','city.id city_code','area.description area_name','area.id area_code','branch.description branch_name','branch.id branch_code'),
 										'where'=>$strWhereArr
 								);
+			/* Setting the default user configured region and branch code */
+		}else if($pIntUserCode == -2 ){
+			/* Variable initialization */
+			$strWhereArr	= array('company_code'=>$this->_intCompanyCode);
+			
+			/* Setting Filter */
+			$strFilterArr	= array(
+										'table'=>'master_user_config',
+										'where'=>$strWhereArr
+								);
 		}else{
 			/* Variable initialization */
 			$strWhereArr	= array('zone.company_code'=>$this->_intCompanyCode,'trans_user_location.user_code'=>$pIntUserCode);

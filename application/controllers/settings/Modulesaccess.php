@@ -32,7 +32,7 @@ class Modulesaccess extends Requestprocess {
 		/* Getting current page number */
 		$intCurrentPageNumber					= ($this->input->post('txtPageNumber') != '') ? ((($this->input->post('txtPageNumber') - 1) < 0)?0:($this->input->post('txtPageNumber') - 1)) : 0;
 		
-		/* Getting moduels access list */
+		/* Getting modules access list */
 		$strDataArr['dataSet'] 				= $this->_getModulesDetails(0,'',false,false, $intCurrentPageNumber);
 		$strDataArr['intPageNumber'] 		= ($intCurrentPageNumber * DEFAULT_RECORDS_ON_PER_PAGE) + 1;
 		$strDataArr['pagination'] 			= getPagniation($this->_getModulesDetails(0,'',false,true), ($intCurrentPageNumber + 1), $this->_strModuleForm);

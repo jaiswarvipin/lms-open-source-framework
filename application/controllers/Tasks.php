@@ -108,7 +108,7 @@ class Tasks	 extends Requestprocess {
 
 	/**********************************************************************/
 	/*Purpose 	: Getting the module details.
-	/*Inputs	: $pLeadCode :: Module code,
+	/*Inputs	: $pLeadCode :: lead code,
 				: $pStrModuleName :: Module Name,
 				: $isEditRequest :: Edit request,
 				: $pBlnCountNeeded :: Count Needed,
@@ -128,7 +128,7 @@ class Tasks	 extends Requestprocess {
 		
 		/* Get all open lead status list */
 		$strStatusArr	= $this->getLeadStatusBasedOnRequest(array(OPEN_CLOSURE_STATUS_CODE));
-		/* Checking responsed status list is not empty and having requested status index */
+		/* Checking responded status list is not empty and having requested status index */
 		if(!empty($strStatusArr) && (isset($strStatusArr[OPEN_CLOSURE_STATUS_CODE]))){
 			/* Setting the operation status code */
 			$strStatusArr	= array_keys($strStatusArr[OPEN_CLOSURE_STATUS_CODE]);
@@ -136,7 +136,7 @@ class Tasks	 extends Requestprocess {
 			/* re-initialization of the status array */
 			$strStatusArr	= array();
 		}
-		/* Settting the filter caluse */
+		/* Setting the filter clause */
 		$strWhereClauseArr	= array('status_code'=>$strStatusArr);
 		
 		/* if profile filter code is passed then do needful */
@@ -169,6 +169,12 @@ class Tasks	 extends Requestprocess {
 			}
 		}
 		
+		/* checking for admin roles */
+		if(!empty($this->getAllReportingList())){
+			/* Add lead owner filter */
+			$strWhereClauseArr	= array_merge($strWhereClauseArr, array('master_leads.lead_owner_code'=>$this->getAllReportingList()));
+		}
+		
 		/* if requested page number is > 0 then do needful */ 
 		if(($intCurrentPageNumber >= 0) && (!$pBlnCountNeeded)){
 			$strWhereClauseArr['offset'] = ($intCurrentPageNumber * DEFAULT_RECORDS_ON_PER_PAGE);
@@ -186,7 +192,7 @@ class Tasks	 extends Requestprocess {
 		if(!empty($strLeadArr)){
 			/* Lead count */
 			if($pBlnCountNeeded){
-				/* Variable initialziation */
+				/* Variable initialization */
 				$intREcordCount = 0;
 				/* Iterating the loop */
 				foreach($strLeadArr as $strLeadArrKey => $strLeadArrValue){	
@@ -208,6 +214,7 @@ class Tasks	 extends Requestprocess {
 					/* Setting the lead code */
 					$strReturnArr[$strLeadArrKey]['lead_code']		= $strLeadArrValue['lead_code'];
 					$strReturnArr[$strLeadArrKey]['is_open']		= 1;
+					$strReturnArr[$strLeadArrKey]['lead_owner_name']= $this->getLeadAttributeDetilsByAttributeKey('lead_owner_name',$strLeadArrValue['lead_owner_name']);
 					
 					/* Checking for today's task  */
 					if((int)substr($strLeadArrValue['next_followup_date'],0,8)  == (int)$intTodaysDate){

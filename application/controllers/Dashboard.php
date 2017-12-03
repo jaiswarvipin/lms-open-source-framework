@@ -67,7 +67,13 @@ class Dashboard	 extends Requestprocess {
 	/**********************************************************************/
 	private function _getNewCount(){
 		/* Variable initialization */
-		$strWhere	= array('company_code'=>$this->getCompanyCode(), 'trans_leads_'.$this->getCompanyCode().'.branch_code'=>decodeKeyValueArr($this->getBranchCodes(),true), 'status_code'=>getDecyptionValue($this->getDefaultStatusCode()));
+		$strWhere	= array('company_code'=>$this->getCompanyCode(), 'trans_leads_'.$this->getCompanyCode().'.branch_code'=>decodeKeyValueArr($this->getBranchCodes(),true), 'status_code'=>getDecyptionValue($this->getDefaultStatusCode()), 'lead_owner_code'=>$this->getAllReportingList());
+		
+		/* checking for admin roles */
+		if(empty($this->getAllReportingList())){
+			/* Removed lead owner filter */
+			unset($strWhere['lead_owner_code']);
+		}
 		
 		/* Query builder Array */
 		$strFilterArr	= array(
@@ -98,7 +104,13 @@ class Dashboard	 extends Requestprocess {
 	/**********************************************************************/
 	private function _getPendingTaskCount(){
 		/* Variable initialization */
-		$strWhere	= array('company_code'=>$this->getCompanyCode(), 'next_followup_date < '=>date('YmdHis'), 'trans_leads_'.$this->getCompanyCode().'.branch_code'=>decodeKeyValueArr($this->getBranchCodes(),true));
+		$strWhere	= array('company_code'=>$this->getCompanyCode(), 'next_followup_date < '=>date('YmdHis'), 'trans_leads_'.$this->getCompanyCode().'.branch_code'=>decodeKeyValueArr($this->getBranchCodes(),true), 'master_leads.lead_owner_code'=>$this->getAllReportingList());
+		
+		/* checking for admin roles */
+		if(empty($this->getAllReportingList())){
+			/* Removed lead owner filter */
+			unset($strWhere['master_leads.lead_owner_code']);
+		}
 		
 		/* Query builder Array */
 		$strFilterArr	= array(
@@ -159,6 +171,13 @@ class Dashboard	 extends Requestprocess {
 			$strWhereArr		= array('company_code'=>$this->getCompanyCode(), 'record_date = '=>$intYesterdayDate,'branch_code'=>array_keys(decodeKeyValueArr($this->getBranchDetails())));
 			$strLabel			= 'Branch';
 		}
+		
+		/* checking for admin roles */
+		if(!empty($this->getAllReportingList())){
+			/* Add lead owner filter */
+			$strWhereArr['trans_rpt_leads.lead_owner_code'] = $this->getAllReportingList();
+		}
+		
 		$strFormatedResult	= array();
 		
 		/* Query builder Array */
@@ -170,7 +189,7 @@ class Dashboard	 extends Requestprocess {
 							);
 		
 		/* removed used variables */
-		unset($strWhere);
+		unset($strWhereArr);
 		
 		/* getting number of lead count from location */
 		$strResultArr['data'] 	= $this->_objDataOperation->getDataFromTable($strFilterArr);
@@ -219,12 +238,12 @@ class Dashboard	 extends Requestprocess {
 		/* Get all open and positive closed lead status list */
 		$strStatusArr	= $this->getLeadStatusBasedOnRequest(array(OPEN_CLOSURE_STATUS_CODE,POSITIVE_CLOSURE_STATUS_CODE));
 		
-		/* Checking responsed status list is not empty and having requested status index */
+		/* Checking responded status list is not empty and having requested status index */
 		if(!empty($strStatusArr) && (isset($strStatusArr[OPEN_CLOSURE_STATUS_CODE]))){
 			/* Setting the operation status code */
 			$strAllStatusArr	= array_keys($strStatusArr[OPEN_CLOSURE_STATUS_CODE]);
 		}
-		/* Checking responsed status list is not empty and having requested status index */
+		/* Checking responded status list is not empty and having requested status index */
 		if(!empty($strStatusArr) && (isset($strStatusArr[POSITIVE_CLOSURE_STATUS_CODE]))){
 			/* Setting the operation status code */
 			$strAllStatusArr	= array_merge($strAllStatusArr, array_keys($strStatusArr[POSITIVE_CLOSURE_STATUS_CODE]));
@@ -240,6 +259,13 @@ class Dashboard	 extends Requestprocess {
 			$strWhereArr		= array('company_code'=>$this->getCompanyCode(), 'record_date'=>$intYesterdayDate,'lead_record_date >='=> $intWeekDate.'000000' ,'lead_record_date <='=> $intYesterdayDate.'240000','branch_code'=>array_keys(decodeKeyValueArr($this->getBranchDetails())), 'status_code'=>$strAllStatusArr);
 			$strLabel			= 'Branch';
 		}
+		
+		/* checking for admin roles */
+		if(!empty($this->getAllReportingList())){
+			/* Add lead owner filter */
+			$strWhereArr['trans_rpt_leads.lead_owner_code'] = $this->getAllReportingList();
+		}
+		
 		/* removed used variables */
 		unset($strAllStatusArr);
 		$strFormatedResult	= array();
@@ -253,7 +279,7 @@ class Dashboard	 extends Requestprocess {
 							);
 		
 		/* removed used variables */
-		unset($strWhere);
+		unset($strWhereArr);
 		
 		/* getting number of lead count from location */
 		$strResultArr['data'] 	= $this->_objDataOperation->getDataFromTable($strFilterArr);
@@ -289,7 +315,6 @@ class Dashboard	 extends Requestprocess {
 			$strResultArr['branch']	= $this->getBranchDetails();
 		}
 		
-		
 		/* Checking location name is empty */
 		if(isset($strResultArr[$strIndexName]) && (!empty($strIndexName))){
 			/* Iterating the loop */
@@ -309,10 +334,10 @@ class Dashboard	 extends Requestprocess {
 				}
 				
 				/* if lead found then do needful */
-				if($intOpenLeadCount > 0){
+				if((int)$intOpenLeadCount > 0){
 					/* Setting the performance percentage */
 					$intPerformance =  numberFormating(($intClosedLeadCount / $intOpenLeadCount));
-				}else if( $intOpenLeadCount >= 0){
+				}else if((int)$intOpenLeadCount >= 0){
 					$intPerformance	= numberFormating($intOpenLeadCount*100);
 				}else{
 					$intPerformance	= '0.00';
@@ -325,6 +350,7 @@ class Dashboard	 extends Requestprocess {
 				}
 			}
 		}
+		
 		/* Sorting by value */
 		usort($strResultSetArr, function($pFirstRefrenceArr, $pSecondRefrenceArr) {
 			return $pFirstRefrenceArr['value'] - $pSecondRefrenceArr['value'];
@@ -344,14 +370,14 @@ class Dashboard	 extends Requestprocess {
 	}
 	
 	/**********************************************************************/
-	/*Purpose 	: Get top performaing lead owner lead count from reporting strecture.
+	/*Purpose 	: Get top performing lead owner lead count from reporting structure.
 	/*Inputs	: None.
 	/*Returns 	: Lead owner list from along with performance.
 	/*Created By: Jaiswar Vipin Kumar R.
 	/**********************************************************************/
 	private function _getTopPerformingEmployee(){
 		/* Variable initialization */
-		$strResultArr	= $strWhereArr	= $strStatusArr = $strAllStatusArr =  array();
+		$strResultArr	= $strWhereArr	= $strStatusArr = $strAllStatusArr =  $strFormatedResult = array();
 		$strPerformanceStatusArr	= array(OPEN_CLOSURE_STATUS_CODE,POSITIVE_CLOSURE_STATUS_CODE);
 		
 		/* Variable initialization */
@@ -360,6 +386,12 @@ class Dashboard	 extends Requestprocess {
 		
 		/* Setting filter clause */
 		$strWhereArr		= array('trans_rpt_employee_performance.company_code'=>$this->getCompanyCode(), 'trans_rpt_employee_performance.record_date'=>$intYesterdayDate, 'branch_code'=>array_keys(decodeKeyValueArr($this->getBranchDetails())), 'status_type'=>OPEN_CLOSURE_STATUS_CODE);
+		
+		/* checking for admin roles */
+		if(!empty($this->getAllReportingList())){
+			/* Add lead owner filter */
+			$strWhereArr['trans_rpt_employee_performance.lead_owner_code'] = $this->getAllReportingList();
+		}
 		
 		/* Query builder Array */
 		$strFilterArr	= array(
@@ -371,7 +403,7 @@ class Dashboard	 extends Requestprocess {
 							);
 		
 		/* removed used variables */
-		unset($strWhere);
+		unset($strWhereArr);
 		
 		/* getting number of lead count from location */
 		$strResultArrSet 	= $this->_objDataOperation->getDataFromTable($strFilterArr);
@@ -387,8 +419,13 @@ class Dashboard	 extends Requestprocess {
 		
 		
 		
-		/******* Setting filter clause for positive closur */
+		/* Setting filter clause for positive closure */
 		$strWhereArr		= array('trans_rpt_employee_performance.company_code'=>$this->getCompanyCode(),'trans_rpt_employee_performance.record_date <='=>$intYesterdayDate,'trans_rpt_employee_performance.record_date >='=>$intWeekDate , 'branch_code'=>array_keys(decodeKeyValueArr($this->getBranchDetails())), 'status_type'=>POSITIVE_CLOSURE_STATUS_CODE);
+		/* checking for admin roles */
+		if(!empty($this->getAllReportingList())){
+			/* Add lead owner filter */
+			$strWhereArr['trans_rpt_employee_performance.lead_owner_code'] = $this->getAllReportingList();
+		}
 		
 		/* Query builder Array */
 		$strFilterArr	= array(
@@ -409,7 +446,7 @@ class Dashboard	 extends Requestprocess {
 		if(!empty($strResultArrSet)){
 			/* Iterating the loop */
 			foreach($strResultArrSet as $strResultArrSetKey => $strResultArrSetValue){
-				/* variable initialziation */
+				/* variable initialization */
 				$intValue	= 0;
 				/* if lead owner code is set for open and count is > then do need full */
 				if((isset($strFormatedResult[$strResultArrSetValue['lead_owner_code']]))){
@@ -462,10 +499,18 @@ class Dashboard	 extends Requestprocess {
 	/**********************************************************************/
 	private function _getSaleFunnel(){
 		/* Variable initialization */
-		$strReturnArr	=  	$strFilterArr = array();
+		$strReturnArr	=  	$strFilterArr = $strWhereArr 	= array();
 		$intYesterdayDate	= date('Ymd',mktime(date('H'),date('i'),date('s'),date('m'),date('d')-1,date('Y')));
 		
-		/* Getting lead status based on paraent code */
+		/* Filter initialization */
+		$strWhereArr	= array('trans_rpt_leads.company_code'=>$this->getCompanyCode(),'branch_code'=>decodeKeyValueArr($this->getBranchCodes(),true),'trans_rpt_leads.record_date'=>$intYesterdayDate);
+		/* checking for admin roles */
+		if(!empty($this->getAllReportingList())){
+			/* Add lead owner filter */
+			$strWhereArr['trans_rpt_leads.lead_owner_code'] = $this->getAllReportingList();
+		}
+		
+		/* Getting lead status based on parent code */
 		$strReturnArr['statusArr']		= $this->getLeadStatusBasedOnRequest();
 		$strReturnArr['intDate']		= $intYesterdayDate;
 		
@@ -474,7 +519,7 @@ class Dashboard	 extends Requestprocess {
 									'table'=>array('trans_rpt_leads','master_status'),
 									'join'=>array('','trans_rpt_leads.status_code = master_status.id'),
 									'column'=>array('count(trans_rpt_leads.id) as leadCount','description','status_code','parent_id','left(lead_record_date,8) as lead_date'),
-									'where'=>array('trans_rpt_leads.company_code'=>$this->getCompanyCode(),'branch_code'=>decodeKeyValueArr($this->getBranchCodes(),true),'trans_rpt_leads.record_date'=>$intYesterdayDate),
+									'where'=>$strWhereArr,
 									'group'=>array('status_code')
 							);
 		

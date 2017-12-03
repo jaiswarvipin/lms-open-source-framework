@@ -77,7 +77,7 @@ class communicationhistory{
 			/* Creating the month name based on month counter */
 			$strMonthName	= strtolower(date('M',mktime(date('H'),date('i'),date('s'),date('m')-$intCounterForLoop, date('d'), date('Y'))));
 			/* Creating the communication history pulling history query */
-			$strQuery	.= 'select id, lead_owner_code, status_code, comments, is_system, record_date from trans_communication_history_'.$strMonthName.'  where deleted = 0 and lead_code in('.implode(',',$pStrFilterArr).')';
+			$strQuery	.= 'select id, lead_owner_code, status_code, comments, is_system, task_type_code, record_date from trans_communication_history_'.$strMonthName.'  where deleted = 0 and lead_code in('.implode(',',$pStrFilterArr).')';
 			/* If not last counter then joining the query */
 			if($intCounterForLoop != 0){
 				/* Join the UNION */

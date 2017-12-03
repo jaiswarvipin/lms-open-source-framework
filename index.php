@@ -316,21 +316,31 @@ switch (ENVIRONMENT)
 	if (mysqli_connect_errno()){
   		echo "Failed to connect to MySQL: " . mysqli_connect_error();
   	}
-  	/* Creating SQL query string */
-	$strSQlQuery	= "select key_description, value_description from master_config where deleted = 0";
-	/* Fetching the record and checking is any recird found */
-	if ($resultSet=mysqli_query($connectionObject,$strSQlQuery)){
-  		/* Fetch one and one row */
-  		while ($row=mysqli_fetch_row($resultSet)){
-  			/* checking constant is define or not */
-  			if(!defined($row[0])){
-  				/* Define the constant */
-  				define($row[0], $row[1]);
-  			}
-    	}
-  		/* Free result set */
-  		mysqli_free_result($resultSet);
+  	
+	/* configuration setting schema name */
+	$strConfigurationSchemaArr	= array('master_config');
+	
+	/* iterating the configuration loop */
+	foreach($strConfigurationSchemaArr as $strConfigurationSchemaArrKey => $strConfigurationSchemaArrValue){
+		/* Creating SQL query string */
+		$strSQlQuery	= "select key_description, value_description from ".$strConfigurationSchemaArrValue." where deleted = 0";
+		
+		/* Fetching the record and checking is any record found */
+		if ($resultSet=mysqli_query($connectionObject,$strSQlQuery)){
+			/* Fetch one and one row */
+			while ($row=mysqli_fetch_row($resultSet)){
+				/* checking constant is define or not */
+				if(!defined($row[0])){
+					/* Define the constant */
+					define($row[0], $row[1]);
+				}
+			}
+			
+			/* Free result set */
+			mysqli_free_result($resultSet);
+		}
 	}
+	
 	/* Closing the connection */
 	mysqli_close($connectionObject);
 	/* Removed Used variables */

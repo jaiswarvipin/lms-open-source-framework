@@ -162,7 +162,7 @@ class Task{
 		/* If Action type is set then do needful */
 		if($intActionType > 0){
 			/* Creating email Sending helper object */
-			$emailprocessObj	= new Emailprocess($this->_objDataOperation, $this->getCompanyCode());
+			$emailprocessObj	= new Emailprocess($this->_databaseObject, $this->_intCompanyCode);
 			/* Sending email */
 			$strEmailArr		= $emailprocessObj->sendEmail($intActionType,$intLeadOwnerCode,$intLeadCode);
 			/* removed use variables */
@@ -264,7 +264,7 @@ class Task{
 		$intffSet		= 0;
 		
 		/* Setting column */
-		$strColumn					= 'master_leads.*, trans_leads_'.$this->_intCompanyCode.'.* ,master_lead_source.description as souce_name, master_status.description as status_name, master_leads.record_date as lead_created_date, 0 as taskNotifiation';
+		$strColumn					= 'master_leads.*, trans_leads_'.$this->_intCompanyCode.'.* ,master_lead_source.description as souce_name, master_status.description as status_name, master_leads.record_date as lead_created_date, 0 as taskNotifiation, master_leads.lead_owner_code as lead_owner_name';
 		
 		/* if lead filter is not empty then do needful */
 		if(!empty($pStrFilterArr)){

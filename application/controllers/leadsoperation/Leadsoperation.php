@@ -60,7 +60,7 @@ class LeadsOperation extends Requestprocess {
 		/* Variable initialization */
 		$strDataArr						= array();
 		$strDataArr['strStatusCode']	= $this->_objForm->getDropDown($this->getLeadStatusInParentChildArr(),'');
-		$strDataArr['strTaskType']		= $this->_objForm->getDropDown(getArrByKeyvaluePairs($this->_getTaskType(),'id','description'),'');
+		$strDataArr['strTaskType']		= $this->_objForm->getDropDown($this->getTaskType(),'');
 		
 		/* Return the lead follow-up details */
 		return $this->load->view('leads/lead-follow-up',$strDataArr,true);
@@ -121,7 +121,7 @@ class LeadsOperation extends Requestprocess {
 		}
 		
 		/* Creating lead object */
-		$leadObj	= new Lead($this->_objDataOperation, $this->getCompanyCode(), $this->getBranchCodes());
+		$leadObj	= new Lead($this->_objDataOperation, $this->getCompanyCode(), $this->getBranchCodes(),$this->getAllReportingList());
 		/* Get lead information by lead code */
 		$strDataArr	= $leadObj->getLeadDetialsByLogger(false,array('master_leads.id'=>getDecyptionValue($pIntLeadCode)));
 		/* Removed used variables */
@@ -131,6 +131,25 @@ class LeadsOperation extends Requestprocess {
 		$communicationhistoryObj 	= new communicationhistory($this->_objDataOperation, $this->getCompanyCode());
 		/* Fetch the communication of requested leads */
 		$strCommunicationHistoryArr	= $communicationhistoryObj->getCommuncationHistory(array('lead_code'=>getDecyptionValue($pIntLeadCode)));
+		
+		/* Checking communication history data set */
+		if(!empty($strCommunicationHistoryArr)){
+			/* Iterating the loop */
+			foreach($strCommunicationHistoryArr as $intRecordIndex => $strCommunicationHistoryArrValueArr){
+				/* Iterating the communication history column index */
+				foreach($strCommunicationHistoryArrValueArr as $strColumn => $strColumnValue){
+					/* Checking for lead owner details */
+					if($strColumn == 'lead_owner_code'){
+						/* Setting the value */
+						$strCommunicationHistoryArr[$intRecordIndex][$strColumn] = $this->getLeadAttributeDetilsByAttributeKey('lead_owner_name', $strColumnValue);
+					}else{
+						/* Setting the value */
+						$strCommunicationHistoryArr[$intRecordIndex][$strColumn] = $this->getLeadAttributeDetilsByAttributeKey($strColumn, $strColumnValue);
+					}
+				}
+			}
+		}
+		
 		/* Get communication HTML */
 		$strDataArr[0]['strHistory']= $this->load->view('leads/lead-communicaion-history',array('strCommunicaionHistoryArr' => $strCommunicationHistoryArr),true);
 		/* Removed used variables */
@@ -157,7 +176,7 @@ class LeadsOperation extends Requestprocess {
 		$strDataArr						= array();
 		$strDataArr['strRegionArr']		= $this->_objForm->getDropDown($this->getRegionDetails(),'');
 		$strDataArr['strBranchArr']		= $this->_objForm->getDropDown($this->getBranchDetails(),'');
-		$strDataArr['strTaskType']		= $this->_objForm->getDropDown(getArrByKeyvaluePairs($this->_getTaskType(),'id','description'),'');
+		$strDataArr['strTaskType']		= $this->_objForm->getDropDown($this->getTaskType(),'');
 		
 		/* Return the lead follow-up details */
 		return $this->load->view('leads/lead-transfer',$strDataArr,true);
@@ -377,7 +396,7 @@ class LeadsOperation extends Requestprocess {
 			}
 		}
 		/* Creating lead object */
-		$ObjLead	= new Lead($this->_objDataOperation, $this->getCompanyCode(), $this->getBranchCodes());
+		$ObjLead	= new Lead($this->_objDataOperation, $this->getCompanyCode(), $this->getBranchCodes(),$this->getAllReportingList());
 		/* Get exiting lead owner code details */
 		$strLeadDetailArr 	= $ObjLead->getLeadDetialsByLogger(false,array('master_leads.id'=>$intLeadCodeArr));
 		/* if requested lead details not found then do needful */
@@ -394,25 +413,6 @@ class LeadsOperation extends Requestprocess {
 		
 		/* Return Information */
 		jsonReturn(array('status'=>1,'message'=>'Lead transferred successfully.'), true);
-	}
-	
-	/**********************************************************************/
-	/*Purpose 	: Get lead task type details .
-	/*Inputs	: None.
-	/*Returns	: Task type List. 
-	/*Created By: Jaiswar Vipin Kumar R.
-	/**********************************************************************/
-	public function _getTaskType(){
-		/*Variable initialization */
-		$strReturnArr	= array();
-		/* Creating task object */
-		$taskObj		= new Task($this->_objDataOperation, $this->getCompanyCode());
-		/* Get task type list */
-		$strReturnArr	= $taskObj->getTaskTypeByCompanyCode();
-		/* Removed used variables */
-		unset($taskObj);
-		/* Return Task Type */
-		return $strReturnArr;
 	}
 	
 	/**********************************************************************/

@@ -60,7 +60,7 @@
                 <label for='txtEmail'>Enter Email ID *</label>
               </div>
 			  <div class='input-field col s4'>
-                <input class='validate' type='text' name='txtPassword' id='txtPassword' data-set="" />
+                <input class='validate' type='password' name='txtPassword' id='txtPassword' data-set="" />
                 <label for='txtPassword'>Password *</label>
               </div>
             </div>
@@ -86,26 +86,26 @@
 			
 			<div class='row no-search'>
               <div class='input-field col s4'>
-                <select name="cboZone" id="cboZone" data-set="zone" onChange="getDependencyData(this,'cboRegion','<?php echo getEncyptionValue('1')?>')" multiple><?php echo $strZoneArr?></select>
+                <select name="cboZone[]" id="cboZone" data-set="zone" onChange="getDependencyData(this,'cboRegion','<?php echo getEncyptionValue('2')?>')" multiple><?php echo $strZoneArr?></select>
                 <label for='cboZone'>Select Zone*</label>
               </div>
 			  <div class='input-field col s4'>
-                <select name="cboRegion" id="cboRegion" data-set="region" onChange="getDependencyData(this,'cboCity','<?php echo getEncyptionValue('2')?>')" multiple><?php //echo $strStatusCategories?></select>
+                <select name="cboRegion[]" id="cboRegion" data-set="region" onChange="getDependencyData(this,'cboCity','<?php echo getEncyptionValue('3')?>')" multiple><?php //echo $strStatusCategories?></select>
                 <label for='cboRegion'>Select Region*</label>
               </div>
 			  <div class='input-field col s4'>
-                <select name="cboCity" id="cboCity" data-set="city"  onChange="getDependencyData(this,'cboArea','<?php echo getEncyptionValue('3')?>')" multiple><?php //echo $strStatusCategories?></select>
+                <select name="cboCity[]" id="cboCity" data-set="city"  onChange="getDependencyData(this,'cboArea','<?php echo getEncyptionValue('4')?>')" multiple><?php //echo $strStatusCategories?></select>
                 <label for='cboCity'>Select City *</label>
               </div>
             </div>
 			
 			<div class='row no-search'>
               <div class='input-field col s4'>
-                <select name="cboArea" id="cboArea" data-set="area" onChange="getDependencyData(this,'cboBranchCode','<?php echo getEncyptionValue('4')?>')" multiple><?php //echo $strStatusCategories?></select>
+                <select name="cboArea[]" id="cboArea" data-set="area" onChange="getDependencyData(this,'cboBranchCode','<?php echo getEncyptionValue('5')?>')" multiple><?php //echo $strStatusCategories?></select>
                 <label for='cboArea'>Select Area *</label>
               </div>
 			  <div class='input-field col s4'>
-                <select name="cboBranchCode" id="cboBranchCode" data-set="branch" onChange="getDependencyData(this,'','<?php echo getEncyptionValue('5')?>')" multiple><?php //echo $strStatusCategories?></select>
+                <select name="cboBranchCode[]" id="cboBranchCode" data-set="branch" onChange="getDependencyData(this,'','')" multiple><?php //echo $strStatusCategories?></select>
                 <label for='cboBranchCode'>Select Branch Code *</label>
               </div>
 			  <div class='input-field col s4'>

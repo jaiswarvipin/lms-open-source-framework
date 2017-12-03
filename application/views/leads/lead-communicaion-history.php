@@ -17,7 +17,7 @@
 							<tr>
 								<td><?php echo getDateFormat($strCommunicaionHistoryArrValue['record_date'])?></td>
 								<td><?php echo $strCommunicaionHistoryArrValue['lead_owner_code']?></td>
-								<td><?php echo $strCommunicaionHistoryArrValue['status_code']?></td>
+								<td><?php echo $strCommunicaionHistoryArrValue['task_type_code']?></td>
 								<td><?php echo $strCommunicaionHistoryArrValue['status_code']?></td>
 								<td><?php echo $strCommunicaionHistoryArrValue['comments']?></td>
 							</tr>

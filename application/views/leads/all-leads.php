@@ -25,8 +25,12 @@
 							<?php foreach($strColumnsArr as $strColumnsArrKey => $strColumnsArrValue){?>
 								<?php if(isset($strColumnsArrValue['is_date'])){?>
 									<td><?php echo getDateFormat($dataSetValue[$strColumnsArrValue['column']])?></td>
-								<?php }else{?>
-									<td><?php echo $dataSetValue[$strColumnsArrValue['column']]?></td>
+								<?php }else{
+										if($strColumnsArrValue['column'] == 'lead_owner_code'){?>
+											<td><?php echo $dataSetValue['lead_owner_name']?></td>
+									<?php }else{?>
+										<td><?php echo $dataSetValue[$strColumnsArrValue['column']]?></td>
+									<?php }?>
 								<?php }?>
 							<?php }?>
 							<td>

@@ -6,26 +6,30 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Lead{
-	private $_databaseObject	= null;
-	private $_intCompanyCode	= 0;
-	private $_strTableName		= "master_leads";
-	private $_strBranchCodeArr	= array();
+	private $_databaseObject		= null;
+	private $_intCompanyCode		= 0;
+	private $_strTableName			= "master_leads";
+	private $_strBranchCodeArr		= array();
+	private $_strReportingUserArr	= array();
 	
 	/***************************************************************************/
 	/* Purpose	: Initialization
 	/* Inputs 	: pDatabaesObjectRefrence :: Database object reference,
 				: $pIntCompanyCode :: company code,
-				: $pStrBranchCodeArr :: Branch Code Array
+				: $pStrBranchCodeArr :: Branch Code Array,
+				: $pStrReportingUserArr :: reporting user list array
 	/* Returns	: None.
 	/* Created By 	: Jaiswar Vipin Kumar R.
 	/***************************************************************************/
-	public function __construct($pDatabaesObjectRefrence, $pIntCompanyCode = 0, $pStrBranchCodeArr = array()){
+	public function __construct($pDatabaesObjectRefrence, $pIntCompanyCode = 0, $pStrBranchCodeArr = array(), $pStrReportingUserArr = array()){
 		/* database reference */
 		$this->_databaseObject	= $pDatabaesObjectRefrence;
 		/* Company Code */
 		$this->_intCompanyCode	= $pIntCompanyCode;
 		/* Setting Branch Code */
 		$this->_strBranchCodeArr= decodeKeyValueArr($pStrBranchCodeArr, true);
+		/* Setting reporting user array */
+		$this->_strReportingUserArr	= $pStrReportingUserArr;
 	}
 	
 	/***************************************************************************/
@@ -152,9 +156,15 @@ class Lead{
 	public function getLeadDetialsByLogger($pIsCountNeed = false, $pStrFilterArr = array()){
 		/* Variable initialization */
 		$strReturnArr	= $strLimitFilter	= array();
-		$strWhereArr	= array($this->_strTableName.'.company_code'=>$this->_intCompanyCode,'trans_leads_'.$this->_intCompanyCode.'.branch_code'=>$this->_strBranchCodeArr);
-		$strColumnArr	= array($this->_strTableName.'.*', 'trans_leads_'.$this->_intCompanyCode.'.*','master_lead_source.description as souce_name','master_status.description as status_name, master_status.parent_id as parent_code', $this->_strTableName.'.record_date as lead_created_date');
+		$strWhereArr	= array($this->_strTableName.'.company_code'=>$this->_intCompanyCode,'trans_leads_'.$this->_intCompanyCode.'.branch_code'=>$this->_strBranchCodeArr, $this->_strTableName.'.lead_owner_code'=>$this->_strReportingUserArr);
+		$strColumnArr	= array($this->_strTableName.'.*', 'trans_leads_'.$this->_intCompanyCode.'.*','master_lead_source.description as souce_name','master_status.description as status_name, master_status.parent_id as parent_code', $this->_strTableName.'.record_date as lead_created_date',$this->_strTableName.'.lead_owner_code as lead_owner_name');
 		
+		/* if reporting user is not set then do needful */
+		if(empty($this->_strReportingUserArr)){
+			/* Removed lead owner filter clause */ 
+			unset($strWhereArr[$this->_strTableName.'.lead_owner_code']);
+		}
+
 		/* if lead code array is empty then do needful */
 		if(!empty($intLeadCodeArr)){
 			/* Adding lead filter */
@@ -213,6 +223,12 @@ class Lead{
 		$blnIsDirect		= false;
 		$intLeadOwnerCode	= (isset($pStrLeadArr['lead_owner_code']) && ((int)$pStrLeadArr['lead_owner_code'] >0 ))?$pStrLeadArr['lead_owner_code']:0;
 		
+		/* if Debugging is set the do needful */
+		if((isset($pStrLeadArr['is_debug'])) && ($pStrLeadArr['is_debug'])){
+			debugVar('----------------To Enroll, passed array ----------------');
+			debugVar($pStrLeadArr);
+		}
+		
 		/* if lead details is empty then do needful */
 		if(empty($pStrLeadArr)){
 			/* Return empty array */
@@ -220,7 +236,7 @@ class Lead{
 		}
 		
 		/* if added by user then do needful */
-		if($pStrLeadArr['is_direct']){
+		if(isset($pStrLeadArr['is_direct'])){
 			/* value over ridding */
 			$blnIsDirect	= true;
 		}
@@ -249,8 +265,14 @@ class Lead{
 		/* Removed used variables */
 		unset($statusObj, $strStatusArr);
 		
+		/* if Debugging is set the do needful */
+		if((isset($pStrLeadArr['is_debug'])) && ($pStrLeadArr['is_debug'])){
+			debugVar('----------------Master Lead Entry Array ----------------');
+			debugVar($strLedAddingArr);
+		}
+		
 		/* Setting data in master for generating the lead code */
-		$intLeadCode	= $this->_databaseObject->setDataInTable(
+		$intLeadCode	= 1;/*$this->_databaseObject->setDataInTable(
 																	array(
 																			'table'=>$this->_strTableName,
 																			'data'=>$strLedAddingArr
@@ -268,16 +290,44 @@ class Lead{
 			/* Getting Branch and Region */
 			$strLocationArr	= $locationObj->getLocationsByUserCode($intLeadOwnerCode);
 		}
+		
 		/* if branch and location is not found the get default location details */
 		if(empty($strLocationArr)){
 			/* Getting Branch and Region */
-			$strLocationArr	= $locationObj->getLocationsByUserCode(-1);
+			$strReultArr	= $locationObj->getLocationsByUserCode(-2);
+			
+			/* if location array is empty then do needful */
+			if(empty($strReultArr)){
+				/* Getting Branch and Region */
+				$strReultArr	= $locationObj->getLocationsByUserCode(-1);
+			}else{
+				/* Variable initialization */
+				$strReultContinerArr	= array();
+				/* iterating the loop */
+				foreach($strReultArr as $strReultArrKey => $strReultArrValue){
+					/* Setting value */
+					$strReultContinerArr[0][getCustomDefination($strReultArrValue['key_description'])]	= $strReultArrValue['value_description'];
+				}
+				/* value setting */
+				$strReultArr	= $strReultContinerArr;
+				/* removed used variables */
+				unset($strReultContinerArr);
+			}
+			/* value initialization */
+			$strLocationArr	= $strReultArr;
 		}
+		
 		/* setting lead code */
 		$pStrLeadArr['lead_code']			= $intLeadCode;
 		$pStrLeadArr['branch_code']			= $strLocationArr[0]['branch_code'];
 		$pStrLeadArr['region_code']			= $strLocationArr[0]['region_code'];
 		
+		/* if Debugging is set the do needful */
+		if((isset($pStrLeadArr['is_debug'])) && ($pStrLeadArr['is_debug'])){
+			debugVar('----------------Trans Lead Attributes ----------------');
+			debugVar($pStrLeadArr);
+		}
+		exit;
 		/* Removed used variables */
 		unset($locationObj, $strLocationArr);
 		

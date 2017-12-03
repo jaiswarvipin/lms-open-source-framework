@@ -261,8 +261,15 @@ function getPagniation($pIntNumberOfPecordsArr = array(), $pIntCurrentPageNumber
 /*Created By: Jaiswar Vipin Kumar R.
 /*************************************************************************/
 function getEncyptionValue($strValue){
+	/* Security Setting */ 
+    $strEncryptMethod = "AES-256-CBC";
+    $strKey = hash( 'sha256', md5(TOKEN) );
+    $strIVValue = substr( hash( 'sha256', TOKEN ), 0, 16 );
+	
 	/* Encrypting the string */
-	return base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, md5(TOKEN), $strValue, MCRYPT_MODE_CBC, md5(md5(TOKEN))));
+	return base64_encode( openssl_encrypt( $strValue, $strEncryptMethod, $strKey, 0, $strIVValue ) );
+	//return (mcrypt_encrypt(MCRYPT_RIJNDAEL_256, md5(TOKEN), str_replace(array('+','='),array('','',''),base64_encode($strValue)), MCRYPT_MODE_CBC, md5(md5(TOKEN))));
+	//return base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, md5(TOKEN), $strValue, MCRYPT_MODE_CBC, md5(md5(TOKEN))));
 }
 
 /*************************************************************************
@@ -272,8 +279,15 @@ function getEncyptionValue($strValue){
 /*Created By: Jaiswar Vipin Kumar R.
 /*************************************************************************/
 function getDecyptionValue($strValue){
-	/* Encrypting the string */
-	return rtrim(mcrypt_decrypt(MCRYPT_RIJNDAEL_256, md5(TOKEN), base64_decode($strValue), MCRYPT_MODE_CBC, md5(md5(TOKEN))), "\0");
+	/* Security Setting */ 
+    $strEncryptMethod = "AES-256-CBC";
+    $strKey = hash( 'sha256', md5(TOKEN) );
+    $strIVValue = substr( hash( 'sha256', TOKEN ), 0, 16 );
+	
+	/* Decrypting the string */
+	return openssl_decrypt( base64_decode($strValue), $strEncryptMethod, $strKey, 0, $strIVValue ) ;
+	//return rtrim(mcrypt_decrypt(MCRYPT_RIJNDAEL_256, md5(TOKEN), base64_decode($strValue), MCRYPT_MODE_CBC, md5(md5(TOKEN))), "\0");
+	//return rtrim(mcrypt_decrypt(MCRYPT_RIJNDAEL_256, md5(TOKEN), base64_decode($strValue), MCRYPT_MODE_CBC, md5(md5(TOKEN))), "\0");
 }
 
 /*************************************************************************
@@ -397,10 +411,10 @@ function decodeKeyValueArr($pStrValueSetArr = array(), $isValueDecode = false){
 }
 
 /**********************************************************************/
-/*Purpose 	: Number formating.
+/*Purpose 	: Number Formatting.
 /*Inputs	: $pNumber	:: Value,
-			: $pIntFormatingType :: Formating type.
-/*Returns 	: Formated number.
+			: $pIntFormatingType :: Formatting type.
+/*Returns 	: Formatting number.
 /*Created By: Jaiswar Vipin Kumar R.
 /**********************************************************************/
 function numberFormating($pNumber = 0, $pIntFormatingType = 0){
@@ -410,7 +424,7 @@ function numberFormating($pNumber = 0, $pIntFormatingType = 0){
 		$pNumber	= 0;
 	}
 	
-	/* based on the formating type doing processing */
+	/* based on the Formatting type doing processing */
 	switch($pIntFormatingType){
 		case 0:
 		default:
@@ -424,11 +438,40 @@ function numberFormating($pNumber = 0, $pIntFormatingType = 0){
 
 /**********************************************************************/
 /*Purpose 	: Redirecting to other page .
-/*Inputs	: $pNumber	:: Value,
-			: $pIntFormatingType :: Formating type.
-/*Returns 	: Formated number.
+/*Inputs	: $pStrDestinationURL	:: Destination URL.
+/*Returns 	: None.
 /*Created By: Jaiswar Vipin Kumar R.
 /**********************************************************************/
 function redirect($pStrDestinationURL){
 	die('<script language="JavaScript">window.location.href = "'.$pStrDestinationURL.'"</script>');
+}
+
+/**********************************************************************/
+/*Purpose 	: Get custom definition	 of user configuration code of .
+/*Inputs	: $pUserConfigVariable :: User configuration variables.
+/*Returns	: Custom value of user configuration value.
+/*Created By: Jaiswar Vipin Kumar R.
+/**********************************************************************/
+function getCustomDefination($pUserConfigVariable = ''){
+	/* Variable initialization */
+	$strReturnValue = '';
+	
+	/* based on value setting the custom value */
+	switch($pUserConfigVariable){
+		case 'DEFAULT_REGION':
+			$strReturnValue	= 'region_code';
+			break;
+		case 'DEFAULT_BRANCH':
+			$strReturnValue	= 'branch_code';
+			break;
+		case 'DEFAULT_LEAD_ALLOCATED_TO':
+			$strReturnValue	= 'lead_owner_name';
+			break;
+		default:
+			$strReturnValue	= $pUserConfigVariable;
+			break;
+	}
+	
+	/* return custom value */
+	return $strReturnValue;
 }

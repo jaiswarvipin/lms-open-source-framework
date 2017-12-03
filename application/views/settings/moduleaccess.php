@@ -18,6 +18,7 @@
 		            		<td><?php echo $dataSetValue['description']?></td>
 		            		<td>
 		            			<a href="javascript:void(0);" onclick="openEditModel('<?php echo $strDataAddEditPanel?>','<?php echo getEncyptionValue($dataSetValue['id'])?>',1);" class="waves-effect waves-circle waves-light btn-floating secondary-content"><i class="material-icons">edit</i></a>
+		            			<a href="javascript:void(0);" onclick="openEditModel('<?php echo $strDataAddEditPanel?>','<?php echo getEncyptionValue($dataSetValue['id'])?>',1);" class="waves-effect waves-circle waves-light btn-floating secondary-content"><i class="material-icons">edit</i></a>
 		            		</td>
 		          		</tr>
 						<?php $intCoounter++;?>
@@ -55,14 +56,14 @@
 									if(isset($strModuleArrValue['description'])){?>
 										<tr>
 											<td><?php echo str_replace('[divider]','',$strModuleArrValue['description'])?></td>
-											<td><input class='validate' type='checkbox' name='txtModulename[]' id='txtModulename[]' value="<?php echo getEncyptionValue($strModuleArrValue['id'])?>" data-set="module_code" />&nbsp;<label>&nbsp;</label></td>
+											<td><input class='validate' type='checkbox' name='txtModulename[]' id='txtModulename<?php echo getEncyptionValue($strModuleArrValue['id'])?>' value="<?php echo getEncyptionValue($strModuleArrValue['id'])?>" data-set="module_code" />&nbsp;<label for="txtModulename<?php echo getEncyptionValue($strModuleArrValue['id'])?>">&nbsp;</label></td>
 										</tr>
 								<?php }?>
 								<?php if(isset($strModuleArrValue['child'])){?>
 									<?php foreach($strModuleArrValue['child'] as $strModuleArrValueKey => $strModuleArrValueDetails){?>
 										<tr>
 											<td>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;<?php echo str_replace('[divider]','',$strModuleArrValueDetails['description'])?></td>
-											<td><input class='validate' type='checkbox' name='txtModulename[]' id='txtModulename[]' value="<?php echo getEncyptionValue($strModuleArrValueDetails['id'])?>" data-set="module_code" />&nbsp;<label>&nbsp;</label></td>
+											<td><input class='validate' type='checkbox' name='txtModulename[]' id='txtModulename<?php echo getEncyptionValue($strModuleArrValueDetails['id'])?>' value="<?php echo getEncyptionValue($strModuleArrValueDetails['id'])?>" data-set="module_code" />&nbsp;<label for="txtModulename<?php echo getEncyptionValue($strModuleArrValueDetails['id'])?>">&nbsp;</label></td>
 										</tr>
 									<?php }?>
 								<?php }?>

@@ -163,7 +163,7 @@ class Leads	 extends Requestprocess {
 		}
 		
 		/* Creating lead object */
-		$leadObj	= new Lead($this->_objDataOperation, $this->getCompanyCode(), $this->getBranchCodes());
+		$leadObj	= new Lead($this->_objDataOperation, $this->getCompanyCode(), $this->getBranchCodes(),$this->getAllReportingList());
 		/* Getting lead array */
 		$strLeadArr	= $leadObj->getLeadDetialsByLogger($pBlnCountNeeded, $strWhereClauseArr);
 		/* removed used variables */
@@ -183,8 +183,9 @@ class Leads	 extends Requestprocess {
 						$strReturnArr[$strLeadArrKey][$strColumnArrValue['column']]	= $this->getLeadAttributeDetilsByAttributeKey($strColumnArrValue['column'], $strLeadArrValue[$strColumnArrValue['column']]);
 					}
 					/* Setting the lead code */
-					$strReturnArr[$strLeadArrKey]['lead_code']	= $strLeadArrValue['lead_code'];
-					$strReturnArr[$strLeadArrKey]['is_open']	= $strLeadArrValue['parent_code'];
+					$strReturnArr[$strLeadArrKey]['lead_code']			= $strLeadArrValue['lead_code'];
+					$strReturnArr[$strLeadArrKey]['is_open']			= $strLeadArrValue['parent_code'];
+					$strReturnArr[$strLeadArrKey]['lead_owner_name']	= $this->getLeadAttributeDetilsByAttributeKey('lead_owner_name', $strLeadArrValue['lead_owner_name']);
 				}
 			}
 		}

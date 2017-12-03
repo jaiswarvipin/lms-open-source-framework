@@ -259,11 +259,11 @@ class Userprofiles extends Requestprocess {
 		$intUserRoleCode		= ($this->input->post('cboRoleCode') != '')?getDecyptionValue($this->input->post('cboRoleCode')):0;
 		$intUserSystemRoleCode	= ($this->input->post('cboUserSystemRole') != '')?getDecyptionValue($this->input->post('cboUserSystemRole')):0;
 		$intUserStatusCode		= ($this->input->post('cboUserStatus') != '')?getDecyptionValue($this->input->post('cboUserStatus')):0;
-		$strZoneCode			= ($this->input->post('cboZone') != '')?$this->input->post('cboZone'):'';
-		$strRegionCode			= ($this->input->post('cboRegion') != '')?$this->input->post('cboRegion'):'';
-		$strCityCode			= ($this->input->post('cboCity') != '')?$this->input->post('cboCity'):'';
-		$strAreaCode			= ($this->input->post('cboArea') != '')?$this->input->post('cboArea'):'';
-		$strBranchCode			= ($this->input->post('cboBranchCode') != '')?$this->input->post('cboBranchCode'):'';
+		$strZoneCode			= ($this->input->post('cboZone') != '')?$this->input->post('cboZone'):array();
+		$strRegionCode			= ($this->input->post('cboRegion') != '')?$this->input->post('cboRegion'):array();
+		$strCityCode			= ($this->input->post('cboCity') != '')?$this->input->post('cboCity'):array();
+		$strAreaCode			= ($this->input->post('cboArea') != '')?$this->input->post('cboArea'):array();
+		$strBranchCode			= ($this->input->post('cboBranchCode') != '')?$this->input->post('cboBranchCode'):array();
 		$intManagerCode			= ($this->input->post('cboReportingManager') != '')?getDecyptionValue($this->input->post('cboReportingManager')):0;
 		$blnEditRequest			= (($intUserCode > 0)?true:false);
 		$blnSearch				= ($this->input->post('txtSearch') != '')?true:false;
@@ -290,19 +290,19 @@ class Userprofiles extends Requestprocess {
 		}else if(($intUserSystemRoleCode == 0)){
 			/* Return Information */
 			jsonReturn(array('status'=>0,'message'=>'User System Role is not selected.'), true);
-		}else if(($strZoneCode == '')){
+		}else if(empty($strZoneCode)){
 			/* Return Information */
 			jsonReturn(array('status'=>0,'message'=>'Zone is not selected.'), true);
-		}else if(($strRegionCode == '')){
+		}else if(empty($strRegionCode)){
 			/* Return Information */
 			jsonReturn(array('status'=>0,'message'=>'Region is not selected.'), true);
-		}else if(($strCityCode == '')){
+		}else if(empty($strCityCode)){
 			/* Return Information */
 			jsonReturn(array('status'=>0,'message'=>'City is not selected.'), true);
-		}else if(($strAreaCode == '')){
+		}else if(empty($strAreaCode)){
 			/* Return Information */
 			jsonReturn(array('status'=>0,'message'=>'Area is not selected.'), true);
-		}else if(($strBranchCode == '')){
+		}else if((empty($strBranchCode))){
 			/* Return Information */
 			jsonReturn(array('status'=>0,'message'=>'Branch code is not selected.'), true);
 		}else if(($intManagerCode == 0)){
@@ -311,7 +311,11 @@ class Userprofiles extends Requestprocess {
 		}
 		
 		/* Checking enter email address is already register or not */
-		$strUserDataArr	= $this->_objDataOperation->getDataFromTable(array('table'=>$this->_strPrimaryTableName, 'where'=>array('user_email'=>$strEmailAddress)));
+		if($blnEditRequest){
+			$strUserDataArr	= $this->_objDataOperation->getDataFromTable(array('table'=>$this->_strPrimaryTableName, 'where'=>array('user_email'=>$strEmailAddress, 'id !='=>$intUserCode)));
+		}else{
+			$strUserDataArr	= $this->_objDataOperation->getDataFromTable(array('table'=>$this->_strPrimaryTableName, 'where'=>array('user_email'=>$strEmailAddress)));
+		}
 		
 		/* if status already exists then do needful */
 		if(!empty($strUserDataArr)){
@@ -345,7 +349,7 @@ class Userprofiles extends Requestprocess {
 			}
 			
 			/* Creating branch code array of the id's  */
-			$strBranchCode	= explode(',',$strBranchCode);
+			//$strBranchCode	= explode(',',$strBranchCode);
 			
 			/* iterating the loop */
 			foreach($strBranchCode as $strBranchCodeKey => $strBranchCodeValue){
@@ -454,7 +458,7 @@ class Userprofiles extends Requestprocess {
 		$strLocationParentCode	= ($this->input->post('txtDataCodes')!='')?$this->input->post('txtDataCodes'):((!empty($pStrFilterParamArr) && (isset($pStrFilterParamArr['code'])))?$pStrFilterParamArr['code']:getEncyptionValue('0'));
 		$strLocationType		= ($this->input->post('txtExtraParam')!='')?getDecyptionValue($this->input->post('txtExtraParam')):((!empty($pStrFilterParamArr) && (isset($pStrFilterParamArr['type'])))?$pStrFilterParamArr['type']:'1');
 		$strLcoationCodeArr		= $strUserArr	= array();
-		
+		 
 		/* Creating array of the id's  */
 		$strLocationParentCodeArr	= explode(',',$strLocationParentCode);
 		
@@ -462,7 +466,13 @@ class Userprofiles extends Requestprocess {
 		/* iterating the loop */
 		foreach($strLocationParentCodeArr as $strLocationParentCodeKey => $strLocationParentCodeValue){
 			/* decoding the value */
-			$strLcoationCodeArr[]	= getDecyptionValue($strLocationParentCodeValue);
+			$intValue				= getDecyptionValue($strLocationParentCodeValue);
+			/* Checking number is set */
+			if(!is_numeric($intValue)){
+				/* Setting the value */
+				$intValue			= getDecyptionValue($intValue);
+			}
+			$strLcoationCodeArr[]	= $intValue;
 		}
 		
 		/* removed used variables */
@@ -471,7 +481,7 @@ class Userprofiles extends Requestprocess {
 		/* Creating Location object */
 		$objLocation			= new location($this->_objDataOperation, $this->getCompanyCode());
 		/* Creating the location array */
-		$strLocationArrValue	= $objLocation->getLocationDetails(1,array(),$strLcoationCodeArr);
+		$strLocationArrValue	= $objLocation->getLocationDetails($strLocationType,array(),$strLcoationCodeArr);
 		
 		/* if AJAX request then do needful */
 		if(isAjaxRequest()){

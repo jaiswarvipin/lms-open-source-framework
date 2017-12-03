@@ -10,7 +10,7 @@ function processRequestAfterResponse(pStrFormName, pStrResponseObject){
 	var objResponse = jQuery.parseJSON(pStrResponseObject);
 
 	if(objResponse.status == 0){
-		if($('.addItemInModule').length == 0){
+		if(($('.addItemInModule').length == 0) && ($('#txtRoleCode').length > 0)){
 			$('#'+objectRefrence).find('input').each(function(){
 				if(($(this).attr('type') == 'radio') || ($(this).attr('type') == 'checkbox')){
 					$(this).removeAttr('checked');
@@ -89,7 +89,7 @@ function processRequestAfterResponse(pStrFormName, pStrResponseObject){
 						$('#cboLeadAttributeCode').material_select();
 					}
 					
-					if($('.addItemInModule').length == 0){
+					if(($('.addItemInModule').length == 0) && ($('#txtRoleCode').length > 0)){
 						$('#'+objectRefrence).find('input').each(function(){
 							if(($(this).attr('type') == 'radio') || ($(this).attr('type') == 'checkbox')){
 								$(this).removeAttr('checked');
@@ -156,7 +156,11 @@ function processRequestAfterResponse(pStrFormName, pStrResponseObject){
 									if((strKeyColumn == 'zone') || (strKeyColumn == 'region') || (strKeyColumn == 'city') || (strKeyColumn == 'area') || (strKeyColumn == 'branch')){
 										$(this).html(strColumnValue);
 									}else{
-										$(this).val(strColumnValue);
+										if('environmentModel' == objectRefrence){
+											$(this).html(strColumnValue);
+										}else{
+											$(this).val(strColumnValue);
+										}
 									}
 									$(this).material_select();
 								}
@@ -180,12 +184,15 @@ function processRequestAfterResponse(pStrFormName, pStrResponseObject){
 				$.each(objResponse, function(strKeyColumn, strColumnValue){
 					if(strKeyColumn == 'dataset'){
 						if(objectRefrence != ''){
-							$('#'+objectRefrence).html(strColumnValue).material_select();
+							$('#'+objectRefrence).html(strColumnValue);
+							$('#'+objectRefrence).material_select();
 						}
 					}else if(strKeyColumn == 'reporting'){
-						$('#cboReportingManager').html(strColumnValue).material_select();
+						$('#cboReportingManager').html(strColumnValue);
+						$('#cboReportingManager').material_select();
 					}
 				});
+				 
 				return false;
 				break;
 		}
@@ -332,7 +339,6 @@ function openEditModel(pModelRefenceObject, pIntRecordCode, isEdit){
 		}
 		return false;
 	}else{
-		
 		$('#'+pModelRefenceObject).modal('open');
 		$('#txtDeleteRecordCode').val(pIntRecordCode);
 		$('#txtCode').val(pIntRecordCode);
@@ -341,7 +347,7 @@ function openEditModel(pModelRefenceObject, pIntRecordCode, isEdit){
 		$('.no-add').addClass('hide');
 		objectRefrence	= null;
 		
-		if($('.addItemInModule').length == 0){
+		if(($('.addItemInModule').length == 0) && ($('#txtRoleCode').length > 0)){
 			$('#txtRoleCode').val(pIntRecordCode);
 		}
 		

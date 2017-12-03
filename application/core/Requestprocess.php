@@ -21,30 +21,39 @@ class Requestprocess extends CI_Controller {
 	private $_strLeadSourceArr				= array();
 	private $_strLeadStatusArr				= array();
 	private $_strLocationAssocArr			= array();
+	private $_strAllReportingArr			= array();
+	private $_strReortingStrctArr			= array();
+	private $_strTaskTypeArr				= array();
 
 	/**********************************************************************/
 	/*Purpose 	: Default method to be executed.
 	/*Inputs	: none
 	/*Created By: Jaiswar Vipin Kumar R.
 	/**********************************************************************/
+        /**
+         * 
+         * @return  None
+         * @abstract initialization of current logger session and setting the env. 
+         * @author Jaiswar Vipin Kumar R
+         */
 	public function __construct(){
-		/* CI call execution */
-		parent::__construct();
-		
-		/* Creating model comment instance object */
-		$this->_objDataOperation	= new Dbrequestprocess_model();
-		
-		/* if CRON request then do needful */
-		if($this->uri->segment(1) == 'crons'){
-			/* Return execution control to CRON calling controller */ 
-			return;
-		}
+            /* CI call execution */
+            parent::__construct();
 
-		/* Process the logger request */
-		$this->_doValidateRequest();
+            /* Creating model comment instance object */
+            $this->_objDataOperation	= new Dbrequestprocess_model();
 
-		/* Creating form helper object */
-		$this->_objForm				= new Form();
+            /* if CRON request then do needful */
+            if($this->uri->segment(1) == 'crons'){
+                    /* Return execution control to CRON calling controller */ 
+                    return;
+            }
+
+            /* Process the logger request */
+            $this->_doValidateRequest();
+
+            /* Creating form helper object */
+            $this->_objForm				= new Form();
 	}
 
 	/**********************************************************************/
@@ -54,34 +63,34 @@ class Requestprocess extends CI_Controller {
 	/*Created By: Jaiswar Vipin Kumar R.
 	/**********************************************************************/
 	private function _doValidateRequest(){
-		/*Variable initialization */
-		$strCookiesCode	= '';
+            /*Variable initialization */
+            $strCookiesCode	= '';
 
-		/* Checking is valid cookie exists */
-		if(isset($_COOKIE['_xAyBzCwD'])){
-			/* Getting the valid logger code */
-			$strCookiesCode	= $_COOKIE['_xAyBzCwD'];
-		}
+            /* Checking is valid cookie exists */
+            if(isset($_COOKIE['_xAyBzCwD'])){
+                    /* Getting the valid logger code */
+                    $strCookiesCode	= $_COOKIE['_xAyBzCwD'];
+            }
 
-		/* If logger code is not found the do needful */
-		if($strCookiesCode == ''){
-			/* Destroy the all cookies */
-			$this->_doDistryLoginCookie();
+            /* If logger code is not found the do needful */
+            if($strCookiesCode == ''){
+                    /* Destroy the all cookies */
+                    $this->_doDistryLoginCookie();
 
-			/* redirecting to login */
-			redirect(SITE_URL.'login');
-		}else{
-			/* getting logger details */
-			$strLoggerArr 	= $this->_getLoggerDetails($strCookiesCode);
-			
-			/* Logger details not found then do needful */
-			if(empty($strLoggerArr)){
-				/* Destroy the all cookies */
-				$this->_doDistryLoginCookie();
-			}
-			/* Processing the logger Object */
-			$this->_doProcessLogger($strLoggerArr);
-		}
+                    /* redirecting to login */
+                    redirect(SITE_URL.'login');
+            }else{
+                    /* getting logger details */
+                    $strLoggerArr 	= $this->_getLoggerDetails($strCookiesCode);
+
+                    /* Logger details not found then do needful */
+                    if(empty($strLoggerArr)){
+                            /* Destroy the all cookies */
+                            $this->_doDistryLoginCookie();
+                    }
+                    /* Processing the logger Object */
+                    $this->_doProcessLogger($strLoggerArr);
+            }
 	}
 
 	/**********************************************************************/
@@ -123,6 +132,9 @@ class Requestprocess extends CI_Controller {
 		$this->_strLeadStatusArr	= (array)$ObjStrLoggerDetails->leadStatus;
 		$this->_strLocationAssocArr	= (array)$ObjStrLoggerDetails->locationAssociation;
 		$this->_intDefaultStatusCode= $ObjStrLoggerDetails->defaultStatusCode;
+		$this->_strAllReportingArr	= (array)$ObjStrLoggerDetails->employee->users;
+		$this->_strReortingStrctArr	= (array)$ObjStrLoggerDetails->employee->reporting;
+		$this->_strTaskTypeArr		= (array)$ObjStrLoggerDetails->taskType;
 		
 		/* Global variable declaration */
 		$this->load->vars(array(
@@ -171,7 +183,7 @@ class Requestprocess extends CI_Controller {
 	}
 
 	/**********************************************************************/
-	/*Purpose 	: Distroy the existing logger cookies.
+	/*Purpose 	: Destroy the existing logger cookies.
 	/*Inputs	: None.
 	/*Returns	: None.
 	/*Created By: Jaiswar Vipin Kumar R.
@@ -205,6 +217,42 @@ class Requestprocess extends CI_Controller {
 
 		/* Return the logger details */
 		return $strloggerArr;
+	}
+	
+	/**********************************************************************/
+	/*Purpose 	: get task type.
+	/*Inputs	: None.
+	/*Returns	: task type array.
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
+	public function getTaskType(){
+		/* return main menu */
+		return $this->_strTaskTypeArr;
+	}
+	
+	/**********************************************************************/
+	/*Purpose 	: Get task type details by code.
+	/*Inputs	: $pIntTaskTypeCode = task type code.
+	/*Returns	: task type.
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
+	public function getTaskTypeDetails($pIntTaskTypeCode = 0){
+		/* variable initialization */
+		$strTaskType	= "";
+		
+		/* is list is not empty the do needful */
+		if(!empty($this->_strTaskTypeArr)){
+			/* Iterating the loop */
+			foreach($this->_strTaskTypeArr as $intTaskTypeCode => $strTaskType){
+				if($pIntTaskTypeCode === $intTaskTypeCode){
+					/* Setting task type */
+					$strTaskType =  $strTaskType;
+					break;
+				}
+			}
+		}
+		/* return task type details */
+		return $strTaskType;
 	}
 	
 	/**********************************************************************/
@@ -242,13 +290,31 @@ class Requestprocess extends CI_Controller {
 	
 	/**********************************************************************/
 	/*Purpose 	: Get branch details.
-	/*Inputs	: None.
+	/*Inputs	: $pStrRegionCode :: Region Code.
 	/*Returns	: Branch details.
 	/*Created By: Jaiswar Vipin Kumar R.
 	/**********************************************************************/
-	public function getBranchDetails(){
-		/* return branch details */
-		return $this->_strBranchArr;
+	public function getBranchDetails($pStrRegionCode = ''){
+		/* If region code is empty then send all branches */
+		if($pStrRegionCode == ''){
+			/* return branch code as array */
+			return $this->_strBranchArr;
+		}else{
+			/* variable initialization */
+			$strReturnArr	= $this->_strBranchArr;
+			
+			/* if region found then do needful */  
+			if(isset($this->_strLocationAssocArr[$pStrRegionCode])){
+				$strReturnArr	= array();
+				/* Iterating the loop */
+				foreach($this->_strLocationAssocArr[$pStrRegionCode] as $strBranchKeys => $strBranchDetails){
+					/* Setting branch value */
+					$strReturnArr[$strBranchDetails]	= (isset($this->_strBranchArr[$strBranchDetails])?$this->_strBranchArr[$strBranchDetails]:'-');
+				}
+			}
+			/* return branch code by region code as array */
+			return $strReturnArr;
+		}
 	}
 	
 	/**********************************************************************/
@@ -260,6 +326,53 @@ class Requestprocess extends CI_Controller {
 	public function getRegionDetails(){
 		/* return region details */
 		return $this->_strRegionArr;
+	}
+	
+	/**********************************************************************/
+	/*Purpose 	: Get user list, reporting to logger.
+	/*Inputs	: None.
+	/*Returns	: Get reporting user list.
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
+	public function getAllReportingList(){
+		/* return all reporting user list  */
+		return array_keys($this->_strAllReportingArr);
+	}
+	
+	/**********************************************************************/
+	/*Purpose 	: Get lead owner name by code.
+	/*Inputs	: $pIntUserCode = user code.
+	/*Returns	: user name.
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
+	public function getLeadOwnerName($pIntUserCode = 0){
+		/* variable initialization */
+		$strLeadownerName	= "";
+		
+		/* is list is not empty the do needful */
+		if(!empty($this->_strAllReportingArr)){
+			/* Iterating the loop */
+			foreach($this->_strAllReportingArr as $intUserCode => $strUserName){
+				if($pIntUserCode === $intUserCode){
+					/* Setting lead owner name */
+					$strLeadownerName =  $strUserName;
+					break;
+				}
+			}
+		}
+		/* return lead owner name */
+		return $strLeadownerName;
+	}
+	
+	/**********************************************************************/
+	/*Purpose 	: Get user list, reporting to logger in structure.
+	/*Inputs	: None.
+	/*Returns	: Get reporting user list.
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
+	public function getStructureReportingList(){
+		/* return structure reporting user list  */
+		return $this->_strReortingStrctArr;
 	}
 	
 	/**********************************************************************/
@@ -294,7 +407,6 @@ class Requestprocess extends CI_Controller {
 		/* return lead status details */
 		return $this->_strLeadStatusArr;
 	}
-	
 	
 	/**********************************************************************/
 	/*Purpose 	: get default status code.
@@ -446,6 +558,7 @@ class Requestprocess extends CI_Controller {
 			/* return empty string */
 			return $pStrValue;
 		}
+		
 		/* if lead attribute found */
 		if(isset($strLeadAttriArr[$pStrKeyValue])){
 			if($strLeadAttriArr[$pStrKeyValue]->options == ''){
@@ -467,8 +580,11 @@ class Requestprocess extends CI_Controller {
 				case 'lead_source_code':
 					$strKeyValue	= isset($this->_strLeadSourceArr[getEncyptionValue($pStrValue)])?$this->_strLeadSourceArr[getEncyptionValue($pStrValue)]->description:'-';
 					break;
-				case 'lead_owner_code':
-					$strKeyValue	= isset($this->_strLeadSourceArr[getEncyptionValue($pStrValue)])?$pStrValue:$pStrValue;
+				case 'task_type_code':
+					$strKeyValue	= $this->getTaskTypeDetails($pStrValue);
+					break;
+				case 'lead_owner_name':
+					$strKeyValue	= $this->getLeadOwnerName($pStrValue);
 					break;
 				case 'status_code':
 					$strKeyValue	= isset($this->_strLeadStatusArr[getEncyptionValue($pStrValue)])?$this->_strLeadStatusArr[getEncyptionValue($pStrValue)]->description:'-';

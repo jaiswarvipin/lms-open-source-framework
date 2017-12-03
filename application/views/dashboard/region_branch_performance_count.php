@@ -30,7 +30,7 @@
 								}
 								echo $strHTML;
 							}else{
-								echo getNoRecordFoundTemplate(3);
+								echo getNoRecordFoundTemplate(4);
 							}
 						?>
 					</tbody>

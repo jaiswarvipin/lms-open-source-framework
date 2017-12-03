@@ -38,7 +38,7 @@ class Logger{
 		if($pIntUserCode == 0){
 			return;
 		}
-
+		
 		/* Getting user details */
 		$strResponseArr	= $this->_objDefaultModel->getDataFromTable(
 																		array(
@@ -51,11 +51,21 @@ class Logger{
 
 		/* if not response found then do needful */
 		if(empty($strResponseArr)){
-			/* Return eror details */
+			/* Return error details */
 			jsonReturn(array('status'=>0,'message'=>'Error occurred while generating the login instance. please try after some time.'),true);
 		}else{
 			/* Set logger personal and logger information */
 			$strLoggerArr['user_info']	= $strResponseArr[0];
+		}
+		
+		/* Getting the Branch and Region Assign to logger user */
+		if($strLoggerArr['user_info']['is_admin'] == 1){
+			/* Allowing every thing */
+			$strLoggerArr['employee']	= $this->_getEmployeeReporting(array(), $strLoggerArr['user_info']['company_code']);
+			/* $strLoggerArr['user_info']['company_code'] */
+		}else{
+			/* Allowing only reporting thing */
+			$strLoggerArr['employee']	= $this->_getEmployeeReporting($pIntUserCode);
 		}
 		
 		/* if user object found then do needful */
@@ -167,6 +177,7 @@ class Logger{
 				foreach($strLeadArrtirbuteArr as $strLeadArrtirbuteArrKey => $strLeadArrtirbuteArrValue){
 					$strLoggerArr['leadAttr'][$strLeadArrtirbuteArrValue['attri_slug_key']] = array('label'=>$strLeadArrtirbuteArrValue['attri_slug_name'],'options'=>$strLeadArrtirbuteArrValue['attri_value_list'],'mandatory'=>$strLeadArrtirbuteArrValue['is_mandatory']);
 				}
+				/* $strLoggerArr['leadAttr']['lead_owner_name']	= 	array('label'=>'lead_owner_name','options'=>'','mandatory'=>0); */
 			}else{
 				$strLoggerArr['leadAttr']	= array();
 			}
@@ -188,6 +199,23 @@ class Logger{
 			}else{
 				$strLoggerArr['leadSource']	= array();
 			}
+			
+			/* Array index initialization */
+			$strLoggerArr['taskType']	= array();
+			/* Creating task object */
+			$taskObj		= new Task($this->_objDefaultModel , $strLoggerArr['user_info']['company_code']);
+			/* Get task type list */
+			$strTaskTypeArr	= $taskObj->getTaskTypeByCompanyCode();
+			/* if task type found then do needful */
+			if(!empty($strTaskTypeArr)){
+				/* Iterating the loop */
+				foreach($strTaskTypeArr as $strTaskTypeArrKey => $strTaskTypeArrValue){
+					/* setting value */
+					$strLoggerArr['taskType'][$strTaskTypeArrValue['id']]	= $strTaskTypeArrValue['description'];
+				}
+			}
+			/* removed used variables */
+			unset($taskObj, $strTaskTypeArr);
 			
 			/* Removed used object */
 			unset($leadSourceObj, $strLeadSourceArr);
@@ -218,8 +246,6 @@ class Logger{
 			
 		}
 		
-		
-
 		/* Creating logger session string */
 		$this->_strLoggerCode	= getRamdomeString(50);
 
@@ -238,6 +264,80 @@ class Logger{
 		}
 	}
 
+	/*******************************************************************/
+	/*Purpose	: Get employee reporting to requested user code.
+	/*Inputs	: $pIntUserCodeArr :: user code,
+				: $pIntCompanyCode :: Company Code.
+	/*Returns 	: Employee Reporting Array list.
+	/*Created By: Jaiswar Vipin Kumar R.
+	/*******************************************************************/
+	private function _getEmployeeReporting($pIntUserCodeArr = array(), $pIntCompanyCode = 0 ){
+		/* variable initialization */
+		$strUserArr		= $strReturnArr = $strManagerArr 	= array();
+		$strUserArr		= $pIntUserCodeArr;
+		$blnLoopValid  = true;
+		/* if user code is not found */
+		if(empty($pIntUserCodeArr)){
+			/* Getting all user list from same company */
+			$strAllUserArr	= $this->_objDefaultModel->getDataFromTable(
+																		array(
+																				'table'=>array('trans_user_location', 'master_user'),
+																				'join'=>array('','trans_user_location.user_code = master_user.id'),
+																				'column'=>array('user_code','manager_user_code','branch_code','user_name'),
+																				'where'=>array('master_user.company_code'=>$pIntCompanyCode)
+																			)
+																	);
+			
+			/* If all user details found then do needful */
+			if(!empty($strAllUserArr)){
+				/* Iterating the loop */
+				foreach($strAllUserArr as $strAllUserArrKey => $strAllUserArrValue){
+					/* Setting the user  */
+					$strUserArr['users'][$strAllUserArrValue['user_code']]	= $strAllUserArrValue['user_name'];
+				}
+			}
+			$strUserArr['reporting']	= array();
+			/* Return employee array */
+			return $strUserArr;
+		}
+		
+		
+		/* Iterating the loop till execution */
+		//while(!empty($strUserArr)){
+		while($blnLoopValid){
+			/* Getting user details */
+			$strUserArr	= $this->_objDefaultModel->getDataFromTable(
+																			array(
+																					'table'=>array('trans_user_location', 'master_user'),
+																					'join'=>array('','trans_user_location.user_code = master_user.id'),
+																					'column'=>array('user_code','manager_user_code','branch_code','user_name'),
+																					'where'=>(empty($strManagerArr))?array('user_code'=>$strUserArr):array('manager_user_code'=>$strManagerArr)
+																				)
+																		);
+			/* If user details found then do needful */
+			if(!empty($strUserArr)){
+				/* Variable initialization */
+				$strManagerArr	= array();
+				/* Iterating the loop */
+				foreach($strUserArr as $strUserArrKey => $strUserArrValue){
+					/* Setting the user and manger relation */
+					$strReturnArr['reporting'][$strUserArrValue['manager_user_code']][$strUserArrValue['user_code']]	= $strUserArrValue['user_code'];
+					$strReturnArr['users'][$strUserArrValue['user_code']]												= $strUserArrValue['user_name'];
+					$strManagerArr[$strUserArrValue['user_code']]														= $strUserArrValue['user_code'];
+				}
+			}else{
+				$blnLoopValid = false;
+			}
+		}
+			
+		/* removed used variables */
+		unset($strUserArr, $strManagerArr, $blnLoopValid);
+		
+		/* return reporting employee list */
+		return $strReturnArr;
+	}
+	
+	
 	/*******************************************************************/
 	/*Purpose	: Setting login cookies.
 	/*Inputs	: None.

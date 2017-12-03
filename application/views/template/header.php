@@ -9,7 +9,7 @@
       $strFileName  = '.mini';
     }
   ?>
-  <title><?php echo (isset($moduleTitle)?$moduleTitle:'');?> - Lead Management Open Source Framework</title>
+  <title><?php echo (isset($moduleTitle)?$moduleTitle.' - ':'');?>Lead Management Open Source Framework</title>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link rel="stylesheet" type="text/css" href="<?php echo SITE_URL.RESOURCE_CSS_PATH?>materialize<?php echo $strFileName?>.css">
   <link rel="stylesheet" type="text/css" href="<?php echo SITE_URL.RESOURCE_CSS_PATH?>jquery.fancybox<?php echo $strFileName?>.css">
