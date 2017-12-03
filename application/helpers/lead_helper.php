@@ -222,6 +222,7 @@ class Lead{
 		$intLeadCode 		= 0;
 		$blnIsDirect		= false;
 		$intLeadOwnerCode	= (isset($pStrLeadArr['lead_owner_code']) && ((int)$pStrLeadArr['lead_owner_code'] >0 ))?$pStrLeadArr['lead_owner_code']:0;
+		$strLocationArr		= array();
 		
 		/* if Debugging is set the do needful */
 		if((isset($pStrLeadArr['is_debug'])) && ($pStrLeadArr['is_debug'])){
@@ -272,7 +273,7 @@ class Lead{
 		}
 		
 		/* Setting data in master for generating the lead code */
-		$intLeadCode	= 1;/*$this->_databaseObject->setDataInTable(
+		$intLeadCode	= $this->_databaseObject->setDataInTable(
 																	array(
 																			'table'=>$this->_strTableName,
 																			'data'=>$strLedAddingArr
@@ -327,9 +328,13 @@ class Lead{
 			debugVar('----------------Trans Lead Attributes ----------------');
 			debugVar($pStrLeadArr);
 		}
-		exit;
+		/* Request from web service */
+		if($pStrLeadArr['is_debug']){
+			$blnIsDirect	= true;
+		}
+		
 		/* Removed used variables */
-		unset($locationObj, $strLocationArr);
+		unset($locationObj, $strLocationArr, $pStrLeadArr['is_debug']);
 		
 		/* Setting details in lead details table */
 		$this->_databaseObject->setDataInTable(

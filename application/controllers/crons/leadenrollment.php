@@ -35,15 +35,9 @@ class Leadenrollment extends Requestprocess {
 			debugVar('----------------Processing Data Received ----------------');
 			debugVar($_REQUEST);
 		}
-		/* 
-		//$intValue	= str_replace(array('+','='),array('','',''),getEncyptionValue('10'));
-		$intValue	= getEncyptionValue('10');
-		echo getEncyptionValue('10').' -> '.$intValue.' -> '.getDecyptionValue($intValue).'<br /><br />';
-		echo $this->input->get('company_code').'<br />';
-		echo mcrypt_decrypt(MCRYPT_RIJNDAEL_256,md5(TOKEN),'10' .'<br />'; */
 		
 		/* Checking for company code */
-		echo $intCompnayCode	= ($this->input->get('company_code') !='')?getDecyptionValue(urldecode($this->input->get('company_code'))):0;
+		$intCompnayCode	= ($this->input->get('company_code') !='')?getDecyptionValue(urldecode($this->input->get('company_code'))):0;
 		/* Checking for company code data verification */
 		if((!is_numeric($intCompnayCode)) || ($intCompnayCode == 0)){
 			/* return the error response */ 
@@ -93,11 +87,17 @@ class Leadenrollment extends Requestprocess {
 		
 		/* Get user configuration array set */
 		$strUserConfigArr	= $this->_getUserConfig($pIntCompanyCode);
-		
+		$intLeadOwnerCode	= 0;
 		/* if Debugging is set the do needful */
 		if($this->_isDebug){
 			debugVar('----------------User Configuration Default  ----------------');
 			debugVar($strUserConfigArr);
+		}
+		
+		/* if user configuration found then do needful */
+		if((isset($strUserConfigArr['lead_owner_code']))  && ((int)$strUserConfigArr['lead_owner_code'] > 0)){
+			/* Setting lead owner */
+			$intLeadOwnerCode	= $strUserConfigArr['lead_owner_code'];
 		}
 		
 		/* variable initialization */
@@ -109,13 +109,20 @@ class Leadenrollment extends Requestprocess {
 		}
 		
 		/* final array for creating lead */
-		$strLeadDetailsArr	= array_merge($strLeadAttrArr, array('is_debug'=>$this->_isDebug,'lead_owner_code'=>0,'lead_source_code'=>$this->_intleadSourceCode,'lead_source_code'=>$this->_intleadSourceCode));
+		$strLeadDetailsArr	= array_merge($strLeadAttrArr, array('is_debug'=>$this->_isDebug,'lead_owner_code'=>$intLeadOwnerCode,'lead_source_code'=>$this->_intleadSourceCode,'lead_source_code'=>$this->_intleadSourceCode));
 		/* Lead object */
 		$leadObj = new Lead($this->_objDataOperation, $pIntCompanyCode);
 		/* Creating lead */
-		$strReturnArr	= $leadObj->setLeadDetails($strLeadDetailsArr);
+		$intLeadCode	= $leadObj->setLeadDetails($strLeadDetailsArr);
 		/* removed used variables */
 		unset($leadObj);
+		
+		/* if lead generated then do needful */
+		if((int)$intLeadCode > 0){
+			jsonReturn(array('status'=>true,'lead_code'=>$intLeadCode,'message'=>'lead added successfully.'),true);
+		}else{
+			jsonReturn(array('status'=>false,'message'=>'error occurred while processing the lead request. Kindly contact to system administrator.'),true);
+		}
 	}
 	
 	/**********************************************************************/
@@ -247,6 +254,9 @@ class Leadenrollment extends Requestprocess {
 						break;
 					case 'DEFAULT_BRANCH':
 						$strFromIndex	= 'branch_code';
+						break;
+					case 'DEFAULT_LEAD_ALLOCATED_TO':
+						$strFromIndex	= 'lead_owner_code';
 						break;
 					default:
 						$strFromIndex	= $strResultArrValue['key_description'];
