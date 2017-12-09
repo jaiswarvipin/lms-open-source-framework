@@ -396,6 +396,22 @@ class Lead{
 																	);
 																	
 		
+		/* Updating the lead region and branch details */
+		$strAssigementArr	= array(
+										'branch_code'=>$pStrDetailsArr['branch_code'],
+										'region_code'=>$pStrDetailsArr['region_code']
+									);
+		
+		/* Setting lead lead region and branch assignment history  */
+		$intOperationStatus	= $this->_databaseObject->setUpdateData(
+																		array(
+																			'table'=>'trans_leads_'.$this->_intCompanyCode,
+																			'data'=>$strAssigementArr,
+																			'where'=>array('lead_code'=>$pIntLeadCode)
+																		)
+																	);
+																	
+		
 		/* Log array */
 		$strAssigementArr	= array(
 										'lead_code' => $pIntLeadCode, 

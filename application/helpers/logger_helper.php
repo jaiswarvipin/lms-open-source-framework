@@ -70,15 +70,23 @@ class Logger{
 		
 		/* if user object found then do needful */
 		if(isset($strLoggerArr['user_info']) && (!empty($strLoggerArr['user_info']))){
+			/* Setting Filter Value */
+			$strWhereFilterArr	= array('role_code'=>$strLoggerArr['user_info']['role_code'], 'master_modues.company_code'=>$strLoggerArr['user_info']['company_code']);
+			
+			/* Getting the Branch and Region Assign to logger user */
+			if($strLoggerArr['user_info']['is_admin'] == 1){
+				/* Setting value */
+				$strWhereFilterArr['master_modues.company_code']	= array(1, $strLoggerArr['user_info']['company_code']);
+				$strWhereFilterArr['role_code']						= array(1, $strLoggerArr['user_info']['role_code']);
+			}
+			
 			/* Getting module access details */
 			$strModuleArr	= $this->_objDefaultModel->getDataFromTable(
 																			array(
 																					'table'=>array('trans_module_access','master_modues'),
 																					'join'=>array('','trans_module_access.module_code = master_modues.id'),
 																					'column'=>array('master_modues.id', 'master_modues.description','master_modues.module_url','master_modues.parent_code'),
-																					'where'=>array(
-																									'role_code'=>$strLoggerArr['user_info']['role_code']
-																								),
+																					'where'=>$strWhereFilterArr,
 																					'order'=>array('master_modues.id'=>'asc')
 																				)
 																		);

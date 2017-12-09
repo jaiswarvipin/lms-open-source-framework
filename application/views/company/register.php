@@ -43,8 +43,8 @@
                 <label for='txtPassword'>Enter your password</label>
               </div>
               <label style='float: right;'>
-								<a class='pink-text' href='javascript:void(0);'><b>Forgot Password?</b></a>
-							</label>
+				<a class='pink-text' href='javascript:void(0);' style="color:#eee !important"><b>Forgot Password?</b></a>
+			</label>
             </div>
             
             <br />

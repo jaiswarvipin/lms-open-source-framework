@@ -119,7 +119,7 @@ class Modules extends Requestprocess {
 		}
 		
 		/* Setting the company filter */
-		$strWhereClauseArr	= array('company_code'=>$this->getCompanyCode());
+		$strWhereClauseArr	= array('company_code'=>array(1,$this->getCompanyCode()));
 		
 		/* if module filter code is passed then do needful */
 		if($pModuleCode < 0){

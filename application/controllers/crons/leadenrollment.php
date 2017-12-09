@@ -1,6 +1,6 @@
 <?php
 /***********************************************************************/
-/* Purpose 		: Enrolling lead in the system.
+/* Purpose 		: Enrolling lead in the system (CRON).
 /* Created By 	: Jaiswar Vipin Kumar R.
 /***********************************************************************/
 defined('BASEPATH') OR exit('No direct script access allowed');

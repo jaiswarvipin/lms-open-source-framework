@@ -6,7 +6,7 @@
 	</thead>
 	<tbody>
 		<tr>
-			<td class="f100 centre"><?php echo $strResultArr[0]['newLeadCount']?></h1></td>
+			<td class="f100 centre"><?php echo (isset($strResultArr[0]['newLeadCount'])?$strResultArr[0]['newLeadCount']:getNoRecordFoundTemplate(1));?></h1></td>
 		</tr>
 	</tbody>
 </table>

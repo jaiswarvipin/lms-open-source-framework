@@ -19,6 +19,7 @@ class Dashboard	 extends Requestprocess {
 	public function __construct(){
 		/* calling parent construct */
 		parent::__construct();
+		
 		/* Variable initialization */
 		$this->_strColumnArr	= array();
 	}
@@ -67,12 +68,17 @@ class Dashboard	 extends Requestprocess {
 	/**********************************************************************/
 	private function _getNewCount(){
 		/* Variable initialization */
-		$strWhere	= array('company_code'=>$this->getCompanyCode(), 'trans_leads_'.$this->getCompanyCode().'.branch_code'=>decodeKeyValueArr($this->getBranchCodes(),true), 'status_code'=>getDecyptionValue($this->getDefaultStatusCode()), 'lead_owner_code'=>$this->getAllReportingList());
-		
+		$strWhere		= array('company_code'=>$this->getCompanyCode(), 'trans_leads_'.$this->getCompanyCode().'.branch_code'=>decodeKeyValueArr($this->getBranchCodes(),true), 'status_code'=>getDecyptionValue($this->getDefaultStatusCode()), 'lead_owner_code'=>$this->getAllReportingList());
+		$strResultArr	= array();
 		/* checking for admin roles */
 		if(empty($this->getAllReportingList())){
 			/* Removed lead owner filter */
 			unset($strWhere['lead_owner_code']);
+		}
+		/* if branch is not found then do needful */
+		if(empty($strWhere['trans_leads_'.$this->getCompanyCode().'.branch_code'])){
+			/* Return  new lead HTML */
+			return $this->load->view('dashboard/new_lead_count', array('strResultArr'=>$strResultArr), true);
 		}
 		
 		/* Query builder Array */
@@ -104,12 +110,19 @@ class Dashboard	 extends Requestprocess {
 	/**********************************************************************/
 	private function _getPendingTaskCount(){
 		/* Variable initialization */
-		$strWhere	= array('company_code'=>$this->getCompanyCode(), 'next_followup_date < '=>date('YmdHis'), 'trans_leads_'.$this->getCompanyCode().'.branch_code'=>decodeKeyValueArr($this->getBranchCodes(),true), 'master_leads.lead_owner_code'=>$this->getAllReportingList());
+		$strWhere		= array('company_code'=>$this->getCompanyCode(), 'next_followup_date < '=>date('YmdHis'), 'trans_leads_'.$this->getCompanyCode().'.branch_code'=>decodeKeyValueArr($this->getBranchCodes(),true), 'master_leads.lead_owner_code'=>$this->getAllReportingList());
+		$strResultArr	= array();
 		
 		/* checking for admin roles */
 		if(empty($this->getAllReportingList())){
 			/* Removed lead owner filter */
 			unset($strWhere['master_leads.lead_owner_code']);
+		}
+		
+		/* if branch is not found then do needful */
+		if(empty($strWhere['trans_leads_'.$this->getCompanyCode().'.branch_code'])){
+			/* Return  pending tasks count HTML */
+			return $this->load->view('dashboard/pending_task_count', array('strResultArr'=>$strResultArr), true);
 		}
 		
 		/* Query builder Array */
@@ -126,7 +139,7 @@ class Dashboard	 extends Requestprocess {
 		/* getting number of lead count from location */
 		$strResultArr = $this->_objDataOperation->getDataFromTable($strFilterArr);
 		
-		/* Return  new lead HTML */
+		/* Return  pending tasks count HTML */
 		return $this->load->view('dashboard/pending_task_count', array('strResultArr'=>$strResultArr), true);
 		
 		/* removed used variables */
@@ -167,9 +180,21 @@ class Dashboard	 extends Requestprocess {
 		$intYesterdayDate	= date('Ymd',mktime(date('H'),date('i'),date('s'),date('m'),date('d')-1,date('Y')));
 		if($pStrRegionORBranch == 'region_code'){
 			$strWhereArr		= array('company_code'=>$this->getCompanyCode(), 'record_date = '=>$intYesterdayDate,'region_code'=>array_keys(decodeKeyValueArr($this->getRegionDetails())));
+			
+			/* if branch is not found then do needful */
+			if(empty($strWhereArr['branch_code'])){
+				/* Return  BRand and region wise lead count HTML */
+				return $this->load->view('dashboard/region_branch_wise_count', array('strResultArr'=>$strResultArr,'strLabel'=>$strLabel), true);
+			}
 		}else{
 			$strWhereArr		= array('company_code'=>$this->getCompanyCode(), 'record_date = '=>$intYesterdayDate,'branch_code'=>array_keys(decodeKeyValueArr($this->getBranchDetails())));
 			$strLabel			= 'Branch';
+			
+			/* if branch is not found then do needful */
+			if(empty($strWhereArr['branch_code'])){
+				/* Return  BRand and region wise lead count HTML */
+				return $this->load->view('dashboard/region_branch_wise_count', array('strResultArr'=>$strResultArr,'strLabel'=>$strLabel), true);
+			}
 		}
 		
 		/* checking for admin roles */
@@ -215,7 +240,7 @@ class Dashboard	 extends Requestprocess {
 		/* removed used variables */
 		unset($strFormatedResult);
 		
-		/* Return  new lead HTML */
+		/* Return  BRand and region wise lead count HTML */
 		return $this->load->view('dashboard/region_branch_wise_count', array('strResultArr'=>$strResultArr,'strLabel'=>$strLabel), true);
 		
 		/* removed used variables */
@@ -255,9 +280,21 @@ class Dashboard	 extends Requestprocess {
 		
 		if($pStrRegionORBranch == 'region_code'){
 			$strWhereArr		= array('company_code'=>$this->getCompanyCode(), 'record_date'=>$intYesterdayDate,'lead_record_date >='=> $intWeekDate.'000000' ,'lead_record_date <=' => $intYesterdayDate.'240000','region_code'=>array_keys(decodeKeyValueArr($this->getRegionDetails())), 'status_code'=>$strAllStatusArr);
+			
+			/* if branch is not found then do needful */
+			if(empty($strWhereArr['branch_code'])){
+				/* Return Region ad Branch Performance HTML */
+				return $this->load->view('dashboard/region_branch_performance_count', array('strResultArr'=>$strResultArr,'strLabel'=>$strLabel), true);
+			}
 		}else{
 			$strWhereArr		= array('company_code'=>$this->getCompanyCode(), 'record_date'=>$intYesterdayDate,'lead_record_date >='=> $intWeekDate.'000000' ,'lead_record_date <='=> $intYesterdayDate.'240000','branch_code'=>array_keys(decodeKeyValueArr($this->getBranchDetails())), 'status_code'=>$strAllStatusArr);
 			$strLabel			= 'Branch';
+			
+			/* if branch is not found then do needful */
+			if(empty($strWhereArr['branch_code'])){
+				/* Return Region ad Branch Performance HTML */
+				return $this->load->view('dashboard/region_branch_performance_count', array('strResultArr'=>$strResultArr,'strLabel'=>$strLabel), true);
+			}
 		}
 		
 		/* checking for admin roles */
@@ -362,7 +399,7 @@ class Dashboard	 extends Requestprocess {
 		/* removed used variables */
 		unset($strFormatedResult, $strStatusArr, $strIndexName, $strResultSetArr, $strIndexArr, $strFinalReturnArr);
 		
-		/* Return  new lead HTML */
+		/* Return Region ad Branch Performance HTML */
 		return $this->load->view('dashboard/region_branch_performance_count', array('strResultArr'=>$strResultArr,'strLabel'=>$strLabel), true);
 		
 		/* removed used variables */
@@ -392,6 +429,13 @@ class Dashboard	 extends Requestprocess {
 			/* Add lead owner filter */
 			$strWhereArr['trans_rpt_employee_performance.lead_owner_code'] = $this->getAllReportingList();
 		}
+		
+		/* if branch is not found then do needful */
+		if(empty($strWhereArr['branch_code'])){
+			/* Return  employee performance HTML */
+			return $this->load->view('dashboard/employee_performace_count', array('strResultArr'=>$strResultArr), true);
+		}
+		
 		
 		/* Query builder Array */
 		$strFilterArr	= array(
@@ -484,7 +528,7 @@ class Dashboard	 extends Requestprocess {
 		/* removed used variables */
 		unset($strFormatedResult, $strStatusArr, $strIndexName, $strResultSetArr, $strIndexArr, $strFinalReturnArr);
 		
-		/* Return  new lead HTML */
+		/* Return  employee performance HTML */
 		return $this->load->view('dashboard/employee_performace_count', array('strResultArr'=>$strResultArr), true);
 		
 		/* removed used variables */
@@ -509,6 +553,14 @@ class Dashboard	 extends Requestprocess {
 			/* Add lead owner filter */
 			$strWhereArr['trans_rpt_leads.lead_owner_code'] = $this->getAllReportingList();
 		}
+		
+		/* if branch is not found then do needful */
+		if(empty($strWhereArr['branch_code'])){
+			/* Return  Sales Funnel HTML */
+			return $this->load->view('dashboard/sales_funnel', array('strResultArr'=>$strReturnArr), true);
+		}
+		
+		
 		
 		/* Getting lead status based on parent code */
 		$strReturnArr['statusArr']		= $this->getLeadStatusBasedOnRequest();
@@ -544,7 +596,7 @@ class Dashboard	 extends Requestprocess {
 		/* Return  new lead HTML */
 		return $this->load->view('dashboard/sales_funnel', array('strResultArr'=>$strReturnArr), true);
 		
-		/* removed used variables */
+		/* Return  Sales Funnel HTML */
 		unset($strReturnArr);
 	}
 }

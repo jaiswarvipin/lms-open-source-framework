@@ -34,7 +34,10 @@ class Dbrequestprocess_model extends CI_Model{
 		}
 		
 		/* Checking the query type */
-		if(strstr(strtolower($pStrQuery), 'select ')){
+		if(strstr(strtolower($pStrQuery), 'insert ')){
+			/* execute direct query */
+			$strReturnValue	= $this->db->query($pStrQuery);
+		}else if(strstr(strtolower($pStrQuery), 'select ')){
 			/* execute direct query */
 			$strReturnValue	= $this->db->query($pStrQuery)->result_array();
 		}else{

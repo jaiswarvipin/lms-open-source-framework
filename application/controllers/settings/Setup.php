@@ -5,8 +5,9 @@
 /***********************************************************************/
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Environment extends Requestprocess {
+class Setup extends CI_Controller{
 	/* variable deceleration */
+	public $_objDataOperation		= null;
 	private $_strPrimaryTableName	= 'master_user_config';
 	private $_strModuleName			= "Environment";
 	private $_strModuleForm			= "frmEnvironmentSetting";
@@ -16,30 +17,31 @@ class Environment extends Requestprocess {
 	/*Inputs	: none
 	/*Created By: Jaiswar Vipin Kumar R.
 	/**********************************************************************/
+	public function __construct(){
+		/* CI call execution */
+		parent::__construct();
+
+		/* Creating model comment instance object */
+		$this->_objDataOperation	= new Dbrequestprocess_model();
+	}
+	
+	/**********************************************************************/
+	/*Purpose 	: Default method to be executed.
+	/*Inputs	: none
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
 	public function index(){
 		/* variable initialization */
-		$dataArr	= array();
-		/* Getting current page number */
-		$intCurrentPageNumber	= ($this->input->post('txtPageNumber') != '') ? ((($this->input->post('txtPageNumber') - 1) < 0)?0:($this->input->post('txtPageNumber') - 1)) : 0;
+		$strRecordsetArr	= array();
 		
-		/* Getting environment list */
-		$strRecordsetArr['dataSet'] 				= $this->_getEnvironmentData(0,'',false,false, $intCurrentPageNumber);
-		$strRecordsetArr['intPageNumber'] 			= ($intCurrentPageNumber * DEFAULT_RECORDS_ON_PER_PAGE) + 1;
-		$strRecordsetArr['pagination'] 				= getPagniation($this->_getEnvironmentData(0,'',false,true), ($intCurrentPageNumber + 1), $this->_strModuleForm);
-		$strRecordsetArr['moduleTitle']				= $this->_strModuleName;
-		$strRecordsetArr['moduleForm']				= $this->_strModuleForm;
-		$strRecordsetArr['moduleUri']				= SITE_URL.'settings/'.__CLASS__;
-		$strRecordsetArr['deleteUri']				= SITE_URL.'settings/'.__CLASS__.'/deleteRecord';
-		$strRecordsetArr['getRecordByCodeUri']		= SITE_URL.'settings/'.__CLASS__.'/getEnvironmentDetailsByCode';
-		$strRecordsetArr['noSearchAdd']				= 'yes';
-		$strRecordsetArr['strDataAddEditPanel']		= 'environmentModel';
-		$strRecordsetArr['strSearchArr']			= (!empty($_REQUEST))?jsonReturn($_REQUEST):jsonReturn(array());
+		/* getting logger details */
+		$strLoggerArr 	= $this->_getLoggerDetails();
 		
 		/* Load the environment list */
-		$dataArr['body']	= $this->load->view('settings/environment', $strRecordsetArr, true);
+		$dataArr['body']	= $this->load->view('settings/setup', array('dataArr'=>$this->_setSetupParameterAndDescription()), true);
 		
 		/* Loading the template for browser rending */
-		$this->load->view(FULL_WIDTH_TEMPLATE, $dataArr);
+		$this->load->view(BLANK_TEMPLATE, $dataArr);
 
 		/* Removed used variable */
 		unset($dataArr);
@@ -338,5 +340,93 @@ class Environment extends Requestprocess {
 		
 		/* return user detail array */
 		return $strUserArr;
+	}
+	
+	/**********************************************************************/
+	/*Purpose 	: Getting the current logger details.
+	/*Inputs	: None.
+	/*Returns	: Logger Details.
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
+	private function _getLoggerDetails(){
+		/*Variable initialization */
+		$strCookiesCode	= '';
+
+		/* Checking is valid cookie exists */
+		if(isset($_COOKIE['_xAyBzCwD'])){
+			/* Getting the valid logger code */
+			$strCookiesCode	= $_COOKIE['_xAyBzCwD'];
+		}
+		
+		/* If logger code is not found the do needful */
+		if($strCookiesCode == ''){
+			/* redirecting to login */
+			redirect(SITE_URL.'login');
+		}
+		
+		/*Variable initialization */
+		$strReturnArr	= array();
+		
+		/* getting the logger details */
+		$strloggerArr	=  $this->_objDataOperation->getDataFromTable(array('table'=>'trans_logger','column'=>array('id','token','logger_data','user_code'),'where'=>array('token'=>$strCookiesCode)));
+		
+		/* Decoding the logger */
+		$ObjStrLoggerDetails	= json_decode($strloggerArr[0]['logger_data']);
+		
+		/* Global variable declaration */
+		$this->load->vars(array(
+									'userName'		=>$ObjStrLoggerDetails->user_info->user_name,
+									'roleName'		=>$ObjStrLoggerDetails->user_info->role_name,
+									'strMainMenu'	=>$ObjStrLoggerDetails->main_menu,
+									'strChildMenu'	=>$ObjStrLoggerDetails->child_menu
+							)
+						);
+		
+		/* removed used variable */
+		unset($strloggerArr, $ObjStrLoggerDetails);
+	}
+	
+	/**********************************************************************/
+	/*Purpose 	: Setup the parameter description.
+	/*Inputs	: None.
+	/*Returns	: Logger Details.
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
+	private function _setSetupParameterAndDescription(){
+		/* return the list */
+		return array(
+						1=>array(
+									'label'=>'Lead Source',
+									'description'=>'This will helps you to identify, by which sources lead are came in. Lead Sources like Website, Facebook, Linkedin,Referral, Others, etc....<br/><b>How to setup:</b> Settings > Lead Source'
+								),
+						2=>array(
+									'label'=>'Lead Status',
+									'description'=>'To classified the lead current status, like active, closed or converted to prospect and its intermediate state.<br/><b>How to setup:</b> Settings > Lead Status'
+								),
+						3=>array(
+									'label'=>'Location',
+									'description'=>'This will helps system to identity the where the business unit / entities are located. On based configured location, classifying user and this reporting structure. Location are configured based on ZONE (NOrth) - REGION (UP) - CITY (Lucknow) - LOCATION (BARANANKI) - BRANCH (BARK001) <br/><b>How to setup:</b> Settings > Locations'
+								),
+						4=>array(
+									'label'=>'Roles',
+									'description'=>'This will helps system to identity user access / rights classification based on the configured roles.<br/><b>How to setup:</b> Settings > User Role'
+								),
+						5=>array(
+									'label'=>'User',
+									'description'=>'Add new user in the system, associated with configured role, system role, location and reporting structure. <br/><b>How to setup:</b> Settings > User Profiles'
+								),
+						6=>array(
+									'label'=>'Lead Attributes',
+									'description'=>'Most import part, now you can configure the lead attributes like name, email, contact no, pan etc. Yes this subject to change business requirement. Using this configured lead attributes employee are enroll / update  the lead information.  <br/><b>How to setup:</b> Settings > Lead Attributes'
+								),
+						7=>array(
+									'label'=>'Lead attribute association on module',
+									'description'=>'Once lead attribute is configured; pot now its time to associated the added lead attributes to modules. Like on lead / task / reports  module which lead attributes which get displayed.<br/><b>How to setup:</b> Settings > Module'
+								),
+						8=>array(
+									'label'=>'Module Access',
+									'description'=>'Once role based setup, after that you can control the application feature / menu access / visibility gets controlled. <br/><b>How to setup:</b> Settings > Module Access'
+								),
+					);
 	}
 }

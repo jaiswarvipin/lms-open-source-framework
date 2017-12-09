@@ -30,30 +30,24 @@ class Requestprocess extends CI_Controller {
 	/*Inputs	: none
 	/*Created By: Jaiswar Vipin Kumar R.
 	/**********************************************************************/
-        /**
-         * 
-         * @return  None
-         * @abstract initialization of current logger session and setting the env. 
-         * @author Jaiswar Vipin Kumar R
-         */
 	public function __construct(){
-            /* CI call execution */
-            parent::__construct();
+		/* CI call execution */
+		parent::__construct();
 
-            /* Creating model comment instance object */
-            $this->_objDataOperation	= new Dbrequestprocess_model();
+		/* Creating model comment instance object */
+		$this->_objDataOperation	= new Dbrequestprocess_model();
 
-            /* if CRON request then do needful */
-            if($this->uri->segment(1) == 'crons'){
-                    /* Return execution control to CRON calling controller */ 
-                    return;
-            }
+		/* if CRON request then do needful */
+		if($this->uri->segment(1) == 'crons'){
+			/* Return execution control to CRON calling controller */ 
+			return;
+		}
 
-            /* Process the logger request */
-            $this->_doValidateRequest();
+		/* Process the logger request */
+		$this->_doValidateRequest();
 
-            /* Creating form helper object */
-            $this->_objForm				= new Form();
+		/* Creating form helper object */
+		$this->_objForm				= new Form();
 	}
 
 	/**********************************************************************/
@@ -63,34 +57,34 @@ class Requestprocess extends CI_Controller {
 	/*Created By: Jaiswar Vipin Kumar R.
 	/**********************************************************************/
 	private function _doValidateRequest(){
-            /*Variable initialization */
-            $strCookiesCode	= '';
+		/*Variable initialization */
+		$strCookiesCode	= '';
 
-            /* Checking is valid cookie exists */
-            if(isset($_COOKIE['_xAyBzCwD'])){
-                    /* Getting the valid logger code */
-                    $strCookiesCode	= $_COOKIE['_xAyBzCwD'];
-            }
+		/* Checking is valid cookie exists */
+		if(isset($_COOKIE['_xAyBzCwD'])){
+			/* Getting the valid logger code */
+			$strCookiesCode	= $_COOKIE['_xAyBzCwD'];
+		}
 
-            /* If logger code is not found the do needful */
-            if($strCookiesCode == ''){
-                    /* Destroy the all cookies */
-                    $this->_doDistryLoginCookie();
+		/* If logger code is not found the do needful */
+		if($strCookiesCode == ''){
+			/* Destroy the all cookies */
+			$this->_doDistryLoginCookie();
 
-                    /* redirecting to login */
-                    redirect(SITE_URL.'login');
-            }else{
-                    /* getting logger details */
-                    $strLoggerArr 	= $this->_getLoggerDetails($strCookiesCode);
-
-                    /* Logger details not found then do needful */
-                    if(empty($strLoggerArr)){
-                            /* Destroy the all cookies */
-                            $this->_doDistryLoginCookie();
-                    }
-                    /* Processing the logger Object */
-                    $this->_doProcessLogger($strLoggerArr);
-            }
+			/* redirecting to login */
+			redirect(SITE_URL.'login');
+		}else{
+			/* getting logger details */
+			$strLoggerArr 	= $this->_getLoggerDetails($strCookiesCode);
+			
+			/* Logger details not found then do needful */
+			if(empty($strLoggerArr)){
+					/* Destroy the all cookies */
+					$this->_doDistryLoginCookie();
+			}
+			/* Processing the logger Object */
+			$this->_doProcessLogger($strLoggerArr);
+		}
 	}
 
 	/**********************************************************************/
@@ -108,6 +102,7 @@ class Requestprocess extends CI_Controller {
 			/* redirecting to login */
 			redirect(SITE_URL.'login', 'refresh');
 		}
+		
 		/* Decoding the logger */
 		$ObjStrLoggerDetails	= json_decode($pStrLoggerDetailsArr[0]['logger_data']);
 		
@@ -125,16 +120,16 @@ class Requestprocess extends CI_Controller {
 		$this->_intAdminCode		= $ObjStrLoggerDetails->user_info->is_admin;
 		$this->_strMainModule		= $ObjStrLoggerDetails->main_menu;
 		$this->_strChildModule		= $ObjStrLoggerDetails->child_menu;
-		$this->_strRegionArr		= (array)$ObjStrLoggerDetails->region;
-		$this->_strBranchArr		= (array)$ObjStrLoggerDetails->branch;
-		$this->_leadAttriArr		= (array)$ObjStrLoggerDetails->leadAttr;
-		$this->_strLeadSourceArr	= (array)$ObjStrLoggerDetails->leadSource;
-		$this->_strLeadStatusArr	= (array)$ObjStrLoggerDetails->leadStatus;
-		$this->_strLocationAssocArr	= (array)$ObjStrLoggerDetails->locationAssociation;
+		$this->_strRegionArr		= (isset($ObjStrLoggerDetails->region)?(array)$ObjStrLoggerDetails->region:array());
+		$this->_strBranchArr		= (isset($ObjStrLoggerDetails->branch)?(array)$ObjStrLoggerDetails->branch:array());
+		$this->_leadAttriArr		= (isset($ObjStrLoggerDetails->leadAttr)?(array)$ObjStrLoggerDetails->leadAttr:array());
+		$this->_strLeadSourceArr	= (isset($ObjStrLoggerDetails->leadSource)?(array)$ObjStrLoggerDetails->leadSource:array());
+		$this->_strLeadStatusArr	= (isset($ObjStrLoggerDetails->leadStatus)?(array)$ObjStrLoggerDetails->leadStatus:array());
+		$this->_strLocationAssocArr	= (isset($ObjStrLoggerDetails->locationAssociation)?(array)$ObjStrLoggerDetails->locationAssociation:array());
 		$this->_intDefaultStatusCode= $ObjStrLoggerDetails->defaultStatusCode;
-		$this->_strAllReportingArr	= (array)$ObjStrLoggerDetails->employee->users;
-		$this->_strReortingStrctArr	= (array)$ObjStrLoggerDetails->employee->reporting;
-		$this->_strTaskTypeArr		= (array)$ObjStrLoggerDetails->taskType;
+		$this->_strAllReportingArr	= (isset($ObjStrLoggerDetails->employee->users)?(array)$ObjStrLoggerDetails->employee->users:array());
+		$this->_strReortingStrctArr	= (isset($ObjStrLoggerDetails->employee->reporting)?(array)$ObjStrLoggerDetails->employee->reporting:array());
+		$this->_strTaskTypeArr		= (isset($ObjStrLoggerDetails->taskType)?(array)$ObjStrLoggerDetails->taskType:array());
 		
 		/* Global variable declaration */
 		$this->load->vars(array(
@@ -147,6 +142,8 @@ class Requestprocess extends CI_Controller {
 
 		/* removed used variables */
 		unset($ObjStrLoggerDetails);
+		/* Setting for environment setting is up-to-date */
+		$this->_isEnvisSet();
 	}
 
 	/**********************************************************************/
@@ -697,5 +694,28 @@ class Requestprocess extends CI_Controller {
 		
 		/* return the branch code array */
 		return array('status'=>1,'message'=>jsonReturn($strReturnArray));
+	}
+	
+	/**********************************************************************/
+	/*Purpose 	: Checking is environment is set. 
+	/* Inputs 	: None.
+	/* Returns	: None.
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
+	private function _isEnvisSet(){
+		/* Variable initialization */
+		$blnIsSet	= true;
+		
+		/* if branched are not set then do needful */
+		if(empty($this->getBranchCodes())){
+			/* value overriding */
+			$blnIsSet	= false;
+		}
+		
+		/* Redirect to set-up module */
+		if((!$blnIsSet) && ($this->uri->segment(1) != 'settings')){
+			/* redirecting to login */
+			redirect(SITE_URL.'settings/setup');
+		}
 	}
 }

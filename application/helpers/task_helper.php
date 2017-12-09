@@ -38,7 +38,7 @@ class Task{
 		/* Query builder Array */
 		$strFilterArr	= array(
 									'table'=>'master_task',
-									'where'=>array('company_code'=>$this->_intCompanyCode),
+									'where'=>array('company_code'=>array(1,$this->_intCompanyCode)),
 									'column'=>array('id', 'description','is_default')
 							);
 		

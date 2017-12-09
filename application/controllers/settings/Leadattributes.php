@@ -317,7 +317,7 @@ class Leadattributes extends Requestprocess {
 	/**********************************************************************/
 	private function _setLeadTranscationSchema($pStrColumnName = ''){	
 		/* variable initialization */
-		$strTableName	= 'trans_lead';
+		$strTableName	= 'trans_lead_'.$this->getCompanyCode();
 		
 		/* Checking table exists */
 		if($this->_objDataOperation->isTableExists($strTableName)){
