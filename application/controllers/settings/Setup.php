@@ -7,10 +7,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Setup extends CI_Controller{
 	/* variable deceleration */
-	public $_objDataOperation		= null;
+	private $_objDataOperation		= null;
 	private $_strPrimaryTableName	= 'master_user_config';
 	private $_strModuleName			= "Environment";
 	private $_strModuleForm			= "frmEnvironmentSetting";
+	private $_isAdmin				= 0;
+	private $_intCompanyCode		= 0;
+	private $_blnSetupStatus		= false;
 	
 	/**********************************************************************/
 	/*Purpose 	: Default method to be executed.
@@ -36,9 +39,34 @@ class Setup extends CI_Controller{
 		
 		/* getting logger details */
 		$strLoggerArr 	= $this->_getLoggerDetails();
+		$strSetupArr	= $this->_setSetupParameterAndDescription();
+		$blnStatus		= true;
+		
+		/* Checking for instruction array */
+		if(!empty($strSetupArr)){
+			/* Iterating the loop */
+			foreach($strSetupArr as $strSetupArrKey => $strSetupArrValue){
+				/* checking for each item status */
+				if(($blnStatus)){
+					/* Setting the value */
+					$blnStatus	= $strSetupArrValue['status'];
+					/* terminate the loop */
+					break;
+				}
+			}
+		}
+		
+		
+		/* if setup status is TRUE then do needful */
+		if($blnStatus){
+			/* Updating the configuration status */
+			$this->_objDataOperation->setUpdateData(array('table'=>'master_company','data'=>array('is_setup_configured'=>1),'where'=>array('id'=>$this->_intCompanyCode)));
+			/* Redirect to the login page */
+			redirect(SITE_URL);
+		}
 		
 		/* Load the environment list */
-		$dataArr['body']	= $this->load->view('settings/setup', array('dataArr'=>$this->_setSetupParameterAndDescription()), true);
+		$dataArr['body']	= $this->load->view('settings/setup', array('dataArr'=>$strSetupArr), true);
 		
 		/* Loading the template for browser rending */
 		$this->load->view(BLANK_TEMPLATE, $dataArr);
@@ -47,300 +75,6 @@ class Setup extends CI_Controller{
 		unset($dataArr);
 	}
 
-	/**********************************************************************/
-	/*Purpose 	: Get the environment details by code.
-	/*Inputs	: None.
-	/*Returns 	: Environment Details.
-	/*Created By: Jaiswar Vipin Kumar R.
-	/**********************************************************************/
-	public function getEnvironmentDetailsByCode(){
-		/* Setting the environment code */
-		$intEnvironmentCode 					= ($this->input->post('txtCode') != '') ? $this->input->post('txtCode') : 0;
-		$strRecordsetArr						= array();
-		/* Checking the environment code */
-		if($intEnvironmentCode > 0){
-			/* getting requested environment code details */
-			$strRecordsetArr						= $this->_getEnvironmentData($intEnvironmentCode);
-			
-			/* if record not found then do needful */
-			if(empty($strRecordsetArr)){
-				jsonReturn(array('status'=>0,'message'=>'Details not found.'), true);
-			}else{
-				/* based on requested parameters setting the drop down values */
-				switch($intEnvironmentCode){
-					/* Region */
-					case 1:
-						$strRecordsetArr[0]['value_description'] =  $this->_objForm->getDropDown($this->getRegionDetails(),getEncyptionValue($strRecordsetArr[0]['value_description_oringial']));
-						break;
-					/* Branch */
-					case 2:
-						$strRecordsetArr[0]['value_description'] =  $this->_objForm->getDropDown($this->_getBranchByRegionCode(),getEncyptionValue($strRecordsetArr[0]['value_description_oringial']));
-						break;
-					/* Default user to whom lead goes */
-					case 3:
-						$strRecordsetArr[0]['value_description'] =  $this->_objForm->getDropDown($this->_getUserListByBranchCode(),getEncyptionValue($strRecordsetArr[0]['value_description_oringial']));
-						break;
-				}
-				
-				/* Return the JSON string */
-				jsonReturn($strRecordsetArr[0], true);
-			}
-		}else{
-			jsonReturn(array('status'=>0,'message'=>'Invalid environment code requested.'), true);
-		}
-	}
-
-	/**********************************************************************/
-	/*Purpose 	: Getting the environment details.
-	/*Inputs	: $pIntEnvironmentCode :: Environment Code,
-				: $pStrEnvironmentName :: Environment name,
-				: $isEditRequest :: Edit request,
-				: $pBlnCountNeeded :: Count Needed,
-				: $pBlnPagination :: pagination.
-	/*Returns 	: Environment Details.
-	/*Created By: Jaiswar Vipin Kumar R.
-	/**********************************************************************/
-	private function _getEnvironmentData($pIntEnvironmentCode = 0, $pStrEnvironmentName = '', $isEditRequest = false, $pBlnCountNeeded = false, $pBlnPagination = 0){
-		/* variable initialization */
-		$strRecordsetArr	= $strWhereClauseArr 	= array();
-		
-		/* Setting page number */
-		$intCurrentPageNumber	= $pBlnPagination;
-		if($intCurrentPageNumber < 0){
-			$intCurrentPageNumber = 0;
-		}
-		
-		/* Setting the company filter */
-		$strWhereClauseArr	= array('company_code'=>$this->getCompanyCode());
-		
-		/* if environment code is set the do needful */
-		if((int)$pIntEnvironmentCode > 0){
-			/* Setting filter clause */
-			$strWhereClauseArr	= array_merge(array('id'=>$pIntEnvironmentCode), $strWhereClauseArr);
-		}
-		
-		/* Filter array */
-		$strFilterArr	= array('table'=>$this->_strPrimaryTableName,'where'=>$strWhereClauseArr);
-		
-		/* if count needed then do needful */
-		if($pBlnCountNeeded ){
-			$strFilterArr['column']	 = array(' count(id) as recordCount ');
-		}
-		
-		/* if requested page number is > 0 then do needful */ 
-		if(($intCurrentPageNumber >= 0) && ($pIntEnvironmentCode >= 0)){
-			$strFilterArr['offset']	 = ($intCurrentPageNumber * DEFAULT_RECORDS_ON_PER_PAGE);
-			$strFilterArr['limit']	 = DEFAULT_RECORDS_ON_PER_PAGE;
-		}
-		
-
-		/* Getting the environment list */
-		$strRecordsetArr	=  $this->_objDataOperation->getDataFromTable($strFilterArr);
-		
-		/* if record found then do needful */
-		if(!empty($strRecordsetArr)){
-			/* iterating the loop  */
-			foreach($strRecordsetArr as $strRecordsetArrKey => $strRecordsetArrValue){
-				if(isset($strRecordsetArrValue['key_description'])){
-					/* Variable initialization */
-					$strKeyName	= $strRecordsetArrValue['key_description'];
-						
-					/* Checking record existence */
-					if(isset($strRecordsetArrValue['key_description'])){
-						if($strKeyName == 'DEFAULT_REGION'){
-							$strKeyName	= 'region_code';
-						}else if($strKeyName == 'DEFAULT_BRANCH'){
-							$strKeyName	= 'branch_code';
-						}else if($strKeyName == 'DEFAULT_LEAD_ALLOCATED_TO'){
-							$strKeyName	= 'lead_owner_name';
-						}
-						
-						/* overriding the value */
-						$strRecordsetArr[$strRecordsetArrKey]['value_description_oringial']	= $strRecordsetArrValue['value_description'];
-					}
-					$strRecordsetArr[$strRecordsetArrKey]['value_description']	= $this->getLeadAttributeDetilsByAttributeKey($strKeyName, $strRecordsetArr[$strRecordsetArrKey]['value_description']);
-				}
-			}
-		}
-		
-		/* Removed used variables */
-		unset($strFilterArr);
-
-		/* return status */
-		return $strRecordsetArr;
-	}
-
-	/**********************************************************************/
-	/*Purpose 	: Setting the environment details.
-	/*Inputs	: None.
-	/*Returns 	: Transaction Status.
-	/*Created By: Jaiswar Vipin Kumar R.
-	/**********************************************************************/
-	public function setEnvironment(){
-		/* variable initialization */
-		$strKeyDescription		= ($this->input->post('txtKeyDescription') != '')? $this->input->post('txtKeyDescription'):'';
-		$strValueDescription	= ($this->input->post('txtValueDescription') != '')?getDecyptionValue(getDecyptionValue($this->input->post('txtValueDescription'))):0;
-		$intEnvironmentCode		= ($this->input->post('txtEnvironmentCode') != '')?$this->input->post('txtEnvironmentCode'):0;
-		$blnEditRequest			= (($intEnvironmentCode > 0)?true:false);
-		$blnSearch				= ($this->input->post('txtSearch') != '')?true:false;
-		
-		/* Checking to all valid information passed */
-		if(($strKeyDescription == '') || (($strValueDescription == 0) && ($intEnvironmentCode	!= 3))){
-			/* Return Information */
-			jsonReturn(array('status'=>0,'message'=>'Requested mandatory field(s) are empty.'), true);
-		}
-		
-		/* Setting where clause */
-		$strWhereArr	= array('id'=>$intEnvironmentCode,'company_code'=>$this->getCompanyCode());
-		
-		/* if filter clause found then do needful */
-		if(!empty($strWhereArr)){
-			/* Data Container */
-			$strDataArr		= array(
-										'table'=>$this->_strPrimaryTableName,
-										'data'=>array('value_description'=>$strValueDescription),
-										'where'=>$strWhereArr
-									);
-									
-			/* updating environment in the database */
-			$intEnvironmentCode = $this->_objDataOperation->setUpdateData($strDataArr);
-		}
-		 
-		
-		/* Removed used variables */
-		unset($strDataArr);
-		/* checking last insert id / updated record count */
-		if($intEnvironmentCode > 0){
-			/* Checking for edit request */
-			if($blnEditRequest){
-				jsonReturn(array('status'=>1,'message'=>'Environment Updated successfully.'), true);
-			}else{
-				jsonReturn(array('status'=>1,'message'=>'Environment added successfully.'), true);
-			}
-		}else{
-			jsonReturn(array('status'=>0,'message'=>DML_ERROR), true);
-		}
-	}
-
-	/**********************************************************************/
-	/*Purpose 	: Delete the record from table of requested code.
-	/*Inputs	: None.
-	/*Returns 	: Transaction Status.
-	/*Created By: Jaiswar Vipin Kumar R.
-	/**********************************************************************/
-	public function deleteRecord(){
-		/* Variable initialization */
-		$intEnvironmentCode 	= ($this->input->post('txtDeleteRecordCode') !='') ? $this->input->post('txtDeleteRecordCode') : 0;
-
-		/* if not environment pass then do needful */
-		if($intEnvironmentCode == 0){
-			/* Return error message */
-			jsonReturn(array('status'=>0,'message'=>"Invalid environment code requested."), true);
-		}
-		/* Setting the updated array */
-		$strUpdatedArr	= array(
-									'table'=>$this->_strPrimaryTableName,
-									'data'=>array(
-												'deleted'=>1,
-												'updated_by'=>$this->getUserCode(),
-											),
-									'where'=>array(
-												'id'=>$intEnvironmentCode
-											)
-
-								);
-		/* Updating the requested record set */
-		$intNunberOfRecordUpdated = $this->_objDataOperation->setUpdateData($strUpdatedArr);
-
-		if($intNunberOfRecordUpdated > 0){
-			jsonReturn(array('status'=>1,'message'=>'Requested Environment deleted successfully.'), true);
-		}else{
-			jsonReturn(array('status'=>0,'message'=>DML_ERROR), true);
-		}
-
-		/* removed variables */
-		unset($strUpdatedArr);
-	}
-	
-	
-	/**********************************************************************/
-	/*Purpose 	: Get Branch list by selected region code
-	/*Inputs	: None.
-	/*Returns 	: Branch code array.
-	/*Created By: Jaiswar Vipin Kumar R.
-	/**********************************************************************/
-	private function _getBranchByRegionCode(){
-		/* variable initialization */
-		$strRetrunArr	= array();
-		/* get region code details of logger company */
-		$strRegionArr	= $this->_objDataOperation->getDataFromTable(
-																		array(
-																				'table'=>$this->_strPrimaryTableName,
-																				'column'=>array('value_description'),
-																				'where'=>array('key_description'=>'DEFAULT_REGION','company_code'=>$this->getCompanyCode())
-																			)
-																);
-		/* no region details found then do needful */
-		if(empty($strRegionArr)){
-			/* return complete drop down array of branch array*/
-			return $this->getBranchDetails();
-		}else{
-			/* Get branch list filter by region code */
-			$strBranchArr	= (array)$this->getBranchDetails(getEncyptionValue($strRegionArr[0]['value_description']));
-			
-			/* return selected region branch code as drop down array */
-			return $strBranchArr;
-		}
-	}
-	
-	/**********************************************************************/
-	/*Purpose 	: Get Branch list by selected region code
-	/*Inputs	: None.
-	/*Returns 	: Branch code array.
-	/*Created By: Jaiswar Vipin Kumar R.
-	/**********************************************************************/
-	private function _getUserListByBranchCode(){
-		/* variable initialization */
-		$strUserArr 	= $strRetrunArr	= array();
-		/* get branch code details of logger company */
-		$strBranchCode	= $this->_objDataOperation->getDataFromTable(
-																		array(
-																				'table'=>$this->_strPrimaryTableName,
-																				'column'=>array('value_description'),
-																				'where'=>array('key_description'=>'DEFAULT_BRANCH','company_code'=>$this->getCompanyCode())
-																			)
-																);
-		if(!empty($strBranchCode)){
-			/* Location object creating */
-			$locationObj = new Location($this->_objDataOperation, $this->getCompanyCode());
-			
-			/* if branch is not set then do needful */
-			if($strBranchCode[0]['value_description'] == '0'){
-				/* user array list */
-				$strRetrunArr 	= $locationObj->getEmployeeByLocations(-1);
-			}else{
-				/* user array list */
-				$strRetrunArr 	= $locationObj->getEmployeeByLocations(5,array($strBranchCode[0]['value_description']));
-			}
-			/* Removed used variable */
-			unset($locationObj);
-		}
-		
-		/* removed used variable */
-		unset($strBranchCode);
-		
-		/* if user list is not empty then do needful */
-		if(!empty($strRetrunArr)){
-			/* Iterating the loop */
-			foreach($strRetrunArr as $strRetrunArrKey => $strRetrunArrValue){
-				/* Setting the user array */
-				$strUserArr[getEncyptionValue($strRetrunArrValue['user_code'])]	= $strRetrunArrValue['user_name'];
-			}
-		}
-		
-		/* return user detail array */
-		return $strUserArr;
-	}
 	
 	/**********************************************************************/
 	/*Purpose 	: Getting the current logger details.
@@ -372,7 +106,8 @@ class Setup extends CI_Controller{
 		
 		/* Decoding the logger */
 		$ObjStrLoggerDetails	= json_decode($strloggerArr[0]['logger_data']);
-		
+		$this->_intCompanyCode	= $ObjStrLoggerDetails->user_info->company_code;
+		$this->_isAdmin			= $ObjStrLoggerDetails->user_info->is_admin;
 		/* Global variable declaration */
 		$this->load->vars(array(
 									'userName'		=>$ObjStrLoggerDetails->user_info->user_name,
@@ -393,40 +128,167 @@ class Setup extends CI_Controller{
 	/*Created By: Jaiswar Vipin Kumar R.
 	/**********************************************************************/
 	private function _setSetupParameterAndDescription(){
+		/* id normal user then do needful */
+		if($this->_isAdmin == 0){
+			return array('message'=>'Working environment is not set by Company / System Administrator. Kindly get touch with them. Once suggested setup / configuration steps done by them, system will start working automatically. In this you might be needs to get login one more time.');
+		}
+		
 		/* return the list */
 		return array(
 						1=>array(
 									'label'=>'Lead Source',
-									'description'=>'This will helps you to identify, by which sources lead are came in. Lead Sources like Website, Facebook, Linkedin,Referral, Others, etc....<br/><b>How to setup:</b> Settings > Lead Source'
+									'description'=>'This will helps you to identify, by which sources lead are came in. Lead Sources like Website, Facebook, Linkedin,Referral, Others, etc....<br/><b>How to setup:</b> Settings > Lead Source',
+									'status'=>$this->_checkSource()
 								),
 						2=>array(
 									'label'=>'Lead Status',
-									'description'=>'To classified the lead current status, like active, closed or converted to prospect and its intermediate state.<br/><b>How to setup:</b> Settings > Lead Status'
+									'description'=>'To classified the lead current status, like active, closed or converted to prospect and its intermediate state.<br/><b>How to setup:</b> Settings > Lead Status',
+									'status'=>$this->_checkStatus()
 								),
 						3=>array(
 									'label'=>'Location',
-									'description'=>'This will helps system to identity the where the business unit / entities are located. On based configured location, classifying user and this reporting structure. Location are configured based on ZONE (NOrth) - REGION (UP) - CITY (Lucknow) - LOCATION (BARANANKI) - BRANCH (BARK001) <br/><b>How to setup:</b> Settings > Locations'
+									'description'=>'This will helps system to identity the where the business unit / entities are located. On based configured location, classifying user and this reporting structure. Location are configured based on ZONE (NOrth) - REGION (UP) - CITY (Lucknow) - LOCATION (BARANANKI) - BRANCH (BARK001) <br/><b>How to setup:</b> Settings > Locations',
+									'status'=>$this->_checkLocation()
 								),
 						4=>array(
 									'label'=>'Roles',
-									'description'=>'This will helps system to identity user access / rights classification based on the configured roles.<br/><b>How to setup:</b> Settings > User Role'
+									'description'=>'This will helps system to identity user access / rights classification based on the configured roles.<br/><b>How to setup:</b> Settings > User Role',
+									'status'=>$this->_checkRoles()
 								),
 						5=>array(
 									'label'=>'User',
-									'description'=>'Add new user in the system, associated with configured role, system role, location and reporting structure. <br/><b>How to setup:</b> Settings > User Profiles'
+									'description'=>'Add new user in the system, associated with configured role, system role, location and reporting structure. <br/><b>How to setup:</b> Settings > User Profiles',
+									'status'=>$this->_checkUser()
 								),
 						6=>array(
 									'label'=>'Lead Attributes',
-									'description'=>'Most import part, now you can configure the lead attributes like name, email, contact no, pan etc. Yes this subject to change business requirement. Using this configured lead attributes employee are enroll / update  the lead information.  <br/><b>How to setup:</b> Settings > Lead Attributes'
+									'description'=>'Most import part, now you can configure the lead attributes like name, email, contact no, pan etc. Yes this subject to change business requirement. Using this configured lead attributes employee are enroll / update  the lead information.  <br/><b>How to setup:</b> Settings > Lead Attributes',
+									'status'=>$this->_checkLeadAttributes()
 								),
 						7=>array(
 									'label'=>'Lead attribute association on module',
-									'description'=>'Once lead attribute is configured; pot now its time to associated the added lead attributes to modules. Like on lead / task / reports  module which lead attributes which get displayed.<br/><b>How to setup:</b> Settings > Module'
+									'description'=>'Once lead attribute is configured; pot now its time to associated the added lead attributes to modules. Like on lead / task / reports  module which lead attributes which get displayed.<br/><b>How to setup:</b> Settings > Module',
+									'status'=>$this->_checkLeadAttributesModelAssocation()
 								),
 						8=>array(
 									'label'=>'Module Access',
-									'description'=>'Once role based setup, after that you can control the application feature / menu access / visibility gets controlled. <br/><b>How to setup:</b> Settings > Module Access'
+									'description'=>'Once role based setup, after that you can control the application feature / menu access / visibility gets controlled. <br/><b>How to setup:</b> Settings > Module Access',
+									'status'=>$this->_checkModulesAccess()
 								),
 					);
+	}
+	
+	/**********************************************************************/
+	/*Purpose 	: Checking lead source.
+	/*Inputs	: None.
+	/*Returns	: TRUE / FALSE.
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
+	private function _checkSource(){
+		/* getting lead source details */
+		$strDataSet	=  $this->_objDataOperation->getDataFromTable(array('table'=>'master_lead_source','column'=>array('id'),'where'=>array('company_code'=>$this->_intCompanyCode),'limit'=>0,'offset'=>0));
+		/* Return the status */
+		return (empty($strDataSet))?false:true;
+	}
+	
+	/**********************************************************************/
+	/*Purpose 	: Checking lead status.
+	/*Inputs	: None.
+	/*Returns	: TRUE / FALSE.
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
+	private function _checkStatus(){
+		/* getting lead source details */
+		$strDataSet	=  $this->_objDataOperation->getDataFromTable(array('table'=>'master_status','column'=>array('id'),'where'=>array('company_code'=>array(1,$this->_intCompanyCode)),'limit'=>0,'offset'=>0));
+		/* Return the status */
+		return (empty($strDataSet))?false:true;
+	}
+	
+	/**********************************************************************/
+	/*Purpose 	: Checking location.
+	/*Inputs	: None.
+	/*Returns	: TRUE / FALSE.
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
+	private function _checkLocation(){
+		/* getting lead location details */
+		$strDataSet	=  $this->_objDataOperation->getDataFromTable(array('table'=>'master_location','column'=>array('location_type'),'where'=>array('company_code'=>$this->_intCompanyCode),'group'=>array('location_type')));
+		/* Return the status */
+		return (!empty($strDataSet) && (count($strDataSet) >= 5))?true:false;
+	}
+	
+	/**********************************************************************/
+	/*Purpose 	: Checking Roles.
+	/*Inputs	: None.
+	/*Returns	: TRUE / FALSE.
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
+	private function _checkRoles(){
+		/* getting lead location details */
+		$strDataSet	=  $this->_objDataOperation->getDataFromTable(array('table'=>'master_role','column'=>array('id'),'where'=>array('company_code'=>$this->_intCompanyCode),'limit'=>0,'offset'=>0));
+		/* Return the status */
+		return (empty($strDataSet))?false:true;
+	}
+	
+	/**********************************************************************/
+	/*Purpose 	: Checking users.
+	/*Inputs	: None.
+	/*Returns	: TRUE / FALSE.
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
+	private function _checkUser(){
+		/* getting lead location details */
+		$strDataSet	=  $this->_objDataOperation->getDataFromTable(array('table'=>'master_user','column'=>array('id'),'where'=>array('company_code'=>$this->_intCompanyCode),'limit'=>0,'offset'=>0));
+		/* Return the status */
+		return (empty($strDataSet))?false:true;
+	}
+	
+	/**********************************************************************/
+	/*Purpose 	: Checking lead attributes.
+	/*Inputs	: None.
+	/*Returns	: TRUE / FALSE.
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
+	private function _checkLeadAttributes(){
+		/* getting lead attributes details */
+		$strDataSet	=  $this->_objDataOperation->getDataFromTable(array('table'=>'master_lead_attributes','column'=>array('id'),'where'=>array('company_code'=>$this->_intCompanyCode),'limit'=>0,'offset'=>0));
+		/* Return the status */
+		return (empty($strDataSet))?false:true;
+	}
+	
+	/**********************************************************************/
+	/*Purpose 	: Checking lead module attributes association.
+	/*Inputs	: None.
+	/*Returns	: TRUE / FALSE.
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
+	private function _checkLeadAttributesModelAssocation(){
+		/* getting lead attributes details */
+		$strDataSet	=  $this->_objDataOperation->getDataFromTable(
+																	array(
+																			'table'=>array('mater_module_lead_attribute','master_lead_attributes'),
+																			'join'=>array('','mater_module_lead_attribute.attri_code = master_lead_attributes.id'),
+																			'column'=>array('mater_module_lead_attribute.id'),
+																			'where'=>array('company_code'=>$this->_intCompanyCode),
+																			'limit'=>0,
+																			'offset'=>0
+																		)
+																);
+		/* Return the status */
+		return (empty($strDataSet))?false:true;
+	}
+	
+	
+	/**********************************************************************/
+	/*Purpose 	: Checking module access to roles access.
+	/*Inputs	: None.
+	/*Returns	: TRUE / FALSE.
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
+	private function _checkModulesAccess(){
+		/* getting module access to roles details */
+		$strDataSet	=  $this->_objDataOperation->getDataFromTable(array('table'=>'trans_module_access','column'=>array('id'),'where'=>array('company_code'=>$this->_intCompanyCode),'limit'=>0,'offset'=>0));
+		/* Return the status */
+		return (empty($strDataSet))?false:true;
 	}
 }

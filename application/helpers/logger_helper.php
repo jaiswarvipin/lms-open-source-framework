@@ -42,9 +42,9 @@ class Logger{
 		/* Getting user details */
 		$strResponseArr	= $this->_objDefaultModel->getDataFromTable(
 																		array(
-																				'table'=>array('master_user','master_role'), 
-																				'join'=>array('','master_user.role_code = master_role.id'),
-																				'column'=>array('master_user.*','master_role.description as role_name'),
+																				'table'=>array('master_user','master_role','master_company'), 
+																				'join'=>array('','master_user.role_code = master_role.id','master_company.id = master_user.company_code'),
+																				'column'=>array('master_user.*','master_role.description as role_name','is_setup_configured'),
 																				'where'=>array('master_user.id'=>$pIntUserCode)
 																			)
 																	);

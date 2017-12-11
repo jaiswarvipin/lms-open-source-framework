@@ -13,6 +13,7 @@ class Requestprocess extends CI_Controller {
 	private $_intCompanyCode				= 0;
 	private $_intAdminCode 					= 0;
 	private $_intDefaultStatusCode 			= 0;
+	private $_intIsSetupConfigured 			= 0;
 	private $_strMainModule					= '';
 	private $_strChildModule				= '';
 	private $_strRegionArr					= array();
@@ -118,6 +119,7 @@ class Requestprocess extends CI_Controller {
 		$this->_intUserCode			= $ObjStrLoggerDetails->user_info->id;
 		$this->_intCompanyCode		= $ObjStrLoggerDetails->user_info->company_code;
 		$this->_intAdminCode		= $ObjStrLoggerDetails->user_info->is_admin;
+		$this->_intIsSetupConfigured= $ObjStrLoggerDetails->user_info->is_setup_configured;
 		$this->_strMainModule		= $ObjStrLoggerDetails->main_menu;
 		$this->_strChildModule		= $ObjStrLoggerDetails->child_menu;
 		$this->_strRegionArr		= (isset($ObjStrLoggerDetails->region)?(array)$ObjStrLoggerDetails->region:array());
@@ -166,6 +168,17 @@ class Requestprocess extends CI_Controller {
 	public function getCompanyCode(){
 		/* return company code */
 		return $this->_intCompanyCode;
+	}
+	
+	/**********************************************************************/
+	/*Purpose 	: is environment setup is done.
+	/*Inputs	: None.
+	/*Returns	: Set up status.
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
+	public function getEnvSetupConfigured(){
+		/* return setup configured */
+		return $this->_intIsSetupConfigured;
 	}
 	
 	/**********************************************************************/
@@ -706,8 +719,8 @@ class Requestprocess extends CI_Controller {
 		/* Variable initialization */
 		$blnIsSet	= true;
 		
-		/* if branched are not set then do needful */
-		if(empty($this->getBranchCodes())){
+		/* if setup configuration is not done then then do needful */
+		if($this->getEnvSetupConfigured() == 0){
 			/* value overriding */
 			$blnIsSet	= false;
 		}
