@@ -112,23 +112,23 @@ class Leadsources extends Requestprocess {
 				$strWhereClauseArr	= array_merge($strWhereClauseArr, array('rating_code'=>$intReatingCode));
 			}
 		}else{
-			/* Getting status categories */
+			/* Getting source categories */
 			if($pIntLedSourceCode > 0){
 				/* iF edit request then do needful */
 				if($isEditRequest){
-					/* Adding Status code filter */
+					/* Adding source code filter */
 					$strWhereClauseArr	= array_merge($strWhereClauseArr, array('id !='=>$pIntLedSourceCode));
 				}else{
-					/* Adding Status code filter */
+					/* Adding source code filter */
 					$strWhereClauseArr	= array_merge($strWhereClauseArr, array('id'=>$pIntLedSourceCode));
 				}
 			}
 		}
 		
-		/* filter by status name */
+		/* filter by lead source name */
 		if($pStrLedSourceName !=''){
 			/* Adding Status code filter */
-			$strWhereClauseArr	= array_merge($strWhereClauseArr, array('description like'=>$pStatusName));
+			$strWhereClauseArr	= array_merge($strWhereClauseArr, array('description like'=>$pStrLedSourceName));
 		}
 		
 		/* Filter array */
@@ -164,7 +164,7 @@ class Leadsources extends Requestprocess {
 	public function setLeadSource(){
 		/* variable initialization */
 		$strLeadSourceName		= ($this->input->post('txtLeadSourceDescription') != '')?$this->input->post('txtLeadSourceDescription'):'';
-		$intReatingCode			= ($this->input->post('cboRatingCode') != '')?$this->input->post('cboRatingCode'):0;
+		$intReatingCode			= ($this->input->post('cboRatingCode') != '')? getDecyptionValue($this->input->post('cboRatingCode')):0;
 		$intLeadSourceCode		= ($this->input->post('txtLeadSourceCode') != '')?$this->input->post('txtLeadSourceCode'):0;
 		$blnEditRequest			= (($intLeadSourceCode > 0)?true:false);
 		$blnSearch				= ($this->input->post('txtSearch') != '')?true:false;

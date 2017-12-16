@@ -57,6 +57,8 @@ class Logger{
 			/* Set logger personal and logger information */
 			$strLoggerArr['user_info']	= $strResponseArr[0];
 		}
+		/* Setting logger details */
+		$this->_strLoggerCode	= $strResponseArr[0];
 		
 		/* Getting the Branch and Region Assign to logger user */
 		if($strLoggerArr['user_info']['is_admin'] == 1){
@@ -76,7 +78,7 @@ class Logger{
 			/* Getting the Branch and Region Assign to logger user */
 			if($strLoggerArr['user_info']['is_admin'] == 1){
 				/* Setting value */
-				$strWhereFilterArr['master_modues.company_code']	= array(1, $strLoggerArr['user_info']['company_code']);
+				$strWhereFilterArr['master_modues.company_code']	= array(1, 1);
 				$strWhereFilterArr['role_code']						= array(1, $strLoggerArr['user_info']['role_code']);
 			}
 			
@@ -90,7 +92,6 @@ class Logger{
 																					'order'=>array('master_modues.id'=>'asc')
 																				)
 																		);
-			
 			/* if module access details found  then do needful */
 			if(!empty($strModuleArr)){
 				/* Variable initialization */
@@ -106,7 +107,7 @@ class Logger{
 						$strModuleAccessArr[$strModuleArrValue['parent_code']]['child'][$strModuleArrValue['id']]	= $strModuleArrValue;
 					}					
 				}
-				
+				unset($strModuleAccessArr[-1]);
 				/* if module align array fund then do needful */
 				if(!empty($strModuleAccessArr)){
 					/* Iterating the loop */
@@ -283,7 +284,8 @@ class Logger{
 		/* variable initialization */
 		$strUserArr		= $strReturnArr = $strManagerArr 	= array();
 		$strUserArr		= $pIntUserCodeArr;
-		$blnLoopValid  = true;
+		$blnLoopValid  	= true;
+		
 		/* if user code is not found */
 		if(empty($pIntUserCodeArr)){
 			/* Getting all user list from same company */
@@ -304,11 +306,14 @@ class Logger{
 					$strUserArr['users'][$strAllUserArrValue['user_code']]	= $strAllUserArrValue['user_name'];
 				}
 			}
+			
+			/* Setting logger details */
+			$strUserArr['users'][$this->_strLoggerCode['id']]	= $this->_strLoggerCode['user_name'];
+			
 			$strUserArr['reporting']	= array();
 			/* Return employee array */
 			return $strUserArr;
 		}
-		
 		
 		/* Iterating the loop till execution */
 		//while(!empty($strUserArr)){

@@ -77,6 +77,8 @@ class Leadattributes extends Requestprocess {
 			if(empty($strLeadAttributeArr)){
 				jsonReturn(array('status'=>0,'message'=>'Details not found.'), true);
 			}else{
+				/* Setting the default value collection values */
+				$strLeadAttributeArr[0]['attri_value_list']	= (!empty(unserialize($strLeadAttributeArr[0]['attri_value_list'])))?unserialize($strLeadAttributeArr[0]['attri_value_list']):'';
 				/* Return the JSON string */
 				jsonReturn($strLeadAttributeArr[0], true);
 			}
@@ -188,12 +190,8 @@ class Leadattributes extends Requestprocess {
 		$blnEditRequest			= (($intLeadAttributeCode > 0)?true:false);
 		$blnSearch				= ($this->input->post('txtSearch') != '')?true:false;
 		$strWhereClauseArr		= array();
+		$strAttributeList	 	= ($this->input->post('txtLeadAttributesName'))?serialize($this->input->post('txtLeadAttributesName')):serialize(array());
 		
-		if($blnSearch){
-			$this->index();
-			exit;
-		}
-
 		/* Checking to all valid information passed */
 		if(($strLeadAttributeName == '')){
 			/* Return Information */
@@ -207,7 +205,7 @@ class Leadattributes extends Requestprocess {
 		}
 		
 		/* Adding Status code filter */
-		$strWhereClauseArr	= array('attri_slug_key'=>$strLeadAttributeKey);
+		$strWhereClauseArr	= array('attri_slug_key'=>$strLeadAttributeKey,'company_code'=>$this->getCompanyCode());
 			
 		/* Checking for edit request */
 		if($blnEditRequest){
@@ -232,7 +230,7 @@ class Leadattributes extends Requestprocess {
 														'attri_slug_name'=>$strLeadAttributeName,
 														'attri_data_type'=>$strAttributeTypeCode,
 														'attri_default_value'=>'',
-														'attri_value_list'=>'',
+														'attri_value_list'=>$strAttributeList,
 														'is_mandatory'=>$isMandatory,
 														'attri_validation'=>$strValidationCode,
 														'company_code'=>$this->getCompanyCode()
@@ -317,7 +315,7 @@ class Leadattributes extends Requestprocess {
 	/**********************************************************************/
 	private function _setLeadTranscationSchema($pStrColumnName = ''){	
 		/* variable initialization */
-		$strTableName	= 'trans_lead_'.$this->getCompanyCode();
+		$strTableName	= 'trans_leads_'.$this->getCompanyCode();
 		
 		/* Checking table exists */
 		if($this->_objDataOperation->isTableExists($strTableName)){

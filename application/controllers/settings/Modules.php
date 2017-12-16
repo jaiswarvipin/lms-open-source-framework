@@ -321,7 +321,7 @@ class Modules extends Requestprocess {
 		/* creating lead object */
 		$leadObj = new Lead($this->_objDataOperation, $this->getCompanyCode());
 		/* Get lead attribute list */
-		$strLeadArrributeList	= $leadObj->getLeadAttributesList();
+		$strLeadArrributeList	= $leadObj->getLeadAttributesListByCompnayCode();
 		/* Removed used variables */
 		unset($leadObj);
 		/* return lead attribute list */

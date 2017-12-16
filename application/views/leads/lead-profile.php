@@ -13,13 +13,15 @@
 					<li class="tab col s3"><a href="#divCommuncationHistoryContrainer">History</a></li>
 				</ul>
 			</div>
-			<div id="test1" class="col s12"><?php echo $strLeadAttHTML?></div>
+			<div id="test1" class="col s12">
+				<form name="frmUpdateLeadProfileDetails" id="frmUpdateLeadProfileDetails" method="post" action="leadsoperation/leadsoperation/setNewLeadDetails"><?php echo $strLeadAttHTML?></form>
+			</div>
 			<div id="test2" class="col s12">UTM Details</div>
 			<div id="divCommuncationHistoryContrainer" class="col s12"></div>
 		</div>
 	</div>
 	<div class="modal-footer">
     	<a href="javascript:void(0);" class="modal-action modal-close waves-effect waves-green btn-flat">Cancel</a>
-		<button class="btn waves-effect waves-light cmdDMLAction" type="submit" name="cmdRecordProfileDetails" id="cmdRecordProfileDetails" formName="frmLeadProfileDetails">Submit<i class="material-icons right">send</i></button>
+		<button class="btn waves-effect waves-light cmdDMLAction" type="submit" name="cmdRecordProfileDetails" id="cmdRecordProfileDetails" formName="frmUpdateLeadProfileDetails">Submit<i class="material-icons right">send</i></button>
     </div>
 </div>

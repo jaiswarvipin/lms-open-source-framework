@@ -58,7 +58,7 @@ class Module{
 	/* Returns	: Role details.
 	/***************************************************************************/
 	public function getModulesByRoleCode($pIntRoleCodeArr = array()){
-		/*If role code is not passed tehn do needful */
+		/*If role code is not passed then do needful */
 		if(empty($pIntRoleCodeArr)){
 			/* return empty array set */
 			return array ();

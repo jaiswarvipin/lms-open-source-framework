@@ -401,7 +401,7 @@ class Tasksreports extends Requestprocess {
 		
 		/* Variable initialization  */
 		$strReturnArr['date']	 = array();
-				
+		
 		/* If data found then do needful */
 		if(!empty($strLeadTaskArr)){
 			/* Iterating the loop */
@@ -411,9 +411,9 @@ class Tasksreports extends Requestprocess {
 				/* Iterating the task type */
 				foreach($strTaskTypeArr as $strTaskTypeArrKey => $strTaskTypeArrValue){
 					if((!isset($strReturnArr[$strTaskTypeArrValue['description']][$strLeadTaskArrValue['lead_record_date']])) && ($strTaskTypeArrValue['id'] == $strLeadTaskArrValue['task_type_code'])){
-						$strReturnArr[$strTaskTypeArrValue['description']][$strLeadTaskArrValue['lead_record_date']]	= (double)$strLeadTaskArrValue['taskCount'];
+						$strReturnArr[$strTaskTypeArrValue['description']][$strLeadTaskArrValue['lead_record_date']]		= (double)$strLeadTaskArrValue['taskCount'];
 					}else {
-						if((double)$strLeadTaskArrValue['taskCount'] > 0){
+						if(((double)$strLeadTaskArrValue['taskCount'] > 0) && ($strTaskTypeArrValue['id'] == $strLeadTaskArrValue['task_type_code'])){
 							$strReturnArr[$strTaskTypeArrValue['description']][$strLeadTaskArrValue['lead_record_date']]	= (double)$strLeadTaskArrValue['taskCount'];
 						}else{
 							$strReturnArr[$strTaskTypeArrValue['description']][$strLeadTaskArrValue['lead_record_date']]	= 0;
@@ -422,7 +422,7 @@ class Tasksreports extends Requestprocess {
 				}
 			}
 		}
-		debugVar($strReturnArr);
+		
 		/* removed used variables */
 		unset($strLeadTaskArr, $strFilterArr, $strTaskTypeArr);
 		/* Setting the value as per chart request */		

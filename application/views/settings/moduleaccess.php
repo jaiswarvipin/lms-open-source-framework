@@ -18,7 +18,7 @@
 		            		<td><?php echo $dataSetValue['description']?></td>
 		            		<td>
 		            			<a href="javascript:void(0);" onclick="openEditModel('<?php echo $strDataAddEditPanel?>','<?php echo getEncyptionValue($dataSetValue['id'])?>',1);" class="waves-effect waves-circle waves-light btn-floating secondary-content"><i class="material-icons">edit</i></a>
-		            			<a href="javascript:void(0);" onclick="openEditModel('<?php echo $strDataAddEditPanel?>','<?php echo getEncyptionValue($dataSetValue['id'])?>',1);" class="waves-effect waves-circle waves-light btn-floating secondary-content"><i class="material-icons">edit</i></a>
+		            			<!--a href="javascript:void(0);" onclick="openEditModel('<?php echo $strDataAddEditPanel?>','<?php echo getEncyptionValue($dataSetValue['id'])?>',1);" class="waves-effect waves-circle waves-light btn-floating secondary-content"><i class="material-icons">edit</i></a-->
 		            		</td>
 		          		</tr>
 						<?php $intCoounter++;?>
@@ -50,7 +50,7 @@
 						<table border="0">
 							<tr>
 								<th width="25%">Module Name</th>
-								<th>All</th>
+								<th>&nbsp;</th>
 							</tr>
 							<?php foreach($strModuleArr as $strModuleArrKey => $strModuleArrValue){
 									if(isset($strModuleArrValue['description'])){?>

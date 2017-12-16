@@ -84,7 +84,7 @@ class communicationhistory{
 				$strQuery	.= 'UNION ALL ';
 			}else{
 				/* Setting the Order by DESC */
-				$strQuery	.= ' Order by 6 DESC ';
+				$strQuery	.= ' Order by 7 DESC ';
 				
 				/* default limit is not set then do needful */
 				if(!isset($pStrFilterArr['limit'])){

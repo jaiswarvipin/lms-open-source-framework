@@ -207,8 +207,8 @@ class Modulesaccess extends Requestprocess {
 		/* Variable initialization */
 		$strReturnArr	= array();
 		
-		/* Creatig module object */
-		$moduleObj	= new Module($this->_objDataOperation, $this->getCompanyCode());
+		/* Creating module object */
+		$moduleObj	= new Module($this->_objDataOperation, 1);
 		/* getting module list array */
 		$strModuleArr	= $moduleObj->getModulesByCode();
 		/* Removed used variables */
@@ -218,7 +218,7 @@ class Modulesaccess extends Requestprocess {
 		if(!empty($strModuleArr)){
 			/* iterating the loop */
 			foreach($strModuleArr as $strModuleArrKey => $strModuleArrValue){
-				/* chceking for parent code */
+				/* checking for parent code */
 				if(($strModuleArrValue['parent_code'] == 0) && (!isset($strReturnArr[$strModuleArrValue['id']]))){
 					/* Setting the parent Modules */
 					$strReturnArr[$strModuleArrValue['id']]['description']	= $strModuleArrValue['description'];
@@ -243,7 +243,7 @@ class Modulesaccess extends Requestprocess {
 		/* Variable initialization */
 		$strReturnArr	= array();
 		
-		/* Creatig module object */
+		/* Creating module object */
 		$moduleObj	= new Module($this->_objDataOperation, $this->getCompanyCode());
 		/* getting module list array */
 		$strModuleArr	= $moduleObj->getModulesByRoleCode(array($pRoleCode));

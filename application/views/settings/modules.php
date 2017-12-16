@@ -19,8 +19,10 @@
 		            		<td><?php echo str_replace('[divider]','',$dataSetValue['description'])?></td>
 		            		<td><?php echo (isset($strModuleArr[$dataSetValue['parent_code']])?$strModuleArr[$dataSetValue['parent_code']]:'-')?></td>
 		            		<td>
-		            			<a href="javascript:void(0);" onclick="openEditModel('deleteModel','<?php echo getEncyptionValue($dataSetValue['id'])?>',0);" class="waves-effect waves-circle waves-light btn-floating secondary-content red"><i class="material-icons">delete</i></a>&nbsp;
-		            			<a href="javascript:void(0);" onclick="openEditModel('<?php echo $strDataAddEditPanel?>','<?php echo getEncyptionValue($dataSetValue['id'])?>',1);" class="waves-effect waves-circle waves-light btn-floating secondary-content"><i class="material-icons">edit</i></a>
+								<?php if($dataSetValue['is_system'] != 1){?>
+									<a href="javascript:void(0);" onclick="openEditModel('deleteModel','<?php echo getEncyptionValue($dataSetValue['id'])?>',0);" class="waves-effect waves-circle waves-light btn-floating secondary-content red"><i class="material-icons">delete</i></a>&nbsp;
+									<a href="javascript:void(0);" onclick="openEditModel('<?php echo $strDataAddEditPanel?>','<?php echo getEncyptionValue($dataSetValue['id'])?>',1);" class="waves-effect waves-circle waves-light btn-floating secondary-content"><i class="material-icons">edit</i></a>
+								<?php }?>
 		            			<a href="javascript:void(0);" onclick="openEditModel('divFieldMapping','<?php echo getEncyptionValue($dataSetValue['id'])?>',1);" class="waves-effect waves-circle waves-light btn-floating secondary-content"><i class="material-icons">Fields</i></a>
 		            		</td>
 		          		</tr>

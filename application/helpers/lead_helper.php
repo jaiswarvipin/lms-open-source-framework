@@ -329,7 +329,7 @@ class Lead{
 			debugVar($pStrLeadArr);
 		}
 		/* Request from web service */
-		if($pStrLeadArr['is_debug']){
+		if((isset($pStrLeadArr['is_debug'])) && ($pStrLeadArr['is_debug'])){
 			$blnIsDirect	= true;
 		}
 		
@@ -361,6 +361,71 @@ class Lead{
 		
 		/* return lead code */
 		return $intLeadCode;
+	}
+	
+	/***************************************************************************/
+	/* Purpose	: Setting lead updated details.
+	/* Inputs 	: $pIntLeadCode :: lead code,
+				: $pStrLeadDetailsUpdate :: Lead information,
+				: $pIntUpdateBy :: Updated By
+	/* Returns	: Return transaction status.
+	/* Created By : Jaiswar Vipin Kumar R.
+	/***************************************************************************/
+	public function setLeadUpdatedDetails($pIntLeadCode = 0, $pStrLeadDetailsUpdate = array(), $pIntUpdateBy = 0 ){
+		/* variable initialization */
+		$intOperationStatus	= 0;
+		
+		/* Requested parameters are not passed then do needful */
+		if(($pIntLeadCode == 0) || (empty($pStrLeadDetailsUpdate))){
+			/* Return operation status */
+			return $intOperationStatus;
+		}
+		
+		/* Lead information */
+		$strLeadInformationArr	= $this->getLeadDetialsByLogger(false,array('master_leads.id'=>$pIntLeadCode));
+		$strUpdateRequest		= json_encode($pStrLeadDetailsUpdate);
+		
+		/* Setting lead updated details  */
+		$this->_databaseObject->setUpdateData(
+												array(
+													'table'=>$this->_strTableName,
+													'data'=>array('lead_source_code'=>$pStrLeadDetailsUpdate['lead_source_code']),
+													'where'=>array('id'=>$pIntLeadCode)
+												)
+											);
+											
+		/* Removed lead source details */
+		unset($pStrLeadDetailsUpdate['lead_source_code']);
+		
+		/* Setting lead attributes details  */
+		$intOperationStatus 	=	$this->_databaseObject->setUpdateData(
+																	array(
+																		'table'=>'trans_leads_'.$this->_intCompanyCode,
+																		'data'=>$pStrLeadDetailsUpdate,
+																		'where'=>array('lead_code'=>$pIntLeadCode)
+																	)
+																);
+		
+		/* Setting communication history */
+		$communicationHistoryObj	= new communicationhistory($this->_databaseObject, $this->_intCompanyCode);
+		/* Setting communication history */
+		$communicationHistoryObj->setCommuncationHistory(
+															array(
+																	'lead_code'=>$pIntLeadCode,
+																	'lead_owner_code'=>$strLeadInformationArr[0]['lead_owner_code'],
+																	'follow_up_date'=>$strLeadInformationArr[0]['next_followup_date'],
+																	'status_code'=>$strLeadInformationArr[0]['status_code'],
+																	'comments'=>'Update requested executed. Requested details was : <br />'.$strUpdateRequest,
+																	'comm_text'=>(isset($strEmailArr['message'])?$strEmailArr['message']:''),
+																	'is_system'=>0,
+																	'updated_by'=>$pIntUpdateBy
+															)
+													);
+		/* Removed used variables */
+		unset($communicationHistoryObj, $strLeadInformationArr);
+		
+		/* return the transaction status */
+		return $intOperationStatus;
 	}
 	
 	/***************************************************************************/

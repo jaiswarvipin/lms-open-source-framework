@@ -57,8 +57,15 @@
 
             <div class='row no-search'>
               <div class='input-field col s12'>
-                <select name="cboAttributeType" id="cboAttributeType" data-set="attri_data_type"><?php echo $strElementsArr?></select>
+                <select name="cboAttributeType" id="cboAttributeType" data-set="attri_data_type" onChange="displayHideElement(this,'<?php echo getEncyptionValue('select')?>','divLeadAttributesContaier');"><?php echo $strElementsArr?></select>
                 <label for='cboAttributeType'>Select Attribute Element Type*</label>
+              </div>
+            </div>
+			
+			<div class='row hide divLeadAttributesContaier'>
+              <div class='input-field col s12'>
+				<table border="0" width="100%" class="divLeadAttributesPanel"></table>
+				<button class="btn waves-effect waves-light green lighten-2" type="button" name="cmdAddLeadAttributeOptions" id="cmdAddLeadAttributeOptions" onclick="addFormElement('text','txtLeadAttributesName[]','divLeadAttributesPanel','');">Add Options<i class="material-icons right">add</i></button>
               </div>
             </div>
 			
@@ -72,10 +79,10 @@
             <div class='row no-search'>
               <label>Is Mandatory*</label>
               <div class='input-field col s12'>
-                	<input class="with-gap" name="rdoisMandatory" value="1" type="radio" id="rdoisMandatory"  data-set="is_default" />
-    				<label for="isDefault">Yes</label>
+                	<input class="with-gap" name="rdoisMandatory" value="1" type="radio" id="rdoisMandatoryYes"  data-set="is_default" />
+    				<label for="rdoisMandatoryYes">Yes</label>
     				<input class="with-gap" name="rdoisMandatory" value="0" type="radio" id="rdoisMandatory" checked data-set="is_default" />
-    				<label for="isDefault">No</label>
+    				<label for="rdoisMandatory">No</label>
               </div>
             </div>
 			

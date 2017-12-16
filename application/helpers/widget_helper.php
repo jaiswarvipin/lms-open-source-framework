@@ -111,6 +111,29 @@ class Widget{
 											<label for="txtWidget'.$strLeadAttrArrValue['attri_slug_key'].'">Select '.$strLeadAttrArrValue['attri_slug_name'].' '.$strMandatory.'</label>
 										</div>';
 					break;
+				case 'select':
+					$strItemArr	   = (empty(unserialize($strLeadAttrArrValue['attri_value_list']))?array(): unserialize($strLeadAttrArrValue['attri_value_list']));
+					/* if option list found then do needful */
+					if(!empty($strItemArr)){
+						/* Iterating the loop */
+						foreach($strItemArr as $strItemArrKey => $strItemArrValue){
+							/* Setting the new value a key */
+							$strItemArr[$strItemArrValue]	= $strItemArrValue;	
+							/* removing the original index */
+							unset($strItemArr[$strItemArrKey]);	
+						}
+					}
+					/* Creating form object */
+					$objForm	= new Form();
+					/* Creating the dropdown index */
+					$strReturmHTML.=	'<div class="input-field col s12 no-search">
+											<select name="txtWidget'.$strLeadAttrArrValue['attri_slug_key'].'" id="txtWidget'.$strLeadAttrArrValue['attri_slug_key'].'" data-set="'.$strLeadAttrArrValue['attri_slug_key'].'">'.$objForm->getDropDown($strItemArr, '').'</select>
+											<label for="txtWidget'.$strLeadAttrArrValue['attri_slug_key'].'">Select '.$strLeadAttrArrValue['attri_slug_name'].' '.$strMandatory.'</label>
+										</div>';
+					/* removed used variables */
+					unset($objForm);
+					
+					break;
 			}
 		}
 		
@@ -190,27 +213,35 @@ class Widget{
 				continue;
 			}
 			
+			/* disabled flag */
+			$strDisabled	= '';
+			/* checking disabled flag set */
+			if(isset($pStrColumnArrayValue['disabled'])){
+				/* Set the disabled flag */
+				$strDisabled	= 'disabled="disabled" ';
+			}
+			
 			/* Checking for element type */
 			if(isset($pStrColumnArrayValue['is_date'])){
 				/* Checking for date range element */
 				if((string)$pStrColumnArrayKey == 'date_range'){
 					$strReturmHTML.=	'<div class="input-field col s12">
 											<label for="'.$strElementPrefix.'FromDate">From Date</label>
-											<input type="text" name="'.$strElementPrefix.'FromDate" id="'.$strElementPrefix.'FromDate" class="datepicker" />
+											<input type="text" name="'.$strElementPrefix.'FromDate" id="'.$strElementPrefix.'FromDate" class="datepicker" '.$strDisabled.'/>
 										</div>
 										<div class="input-field col s12">
 												<label for="'.$strElementPrefix.'ToDate">To Date</label>
-												<input type="text" name="'.$strElementPrefix.'ToDate" id="'.$strElementPrefix.'ToDate" class="datepicker" />
+												<input type="text" name="'.$strElementPrefix.'ToDate" id="'.$strElementPrefix.'ToDate" class="datepicker" '.$strDisabled.'/>
 										</div>';
 				}
 			}else if(isset($pStrColumnArrayValue['dropdown'])){
 				$strReturmHTML.=	'<div class="input-field col s12">
-										<select name="'.$strElementPrefix.$pStrColumnArrayValue['column'].'" id="'.$strElementPrefix.$pStrColumnArrayValue['column'].'" data-set="'.$pStrColumnArrayValue['column'].'">'.$pStrColumnArrayValue['data'].'</select>
+										<select name="'.$strElementPrefix.$pStrColumnArrayValue['column'].'" id="'.$strElementPrefix.$pStrColumnArrayValue['column'].'" data-set="'.$pStrColumnArrayValue['column'].'" '.$strDisabled.'>'.$pStrColumnArrayValue['data'].'</select>
 										<label for="'.$strElementPrefix.$pStrColumnArrayValue['column'].'">Select '.$pStrColumnArrayValue['label'].'</label>
 									</div>';
 			}else{
 					$strReturmHTML.=	'<div class="input-field col s12">
-											<input class="validate" type="text" name="'.$strElementPrefix.$pStrColumnArrayValue['column'].'" id="'.$strElementPrefix.$pStrColumnArrayValue['column'].'" data-set="'.$pStrColumnArrayValue['column'].'" />
+											<input class="validate" type="text" name="'.$strElementPrefix.$pStrColumnArrayValue['column'].'" id="'.$strElementPrefix.$pStrColumnArrayValue['column'].'" data-set="'.$pStrColumnArrayValue['column'].'" '.$strDisabled.'/>
 											<label for="'.$strElementPrefix.$pStrColumnArrayValue['column'].'">Enter '.$pStrColumnArrayValue['label'].'</label>
 										</div>';
 			}

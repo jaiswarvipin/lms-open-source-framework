@@ -65,17 +65,17 @@ class Environment extends Requestprocess {
 				jsonReturn(array('status'=>0,'message'=>'Details not found.'), true);
 			}else{
 				/* based on requested parameters setting the drop down values */
-				switch($intEnvironmentCode){
+				switch($strRecordsetArr[0]['key_description']){
 					/* Region */
-					case 1:
+					case 'DEFAULT_REGION':
 						$strRecordsetArr[0]['value_description'] =  $this->_objForm->getDropDown($this->getRegionDetails(),getEncyptionValue($strRecordsetArr[0]['value_description_oringial']));
 						break;
 					/* Branch */
-					case 2:
+					case 'DEFAULT_BRANCH':
 						$strRecordsetArr[0]['value_description'] =  $this->_objForm->getDropDown($this->_getBranchByRegionCode(),getEncyptionValue($strRecordsetArr[0]['value_description_oringial']));
 						break;
 					/* Default user to whom lead goes */
-					case 3:
+					case 'DEFAULT_LEAD_ALLOCATED_TO':
 						$strRecordsetArr[0]['value_description'] =  $this->_objForm->getDropDown($this->_getUserListByBranchCode(),getEncyptionValue($strRecordsetArr[0]['value_description_oringial']));
 						break;
 				}

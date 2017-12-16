@@ -51,7 +51,9 @@ class Setup extends CI_Controller{
 					/* Setting the value */
 					$blnStatus	= $strSetupArrValue['status'];
 					/* terminate the loop */
-					break;
+					if(!$blnStatus){
+						break;
+					}
 				}
 			}
 		}
@@ -175,6 +177,11 @@ class Setup extends CI_Controller{
 									'description'=>'Once role based setup, after that you can control the application feature / menu access / visibility gets controlled. <br/><b>How to setup:</b> Settings > Module Access',
 									'status'=>$this->_checkModulesAccess()
 								),
+						9=>array(
+									'label'=>'Environment',
+									'description'=>'Finally we needs to setup the environment variable of system, This will helps from lead enrolment to become prospect and smooth functional of account. <br/><b>How to setup:</b> Settings > Environment',
+									'status'=>$this->_checkEnvironmentSetup()
+								),
 					);
 	}
 	
@@ -278,7 +285,6 @@ class Setup extends CI_Controller{
 		return (empty($strDataSet))?false:true;
 	}
 	
-	
 	/**********************************************************************/
 	/*Purpose 	: Checking module access to roles access.
 	/*Inputs	: None.
@@ -290,5 +296,37 @@ class Setup extends CI_Controller{
 		$strDataSet	=  $this->_objDataOperation->getDataFromTable(array('table'=>'trans_module_access','column'=>array('id'),'where'=>array('company_code'=>$this->_intCompanyCode),'limit'=>0,'offset'=>0));
 		/* Return the status */
 		return (empty($strDataSet))?false:true;
+	}
+	
+	
+	/**********************************************************************/
+	/*Purpose 	: Checking form environment default setting.
+	/*Inputs	: None.
+	/*Returns	: TRUE / FALSE.
+	/*Created By: Jaiswar Vipin Kumar R.
+	/**********************************************************************/
+	private function _checkEnvironmentSetup(){
+		/* Variable initialization */
+		$blnStatus	= true;
+		
+		/* getting module access to roles details */
+		$strDataSet	=  $this->_objDataOperation->getDataFromTable(array('table'=>'master_user_config','column'=>array('value_description'),'where'=>array('company_code'=>$this->_intCompanyCode)));
+		
+		/* if data found then do needful */
+		if(!empty($strDataSet)){
+			/* Iterating the loop */
+			foreach($strDataSet as $strDataSetkey => $strDataSetValue){
+				/* Checking for value not set */
+				if((int)$strDataSetValue['value_description'] == 0){
+					$blnStatus	= false;
+					break;
+				}
+			}
+		}else{
+			$blnStatus	= false;
+		} 
+		
+		/* Return the status */
+		return $blnStatus;
 	}
 }

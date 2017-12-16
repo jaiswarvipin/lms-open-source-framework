@@ -64,6 +64,11 @@ function processRequestAfterResponse(pStrFormName, pStrResponseObject){
 						if($('#txtProfile'+strColumnValuekey).length == 1){
 							/* Setting the value */
 							$('#txtProfile'+strColumnValuekey).val(strColumnValueDetails);
+							/* for lead source setting do needful */
+							if('lead_source_code' == strColumnValuekey){
+								/* Setting value */
+								$('#txtProfile'+strColumnValuekey).material_select();
+							}
 						}else if(strColumnValuekey == 'strHistory'){
 							$('#divCommuncationHistoryContrainer').html(strColumnValueDetails);
 						}
@@ -176,6 +181,18 @@ function processRequestAfterResponse(pStrFormName, pStrResponseObject){
 								}
 							});
 						});
+					}
+					
+					if(objectRefrence == 'userleadAttriuteModel'){
+						var strAttrinuteArr = objResponse.attri_value_list;
+						if(strAttrinuteArr != ''){
+							displayHideElement(null,'-1','divLeadAttributesContaier');
+							$.each(strAttrinuteArr, function (strKey , strValue){
+								addFormElement('text','txtLeadAttributesName[]','divLeadAttributesPanel',strValue);
+							});
+						}else{
+							displayHideElement(null,'','divLeadAttributesContaier');
+						}
 					}
 				}
 				return false;
@@ -907,5 +924,59 @@ function showRelatedRecord(objRefrence, objTargetObjectRerence){
 	
 	if(objTargetObjectRerence == 'cboUSerCode'){
 		$('#cboUSerCode').material_select();
+	}
+}
+
+/**************************************************************************
+ Purpose 		: Creating the elements on request.
+ Inputs  		: pStrElementType : Element Type,
+				: pStrElementName :: ElementName,
+				: pStrTargetContiner :: Target container name,
+				: pStrDefaultValue :: Default Value
+ Return 		: ROW HTML.
+ Created By 	: Jaiswar Vipin Kumar R
+/**************************************************************************/
+function addFormElement(pStrElementType, pStrElementName, pStrTargetContiner, pStrDefaultValue){
+	/* variable initialization */
+	var strElementHTML = '';
+	/* based on the element type generating the HTML tag */
+	switch(pStrElementType){
+		case 'text':
+			strElementHTML	= '<tr><td><input type="text" name="'+pStrElementName+'" id="'+pStrElementName+'" value="'+pStrDefaultValue+'" width="100%"/></td><td><a href="javascript:void(0);" onclick="removeTableRow(this);" class="waves-effect waves-circle waves-light btn-floating secondary-content red"><i class="material-icons">delete</i></a></td></tr>';
+			break;
+	}
+	/* Adding to target element */
+	$('.'+pStrTargetContiner).append(strElementHTML);
+}
+
+/**************************************************************************
+ Purpose 		: Removing the table row on demand.
+ Inputs  		: pObjectRefrence :: Table row object instance.
+ Return 		: None.
+ Created By 	: Jaiswar Vipin Kumar R
+/**************************************************************************/
+function removeTableRow(pObjectRefrence){
+	/* Removed the row */
+	$(pObjectRefrence).parent().parent().remove();
+}
+
+/**************************************************************************
+ Purpose 		: Show / Hide requested Element.
+ Inputs  		: pObjectRefrence :: Object reference,
+				: pTargetElement :: elements that's needs to be hidden.
+ Return 		: None.
+ Created By 	: Jaiswar Vipin Kumar R
+/**************************************************************************/
+function displayHideElement(pObjectRefrence, pStrValue, pTargetElement){
+	/* if requested value as selected then do needful */
+	if($(pObjectRefrence).val() == pStrValue){
+		/* Show requested Elements */
+		$('.'+pTargetElement).removeClass('hide');
+	}else if(pStrValue == '-1'){
+		/* Show requested Elements */
+		$('.'+pTargetElement).removeClass('hide');
+	}else{
+		/* Show requested Elements */
+		$('.'+pTargetElement).addClass('hide');
 	}
 }

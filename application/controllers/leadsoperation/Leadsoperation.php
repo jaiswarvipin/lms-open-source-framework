@@ -89,13 +89,37 @@ class LeadsOperation extends Requestprocess {
 			}
 		}
 		
+		/* Lead source variable initialization */
+		$strLeadSourceArr	= $this->getLeadSource();
+		$strLeadSourcesArr	= array();
+		
+		/* if lead source found then do needful */
+		if(!empty($strLeadSourceArr)){
+			/* Iterating the loop */
+			foreach($strLeadSourceArr as $strLeadSourceArrKey => $strLeadSourceArrValue){
+				/* Setting value */
+				$strLeadSourcesArr[$strLeadSourceArrValue->id]	= $strLeadSourceArrValue->description;
+			}
+		}
+		/* removed used variables */
+		unset($strLeadSourceArr);
+		
+		/* Setting the lead source */
+		$strLeadAttArr['lead_source_code'] = array('disabled'=>'true','column'=>'lead_source_code', 'label'=>'Lead Source','dropdown'=>'1','data'=>$this->_objForm->getDropDown($strLeadSourcesArr,''));
+		
+		/* if ADMIN then allow to edit the lead source */
+		if((int)$this->getAdminFlag() == 1){
+			/* removed disabled index */
+			unset($strLeadAttArr['lead_source_code']['disabled']);
+		}
+		
 		/* Removed used variables */
 		unset($leadObj);
 		
 		/* Creating widget panel */
 		$widgetObj	 		= new Widget($this->_objDataOperation, $this->getCompanyCode());
 		$strLeadAttrHTML 	= $widgetObj->getColumnAsSearchPanel($strLeadAttArr);
-		
+		$strLeadAttrHTML   .= '<input type="hidden" name="txtProfileid" id="txtProfileid" data-set="id" value= "" />';
 		/* Removed used variables */
 		unset($widgetObj);
 		
@@ -110,6 +134,11 @@ class LeadsOperation extends Requestprocess {
 	/*Created By: Jaiswar Vipin Kumar R.
 	/**********************************************************************/
 	public function getLeadProfileDetails(){
+		//if($this->input->post('txtProfilelead_source_code')){
+			/* Update lead information */
+			//$this->setNewLeadDetails();
+		//}
+		
 		/* Variable initialization */
 		$strDataArr		= array();
 		$pIntLeadCode	= ($this->input->post('txtLeadCode'))?$this->input->post('txtLeadCode'):'';
@@ -126,6 +155,13 @@ class LeadsOperation extends Requestprocess {
 		$strDataArr	= $leadObj->getLeadDetialsByLogger(false,array('master_leads.id'=>getDecyptionValue($pIntLeadCode)));
 		/* Removed used variables */
 		unset($leadObj);
+		
+		/* if data found then do needful */
+		if(!empty($strDataArr)){
+			/* Setting value */
+			$strDataArr[0]['lead_source_code']	= getEncyptionValue($strDataArr[0]['lead_source_code']);
+			$strDataArr[0]['id']				= getEncyptionValue($strDataArr[0]['id']);
+		}
 		
 		/* Creating communication object */
 		$communicationhistoryObj 	= new communicationhistory($this->_objDataOperation, $this->getCompanyCode());
@@ -204,13 +240,25 @@ class LeadsOperation extends Requestprocess {
 			jsonReturn(array('status'=>0,'message'=>'No lead attributed found to add lead module.'), true);
 		}
 		
+		/* Variable initialization */
+		$strElementPreFix	= 'txtWidget';
+		/* Updating the lead information */
+		if($this->input->post('txtProfilelead_source_code')){
+			/* Setting element prefix */
+			$strElementPreFix	= 'txtProfile';
+		}
+		
 		/* Iterating the attribute loop */
 		foreach($strWidgetArr as $strWidgetArrKey => $strWidgetArrValue){
 			/* Value of post element */
-			$strValueOfElement	= $this->input->post('txtWidget'.$strWidgetArrValue['attri_slug_key']);
+			$strValueOfElement	= $this->input->post($strElementPreFix.$strWidgetArrValue['attri_slug_key']);
 			/* Setting key and user input value */
-			$strAttributeArr[$strWidgetArrValue['attri_slug_key']]	= $strValueOfElement;
-			
+			if($strWidgetArrValue['attri_data_type'] == 'select'){
+				$strAttributeArr[$strWidgetArrValue['attri_slug_key']]	= getDecyptionValue($strValueOfElement);
+			}else{
+				$strAttributeArr[$strWidgetArrValue['attri_slug_key']]	= $strValueOfElement;
+			}
+				
 			/* Validation */
 			if($strWidgetArrValue['is_mandatory'] == 1){
 				/* Checking for validation */
@@ -239,6 +287,39 @@ class LeadsOperation extends Requestprocess {
 			}
 		}
 		
+		/* Updating the lead information */
+		if($this->input->post('txtProfilelead_source_code')){
+			/* lead code */
+			$intLeadCode	= getDecyptionValue($this->input->post('txtProfileid'));
+			/* checking for lead code object */
+			if(($intLeadCode == '') || ((int)$intLeadCode == 0)){
+				jsonReturn(array('status'=>0,'message'=>'Invalid Lead code found.'), true);
+			}
+			
+			/* lead source details */
+			$intLeadSource	= getDecyptionValue($this->input->post('txtProfilelead_source_code'));
+			/* checking for lead source object */
+			if(($intLeadSource == '') || ((int)$intLeadSource == 0)){
+				jsonReturn(array('status'=>0,'message'=>'Lead source is not selected.'), true);
+			}
+			
+			/* variable initialization */
+			$strAttributeArr['lead_source_code']	= $intLeadSource;
+			
+			/* Creating lead object */
+			$leadObj		= new Lead($this->_objDataOperation, $this->getCompanyCode(), $this->getBranchCodes(),$this->getAllReportingList());
+			/* setting lead new information */
+			$intLeadStatus 	= $leadObj->setLeadUpdatedDetails($intLeadCode, $strAttributeArr,$this->getUserCode());
+			/* removed used variable */
+			unset($leadObj, $strLeadAttArr);
+			
+			if($intLeadStatus > 0){
+				return jsonReturn(array('status'=>1,'message'=>'Lead details updated successfully.'),true);
+			}else{
+				return jsonReturn(array('status'=>0,'message'=>'Error occurred while updated lead information.'),true);
+			}
+		}
+
 		/* Setting key and user input lead source value */
 		$strAttributeArr['lead_source_code']	= getDecyptionValue($this->input->post('cboWidgetLeadSource'));
 		$strAttributeArr['is_direct']			= 1;
