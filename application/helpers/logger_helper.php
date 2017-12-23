@@ -96,7 +96,7 @@ class Logger{
 			if(!empty($strModuleArr)){
 				/* Variable initialization */
 				$strModuleAccessArr	= array();
-				$strMenuArr['main']	= '<ul id="nav-mobile" class="hide-on-med-and-down"><li class="w100">&nbsp;</li>';
+				$strMenuArr['main']	= '';
 				$strMenuArr['child']= '';
 				
 				/* Iterating the loop */
@@ -118,7 +118,7 @@ class Logger{
 						/* Checking for child menu */
 						if(isset($strModuleAccessArrValue['child'])){
 							$blnHavingChild		= true;
-							$strMenuArr['child']  .= '<ul id="'.getSlugify(strtolower($strModuleAccessArrValue['description'])).'" class="dropdown-content">';
+							$strMenuArr['child']  .= '<ul id="'.getSlugify(strtolower($strModuleAccessArrValue['description'])).'" class="dropdown-content ">';
 							/* Iterating the loop */
 							foreach($strModuleAccessArrValue['child'] as $strModuleAccessArrValueKey => $strModuleAccessArrValueDetails){
 								/* Setting inner menu */
@@ -142,10 +142,11 @@ class Logger{
 					}
 				}
 				
-				$strMenuArr['main']	.= '</ul>';
+				$strMenuArr['main']	.= '';
 				
-				$strLoggerArr['main_menu'] = $strMenuArr['main'];
-				$strLoggerArr['child_menu'] = $strMenuArr['child'];
+				$strLoggerArr['main_menu'] 		= '<ul id="nav-mobile" class="hide-on-med-and-down"><li class="w100">&nbsp;</li>'.$strMenuArr['main'].'</ul>';
+				$strLoggerArr['main_mobile'] 	= '<ul id="mobile" class="side-nav"><li class="w100"><a href="javascript:void(0);"><img src="'.SITE_URL.DEFAULT_LOGO.'" class="responsive-img"/></a></li>'.$strMenuArr['main'].'<li><a href="'.SITE_URL.'login/lougout">Logout</a></li></ul>';
+				$strLoggerArr['child_menu'] 	= $strMenuArr['child'];
 				
 				/* Removed used variables */
 				unset($strMenuArr);

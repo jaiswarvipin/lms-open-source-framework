@@ -16,6 +16,7 @@ class Requestprocess extends CI_Controller {
 	private $_intIsSetupConfigured 			= 0;
 	private $_strMainModule					= '';
 	private $_strChildModule				= '';
+	private $_strMobileModule				= '';
 	private $_strRegionArr					= array();
 	private $_strBranchArr					= array();
 	private $_leadAttriArr					= array();
@@ -122,6 +123,7 @@ class Requestprocess extends CI_Controller {
 		$this->_intIsSetupConfigured= $ObjStrLoggerDetails->user_info->is_setup_configured;
 		$this->_strMainModule		= $ObjStrLoggerDetails->main_menu;
 		$this->_strChildModule		= $ObjStrLoggerDetails->child_menu;
+		$this->_strMobileModule		= $ObjStrLoggerDetails->main_mobile;
 		$this->_strRegionArr		= (isset($ObjStrLoggerDetails->region)?(array)$ObjStrLoggerDetails->region:array());
 		$this->_strBranchArr		= (isset($ObjStrLoggerDetails->branch)?(array)$ObjStrLoggerDetails->branch:array());
 		$this->_leadAttriArr		= (isset($ObjStrLoggerDetails->leadAttr)?(array)$ObjStrLoggerDetails->leadAttr:array());
@@ -138,7 +140,8 @@ class Requestprocess extends CI_Controller {
 									'userName'		=>$strLoggerName,
 									'roleName'		=>$strLoggerRoleDesc,
 									'strMainMenu'	=>$this->_strMainModule,
-									'strChildMenu'	=>$this->_strChildModule
+									'strChildMenu'	=>$this->_strChildModule,
+									'strMobileMenu'	=>$this->_strMobileModule
 							)
 						);
 

@@ -10,11 +10,13 @@
     }
   ?>
   <title><?php echo (isset($moduleTitle)?$moduleTitle.' - ':'');?>Lead Management Open Source Framework</title>
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <link rel="stylesheet" type="text/css" href="<?php echo SITE_URL.RESOURCE_CSS_PATH?>materialize<?php echo $strFileName?>.css">
-  <link rel="stylesheet" type="text/css" href="<?php echo SITE_URL.RESOURCE_CSS_PATH?>jquery.fancybox<?php echo $strFileName?>.css">
-  <link rel="stylesheet" type="text/css" href="<?php echo SITE_URL.RESOURCE_CSS_PATH?>style<?php echo $strFileName?>.css">
-  <link rel="stylesheet" type="text/css" href="<?php echo SITE_URL.RESOURCE_CSS_PATH?>highcharts<?php echo $strFileName?>.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <link rel="stylesheet" type="text/css" href="<?php echo SITE_URL.RESOURCE_CSS_PATH?>materialize<?php echo $strFileName?>.css" />
+  <link rel="stylesheet" type="text/css" href="<?php echo SITE_URL.RESOURCE_CSS_PATH?>jquery.fancybox<?php echo $strFileName?>.css" />
+  <link rel="stylesheet" type="text/css" href="<?php echo SITE_URL.RESOURCE_CSS_PATH?>style<?php echo $strFileName?>.css?v=1.0.0.0.1" />
+  <link rel="stylesheet" type="text/css" href="<?php echo SITE_URL.RESOURCE_CSS_PATH?>highcharts<?php echo $strFileName?>.css" />
   <style>
     body {
       display: flex;

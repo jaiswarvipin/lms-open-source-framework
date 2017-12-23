@@ -290,6 +290,7 @@ function init(){
 	$('checkbox').material_select();
 	$('ul.tabs').tabs();
 	$('input#input_text, textarea#textarea1').characterCounter();
+	$(".button-collapse").sideNav();
 	
 	$('.datepicker').pickadate({
 		selectMonths: true, // Creates a dropdown to control month
@@ -318,6 +319,9 @@ function init(){
 	 
 	/* Register the events */
 	setPullDownEvents();
+	
+	/* Set device layout */
+	getCardLayout('tbl-data-set');
 }
 
 /**************************************************************************
@@ -978,5 +982,48 @@ function displayHideElement(pObjectRefrence, pStrValue, pTargetElement){
 	}else{
 		/* Show requested Elements */
 		$('.'+pTargetElement).addClass('hide');
+	}
+}
+
+/**************************************************************************
+ Purpose 		: Converting the table into card layout for devices.
+ Inputs  		: pObjectRefrence :: Object reference,
+				: None.
+ Created By 	: Jaiswar Vipin Kumar R
+/**************************************************************************/
+function getCardLayout(pObjectRefrence){
+	/* variable initialization */
+	var strReturn	= '';
+	
+	/* if requested object exists then do needful  */
+	if($('.'+pObjectRefrence).length > 0){
+		var strBody	= '';
+		/* Iterating the header */
+		$('.'+pObjectRefrence).find('thead').find('th').each(function(key){
+			/* Creating the header */
+			strBody	= strBody + '<div class="row">';
+			strBody	= strBody + '<div class="col s5 m5">'+$(this).html()+'</div>';
+			strBody	= strBody + '<div class="col s7 m7">{'+key+'}</div>';
+			strBody	= strBody + '</div>';
+		});
+		/* Iterating the table body */
+		$('.'+pObjectRefrence).find('tbody').find('tr').each(function(key){
+			/* Creating container */
+			strReturn			= strReturn + '<div class="row card-bg-color mt10"><div class="col s12 m12">';
+			var strInternalBody	= strBody;
+			
+			/* Iterating the table cell */
+			$(this).find('td').each(function(cellIndex){
+				/* Creating record set */
+				strInternalBody	= strInternalBody.replace('{'+cellIndex+'}',$(this).html());
+				
+			});
+			strReturn	= strReturn + strInternalBody;
+			/* Closing container */
+			strReturn	= strReturn + '</div></div>';
+		});
+		
+		/* setting the device card structure */
+		$('#device-body-container').html(strReturn);
 	}
 }

@@ -191,7 +191,8 @@ function getPagniation($pIntNumberOfPecordsArr = array(), $pIntCurrentPageNumber
 	$strDefaultPageClass	= 'disabled';
 	//
 	/* Variable initialization */
-	$strPagnationHTML	= '<ul class="pagination right">
+	$strPagnationHTML	= '<div id="device-body-container" class="hide-on-large-only"></div>
+							<ul class="pagination right">
 							<li class="active green"><a>Total Records : '.$intNumberofRecords.'</a></li>';
 	
 	/* if user on second page then do needful */

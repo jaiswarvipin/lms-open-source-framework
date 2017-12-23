@@ -5,10 +5,13 @@
 				<div class="col s10">
 					<!-- Dropdown Structure -->
 					<?php echo $strChildMenu ?>
+					
 					<nav>
 			    		<div class="nav-wrapper">
-			      			<a href="#" class="brand-logo"><img src="<?php echo SITE_URL.DEFAULT_LOGO?>" width="70px" height="70px" class="responsive-img"/></a>
+			      			<a href="javascript:void(0);" class="brand-logo"><img src="<?php echo SITE_URL.DEFAULT_LOGO?>" width="70px" height="70px" class="responsive-img"/></a>
+							<a href="javascript:void(0);" data-activates="mobile" class="button-collapse"><i class="material-icons">menu</i></a>
 							<?php echo $strMainMenu?>
+							<?php echo $strMobileMenu ?>
 							<ul id="userSettings" class="dropdown-content">
 								<li><a href="<?php echo SITE_URL?>login/lougout">Logout</a></li>
 							</ul>
@@ -17,6 +20,7 @@
 			  					<li><img src="<?php echo SITE_URL.DEFAULT_USER_IMG?>" class="responsive-img circle pt10 tooltipped" width="50px" height="50px" data-position="bottom" data-delay="50" data-tooltip="<?php echo $userName.' | '.$roleName?>"/></li>
 								<li><a href="javascript:void(0);" data-activates='userSettings' class="dropdown-button"><i class="material-icons">more_vert</i></a></li>
 			  				</ul>
+							
 						</div>
 			  		</nav>
 			  	</div>

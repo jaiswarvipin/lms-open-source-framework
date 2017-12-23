@@ -1,6 +1,6 @@
 <div class="row">
 	<div class="col s12">
-		<table class="bordered highlight responsive-table">
+		<table class="bordered highlight responsive-table tbl-data-set hide-on-med-and-down">
 	        <thead>
 				<tr>
 					<th><input type="checkbox" name="chkBoxSelectAllLeads" id="chkBoxSelectAllLeads" /><label for="chkBoxSelectAllLeads"></label></th>

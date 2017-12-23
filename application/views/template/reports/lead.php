@@ -8,10 +8,12 @@
 			</thead>
 			<tbody>
 				<tr>
-					<table border="0" width="100%">
+					<table border="0" width="100%" class="">
 						<tr>
 							<td>
-								<div id="divParentStatusVSDateContainer"></div>
+								<div class="row">
+									<div id="divParentStatusVSDateContainer" class="col s12 m12"></div>
+								</div>
 								<script language="JavaScript">var strParentStatusVSDateJSON = <?php echo $strParentStatusJSON?>;</script>
 							</td>
 						</tr>
@@ -31,9 +33,13 @@
 			</thead>
 			<tbody>
 				<tr>
-					<table border="0" width="100%">
+					<table border="0" width="100%" class="">
 						<tr>
-							<td><div id="divParentStatusAndChildStatus"></div></td>
+							<td>
+								<div class="row">
+									<div id="divParentStatusAndChildStatus" class="col s12 m12"></div>
+								</div>
+							</td>
 						</tr>
 					</table>
 				</tr>
@@ -49,10 +55,12 @@
 			</thead>
 			<tbody>
 				<tr>
-					<table border="0" width="100%">
+					<table border="0" width="100%" class="responsive-table">
 						<tr>
 							<td>
-								<div id="divLeadSourceStatus"></div>
+								<div class="row">
+									<div id="divLeadSourceStatus" class="col s12 m12"></div>
+								</div>
 								<script language="JavaScript">var strLeadSourceVSDateJSON = <?php echo $strLeadSourceJSON?>;</script>
 							</td>
 						</tr>
@@ -72,7 +80,7 @@
 			</thead>
 			<tbody>
 				<tr>
-					<table border="0" width="100%">
+					<table border="0" width="100%" class="responsive-table">
 						<thead>
 							<?php $intColumnCount = 0;?>
 							<?php if(!empty($strColumnsArr)){?>

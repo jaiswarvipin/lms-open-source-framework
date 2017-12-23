@@ -8,6 +8,9 @@
 .bg-menu{
 	background-color: blue;	
 }
+.card-bg-color{
+	background-color: #f7f2f2;	
+}
 .w100{
 	width: 100px !important;
 }
@@ -31,4 +34,22 @@
 }
 .centre{
 	text-align: center;
+}
+.nav-wrapper .dropdown-content{
+	margin-top: 60px !important;
+}
+ #dropdown1{
+	margin-top: 35px !important;
+ }
+.dropdown-content li > a > i{
+	margin: 0 2px 0 0 !important;
+}
+
+@media screen and (max-width: 767px) {
+	.indigo-text{
+		font-size : 20px !important;
+	}
+	.aActionContainer{
+		margin-top: -40px !important;
+	}
 }
